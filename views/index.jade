@@ -1,0 +1,48 @@
+!!! 5
+html(lang='en')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+    title=title
+    meta(name='generator', content='TextMate http://macromates.com/')
+    meta(name='author', content='Ted Judge')
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
+    meta(name="viewport", content="width=device-width, height=device-height user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
+    // Date: 2011-11-03 
+    script(type='text/javascript', src='/javascripts/jquery-1.6.4.min.js')   
+    script(type='text/javascript', src='/javascripts/jquery.cookie.js')
+       
+    script(type='text/javascript')
+      function validate(){
+        // return false;
+        var uname = document.forms["login"]["name"].value;
+        var upwd = document.forms["login"]["pwd"].value;
+        // || upwd==null || upwd==""
+        if (uname==null || uname=="" || upwd==null || upwd=="") {
+          alert("Please enter both a Name and Password");
+          return false;
+        }
+        else
+        {
+          console.log("validate - Name:", uname);
+          $.cookie('uname',uname);
+          $.cookie('upwd',upwd);
+          return true;
+        }
+      }
+
+body
+  img(src='/images/' + 'nlogo.jpg')
+  p
+  br
+  p Login to your WikiWalls
+  form(name='login', action='/walls/', onsubmit='return validate()', method='get')
+    | Name:    
+    input(type='text', name='name')
+    | Password:
+    input(type='password', name='pwd')
+    input(type='submit', value='Submit')
+  br
+  a(href='signup') Create a new account
+  br
+  // a(href='javascript:validate();') validate

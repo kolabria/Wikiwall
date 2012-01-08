@@ -1,0 +1,481 @@
+!!! 5
+html
+  head
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
+    meta(name="viewport", content="width=device-width, height=device-height user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
+    title= title
+    
+    link(rel='stylesheet', href='/stylesheets/testcanvas.css')
+    link(rel='stylesheet', href='/stylesheets/awwstyle.css')
+    script(type='text/javascript', src='/javascripts/paper.js')
+    script(type='text/javascript', src='/javascripts/jquery-1.6.4.min.js')
+    script(type='text/javascript', src='/nowjs/now.js')
+    script(type='text/javascript')
+          paper.install(window);
+          // src='http://192.168.0.100:3000/nowjs/now.js' 
+          //link(rel='stylesheet', href='/stylesheets/wallstyle.css')
+          
+          //Keep global references to both tools, so the HTML
+          // links below can access them.
+          var tool1, tool2, tool3;
+          var myZoom;
+          var wallId = $("wallid").html(); //  get wall id from html
+          var drawFlag = false;
+          var drawFlag2 = false;
+          var movePath = false;
+          var iFlag2 = false;
+          var zoomLevel = 2;
+          var wallId = null; 
+          var lineWidth = 2; // default is 2 - could add to UI to modify later
+          var newZoom;
+          var pathIndex = null;  // used to know the index of the path currently being drawn
+          var start = new Point();
+          var color = 'black';
+          function changeColor(newValue){
+            color = newValue;
+          }
+          function changeColorRed(){
+            color = 'red';
+          }
+          function changeColorBlack(){
+            color = 'black';
+          }
+          function changeColorGreen(){
+            color = 'green';
+          }
+          function load(){
+            console.log('load: wallId: ',wallId);
+            now.download(wallId);
+          }
+          var myPath3;
+          now.recStart = function(wId,color,width,start){
+            if (wId == wallId){ 
+              if (!drawFlag2){
+                myPath3 = new Path();
+                myPath3.strokeColor = color;
+                myPath3.strokeWidth = width;
+                myPath3.add(start);
+                //    console.log("StartLine");
+              }
+            }
+          }
+          now.recPathIndex = function(index){
+            pathIndex = index;
+          }
+          now.recPoint = function(wId,spot){
+             if (wId == wallId){
+               if (!drawFlag2){
+                 myPath3.add(spot);
+                 paper.view.draw();
+                 //    console.log("Point");
+               }
+             }
+          }
+          now.recMoveItem = function(itemId,mPoint,imageFlag){
+             if (!movePath){
+               //console.log("recMoveItem: " + itemId +" : " + mPoint.x + " : " + mPoint.y);
+               //console.log("recMoveItem: index: " + index);
+               //listLayer();
+               paper.project.activeLayer.children[itemId].position.x += mPoint.x;
+               paper.project.activeLayer.children[itemId].position.y += mPoint.y;
+               if (imageFlag) {
+                   paper.project.activeLayer.children[itemId-1].position.x += mPoint.x;
+                   paper.project.activeLayer.children[itemId-1].position.y += mPoint.y;
+               }
+               paper.view.draw();
+             }
+          }
+          // this is really recieve image not move. move is done with other items 
+          now.recMoveImage = function(wId,imageData){
+            if (wId == wallId){
+              if (!iFlag2) {
+                var nimage = document.createElement('img');
+                nimage.src = imageData;
+                raster2 = new Raster(nimage);
+                raster2.position = view.center;
+                var x = raster2.bounds.x;
+                var y = raster2.bounds.y;
+                var width = raster2.bounds.width;
+                var height = raster2.bounds.height;
+                var rrect = new Rectangle(x,y,width,height);
+                var path = new Path.Rectangle(rrect);
+                path.strokeColor = 'red';
+                path.strokeWidth = 5;
+                path.fillColor = 'orange';
+                path.name = 'rr';
+                path.opacity = 0;
+                paper.view.draw(); 
+              }
+              iFlag2 = false;
+            }
+          }
+          now.recEnd = function(wId){
+            if (wId == wallId) {
+              if (!drawFlag2){
+                myPath3.simplify();
+                paper.view.draw();
+                console.log("now.recEnd");
+              }
+              drawFlag2 = false;
+            }
+          }
+          now.recDrawPath = function(path){
+            tPath = new Path();
+            var i;
+            // console.log('Path Length: ' + path.len);
+            // console.log('Path Color: ' + path.color);
+            tPath.strokeColor = path.color;
+            for (i=1; i < path.len; i++){
+              tPath.add(path.point[i]);
+              // console.log('path point: x: ' + path.point[i].x + ' y: ' + path.point[i].y);
+            }
+            paper.view.draw();
+            console.log('Draw path');
+          }
+          drawPath = function(path){
+            tPath = new Path();
+            var i;
+            // console.log('Path Length: ' + path.len);
+            // console.log('Path Color: ' + path.color);
+            tPath.strokeColor = path.color;
+            tPath.strokeWidth = path.width;
+            
+            for (i=1; i < path.len-1; i++){
+              tPath.add(path.point[i]);
+              // console.log('path point: x: ' + path.point[i].x + ' y: ' + path.point[i].y);
+            }
+            paper.view.draw();
+            console.log('Draw path');
+          }
+          drawImage = function(imageData){
+            var nimage = document.createElement('img');
+            nimage.src = imageData;
+            raster2 = new Raster(nimage);
+            raster2.position = view.center;
+            var x = raster2.bounds.x;
+            var y = raster2.bounds.y;
+            var width = raster2.bounds.width;
+            var height = raster2.bounds.height;
+            var rrect = new Rectangle(x,y,width,height);
+            var path = new Path.Rectangle(rrect);
+            path.strokeColor = 'red';
+            path.strokeWidth = 5;
+            path.fillColor = 'orange';
+            path.name = 'rr';
+            path.opacity = 0;
+            paper.view.draw();
+            console.log("drawImage:");
+          }
+
+          now.recDrawView = function(view){
+            var i;
+            // console.log('View Length: ' + view.len);
+            for (i=0; i < view.len; i++){
+               drawPath(view.path[i]);
+            }
+            console.log("DrawView: # images in view: ",view.ilen);
+            for (i=0; i< view.ilen; i++){
+               // draw images within view
+               drawImage(view.image[i].image);
+               console.log("DrawView: image # ",i);
+            }
+            // console.log('Draw view');
+          }
+          function makeZoom(value){
+             //console.log('zoom level:'+ zoomLevel + 'value:'+value);
+             if (zoomLevel > value) {
+               paper.project.activeLayer.scale((zoomLevel-value)/2);
+               //console.log('shrink');
+             }
+             if (zoomLevel < value) {
+               paper.project.activeLayer.scale((value - zoomLevel)+1);
+              // console.log('enlarge');
+             }
+             zoomLevel = value;
+             paper.view.draw();
+          }
+          var arrayZoom = {
+            make: makeZoom
+          };
+          
+          function switchPen(){
+            tool1.activate();
+            $("div .awwcanvas").addClass('aww-crosshair').removeClass('aww-move').removeClass('aww-pointer');
+          
+          }
+          function switchPan(){
+            tool2.activate();
+            $("div .awwcanvas").addClass('aww-move').removeClass('aww-crosshair').removeClass('aww-pointer');;
+          }
+          function switchSelect(){
+            tool3.activate();
+            $("div .awwcanvas").addClass('aww-pointer').removeClass('aww-move').removeClass('aww-crosshair');;
+          }
+          
+          window.onload = function() {
+              paper.setup('myCanvas');
+              
+                           
+              // Create two drawing tools.
+              // tool1 will draw straight lines,
+              // tool2 will draw clouds.
+              // Both share the mouseDown event:
+              var path;
+              function onMouseDown(event) {
+                  
+                  start = event.point;
+              }
+              function onMouseUp(event) {
+                if (drawFlag){
+                  path.simplify();
+                  now.sendEnd(wallId);
+                  drawFlag = false;
+                }
+              }
+              tool1 = new Tool();
+              tool1.onMouseDown = onMouseDown;                   
+              tool1.onMouseDrag = function(event) {
+                  //  start path with first drag - then just add points
+                  if (!drawFlag){
+                    drawFlag = true;
+                    drawFlag2 = true;
+                    path = new Path();
+                    path.strokeColor = color;
+                    path.strokeWidth = 2;
+                    path.add(start);
+                    now.sendStart(wallId,pathIndex,color,lineWidth, start);
+                    //console.log('start path- wall_id: '+wallId);
+                    console.log("sendStart - pathIndex: ",pathIndex);
+                  }
+                  path.add(event.point);
+                  console.log("sendPoint - pathIndex: ",pathIndex);
+                  if (pathIndex != null) {
+                    now.sendPoint(wallId,pathIndex,event.point);
+                  }
+              }
+              tool1.onMouseUp = onMouseUp;
+              tool2 = new Tool();
+              tool2.minDistance = 5;
+              tool2.onMouseDown = function(event) {
+                  start = event.point;
+              }
+              tool2.onMouseDrag = function(event) {
+                  // Use to pan around view
+                  // move distance since last event
+                  var move = new Point();
+                  move.x = start.x - event.point.x;
+                  move.y = start.y - event.point.y;
+                  view.scrollBy(move);
+                  start = event.point; 
+              }
+              tool2.onMouseUp = function(event) {
+                 // do nothing
+                 console.log('end move');
+              }
+              var mItemId;
+              var iFlag = false;
+              var hitOptions = {
+                fill: true,
+                stroke: true,
+                segments: true,
+                tolerance: 5
+              };
+              tool3 = new Tool();
+              // tool3.minDistance = 20;
+              tool3.onMouseDown = function(event) {
+                  mpath = null;
+                  var hitResult = project.hitTest(event.point, hitOptions);
+                  if (hitResult) {
+                    mpath = hitResult.item;
+                    movePath = true;
+                    if (mpath.name == 'rr') {
+                      iFlag = true;
+                    }
+                    mItemId = hitResult.item.index;
+                    console.log("onMouseDown: mouse down on item #:" + hitResult.item.index);
+                  }
+                  //if (movePath) {
+                  //  project.activeLayer.addChild(hitResult.item);
+                  // }
+              }
+              tool3.onMouseDrag = function(event) {
+                if (movePath){
+                  mpath.position.x += event.delta.x;
+                  mpath.position.y += event.delta.y;
+                  //console.log("mItemId:" + mItemId )
+                  if (iFlag) {
+                    paper.project.activeLayer.children[mItemId-1].position.x += event.delta.x;
+                    paper.project.activeLayer.children[mItemId-1].position.y += event.delta.y;
+                    
+                    //raster.position.x += event.delta.x;
+                    // raster.position.y += event.delta.y;
+                  }
+                  // console.log("onMouseDrag: move by: " + event.delta);
+                  now.sendMoveItem(mItemId, event.delta, iFlag);
+                }
+              }
+              tool3.onMouseMove = function(event) {
+                var hitResult = project.hitTest(event.point, hitOptions);
+                project.activeLayer.selected = false;
+                if (hitResult && hitResult.item) {
+                  hitResult.item.selected = true;
+                  // console.log("onMouseMove: move by: ");
+                 // console.log("onMouseMove: move by: " + hitResult.type);
+                }
+              }
+              tool3.onMouseUp = function(event) {
+                 movePath = false;
+                 iFlag = false; 
+              }
+              myZoom = arrayZoom;
+              
+              // var raster = new Raster('lenna');
+              // raster.position = view.center;
+              // paper.view.draw();
+          }
+          
+          //$(document).ready(function(){
+          $(function() { 
+            wallId = parseInt($("#wallid").html()); //  get wall id from html
+            $("#wallid").hide();
+            
+            // seems to need to wait to ensure that connected to server
+            setTimeout("now.download(wallId)", 250);
+            
+           //  75 ms works on my computer
+            //now.core.socketio.on('connect', function () { 
+            //  now.download();
+            //});
+            var canvas = document.createElement('canvas');
+            $(canvas).attr('id','myCanvas');
+            var $canvas = $(canvas).css({'padding': '0','margin': '0','border': '1px solid #c3c3c3','shadow': '0','overflow': 'hidden'});
+            var $whiteboard = $('<div class="whiteboard">')
+            
+            $("#container").append('<div class="awwcanvas">');
+            $("div .awwcanvas").append('<h1> #{title} </h1>');
+            $("div .awwcanvas").append('<div class="toolbar">');
+            var $nav = $('<ul class="navigation">');
+            $("div .toolbar").append('<ul class="navigation">');
+
+            //var $colors = $('<li class="color submenu"><a href="#" title="Color"><span/>Color</a></li>').appendTo("div .navigation");
+            //var $colormenu = $('<ul>').append('<li class="red"><a href="#" title="Red"><span/>Red</a></li>').append('<li class="green"><a href="#" title="Green"><span/>Green</a></li>').append('<li class="blue"><a href="#" title="Blue"><span/>Blue</a></li>').append('<li class="black"><a href="#" title="Black"><span/>Black</a></li>').append('<li class="yellow"><a href="#" title="Yellow"><span/>Yellow</a></li>').append('<li class="brown"><a href="#" title="Brown"><span/>Brown</a></li>').append('<li class="purple"><a href="#" title="Purple"><span/>Purple</a></li>').appendTo('<li class="color submenu"><a href="#" title="Color"><span/>Color</a></li>');
+            
+            //var $pencils = $('<li class="pencil submenu"><a href="#" title="Pencil"><span/>Pencil</a>').appendTo("div .navigation");
+
+            //var $pencilmenu = $('<ul>').append('<li class="thin"><a href="#" title="Thin"><span/>Thin</a></li>').append('<li class="medium"><a href="#" title="Medium"><span/>Medium</a></li>').append('<li class="thick"><a href="#" title="Thick"><span/>Thick</a></li>').append('<li class="eraser"><a href="#" title="Eraser"><span/>Eraser</a></li>').appendTo('<li class="pencil submenu"><a href="#" title="Pencil"><span/>Pencil</a>');
+            //var $actions = $('<li class="drawing submenu"><a href="#" title="Menu"><span/>Menu</a>').appendTo("div .navigation");
+            //var $actionmenu = $('<ul>').append('<li class="new"><a href="#" title="Clear"><span/>Clear</a></li>').append('<li class="share"><a href="#" title="Invite"><span/>Invite</a></li>').append('<li class="link"><a href="#" title="Post"><span/>Post</a></li>').append('<li class="save"><a href="#" title="Save"><span/>Save</a></li>').appendTo('<li class="drawing submenu"><a href="#" title="Menu"><span/>Menu</a>');
+            
+            $("div .navigation").append('<br><input id="pen" type="button" value="Pen" onclick="javascript:switchPen();">');
+            $("div .navigation").append('<br><input id="black" type="button" value="Black" onclick="javascript:changeColorBlack();">');
+            $("div .navigation").append('<br><input id="red" type="button" value="Red" onclick="javascript:changeColorRed();">');
+            $("div .navigation").append('<br><input id="green" type="button" value="Green" onclick="javascript:changeColorGreen();">');
+                     
+            $("div .navigation").append('<br><br><br><input id="pan" type="button" value="Pan" onclick="javascript:switchPan();">');
+            $("div .navigation").append('<br><br><input id="select" type="button" value="Select" onclick="javascript:switchSelect();">');
+           // $("div .navigation").append('<br><br><br><br><input id="zoom" type="range" min="1" max="3" value="2" onclick="javascript:myZoom.make(value)";>');
+                        
+            $("div .navigation").append('<br><br><br><br><input id="Quit" type="button" value="Quit" onclick="javascript:window.location=#{quitLink}";>');            
+            
+        
+            $("div .awwcanvas").append($whiteboard);
+            $("div .whiteboard").append($canvas);
+            // icons along top
+           // $("div .awwcanvas").addClass('aww-portrait').removeClass('aww-landscape'); 
+            // icons along side 
+            $("div .awwcanvas").addClass('aww-landscape').removeClass('aww-portrait');
+            $("div .awwcanvas").addClass('aww-crosshair');
+            
+  
+            //$('li.submenu > a').click(function(){
+              // console.log("toolbar clicked");
+              // var $menu = $(this).closest('li');
+              // var was_selected = $menu.hasClass('selected');
+              // $('> li').removeClass('selected showsubmenu');
+              // if (!was_selected)
+              //   $menu.addClass('selected showsubmenu');
+              // return false;
+            //});
+                      
+                                          
+            function canvasResize(){
+              var w0 = $canvas.width();
+              var h0 = $canvas.height();
+              var w1 = $whiteboard.width();
+              var h1 = $whiteboard.height();
+              if (w0 > w1)
+                  w0 = w1;
+              if (h0 > h1)
+                  h0 = h1;
+              $canvas.attr({width: w1,height: h1});                      
+            }
+            
+            canvasResize();
+            
+            $(window).resize(function(){
+              canvasResize();
+            });
+              
+            var holder = document.getElementById('myCanvas');
+            holder.ondragover = function () { this.className = 'hover'; return false; };
+            holder.ondragend = function () { this.className = ''; return false; };
+            holder.ondrop = function (e) {
+            this.className = '';
+            e.preventDefault();
+            var file = e.dataTransfer.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event){
+              var image = document.createElement('img');
+              image.onload = function (){
+                raster = new Raster(image);
+                raster.position = view.center;
+                var x = raster.bounds.x;
+                var y = raster.bounds.y;
+                var width = raster.bounds.width;
+                var height = raster.bounds.height;
+                var rrect = new Rectangle(x,y,width,height);
+                var path = new Path.Rectangle(rrect);
+                path.strokeColor = 'red';
+                path.strokeWidth = 5;
+                path.fillColor = 'orange';
+                path.name = 'rr';
+                path.opacity = 0;           
+                paper.view.draw();
+                iFlag2 = true; 
+                now.sendImageItem(wallId,image.src);
+              }
+              image.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+            return false;
+          };
+            
+            
+          });
+          
+          function listLayer(){
+            console.log("active layer index:" + project.activeLayer.index );
+            console.log("active layer id:" + project.activeLayer.id );
+            
+            console.log("active layer first child: " + project.activeLayer.firstChild.id);
+            //console.log("active layer first child: " + project.activeLayer.children[0].id);
+            console.log("active layer last child: " + project.activeLayer.lastChild.id);
+            console.log("active layer childern:" + project.activeLayer.children.length);
+            
+            var i;
+            for ( i = 0; i < project.activeLayer.children.length ; i++){
+              console.log("layer child id: " + project.activeLayer.children[i].id);
+            }
+          }
+          function onFrame(event) {
+                 // make visible
+             if (!(view.isVisible())){
+                view.activate();
+             }
+             paper.view.draw();
+             console.log('draw');
+          }
+body.background
+  div#container
+    p#wallid #{wall_id-1}

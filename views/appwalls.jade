@@ -1,0 +1,31 @@
+!!! 5
+html(lang='en')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+    title=title
+    meta(name='generator', content='TextMate http://macromates.com/')
+    meta(name='author', content='Ted Judge')
+    // Date: 2011-11-03 
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(type='text/javascript', src='/javascripts/jquery-1.6.4.min.js')   
+    script(type='text/javascript', src='/javascripts/jquery.cookie.js')
+       
+    script(type='text/javascript')
+      $(document).ready(function(){
+        var uname = $.cookie('uname');
+        console.log("name",uname);
+        //$("#welcome").html("<h1>Hi " + uname + "</h1>");      
+      });
+
+body
+  div#welcome
+  h1 Available WikiWalls:
+  ul
+    - each wall in walls
+      li 
+        a(class='button destroy',href='/delete') Delete
+        a(class='button',href='/appdraw5/'+wall.paper_ref) Go
+        a(href='/appdraw5/'+wall.paper_ref) #{wall.name}
+    
+  p 
+    a(class='button', href='/newwall2') + New WikiWall
