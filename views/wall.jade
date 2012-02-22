@@ -10,7 +10,29 @@ html
     link(rel='stylesheet', href='/stylesheets/awwstyle.css') //temp styling
     script(src='/javascripts/paper.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
+<<<<<<< HEAD
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
+=======
+    script(src='/nowjs/now.js')
+    script()
+          paper.install(window);
+          //Keep global references to both tools, so the HTML
+          // links below can access them.
+          var tool1, tool2, tool3;
+          var myZoom;
+          var wallId = $("wallid").html(); //  get wall id from html
+          var drawFlag = false;
+          var drawFlag2 = false;      // is this client drawing?
+          var movePath = false;       // is this client moving the path?
+          var iFlag2 = false;
+          var zoomLevel = 2;
+          var wallId = null; 
+          var lineWidth = 2; // default is 2 - could add to UI to modify later
+          var newZoom;
+          var pathIndex = null;  // used to know the index of the path currently being drawn
+          var start = new Point();
+          var color = 'black'; 
+>>>>>>> 2be045d29d1a45ad364a9104ff7c725822930a03
 
 body.background
   div#container
