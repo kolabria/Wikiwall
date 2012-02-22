@@ -65,17 +65,17 @@ body.background
       }
       
       now.updateDraw = function(point,pathname,layer){
-        paper.project.layers[layer].children['pathname'].add(point);
+        paper.project.layers[layer].children[pathname].add(point);
         paper.view.draw(); //refresh canvas
       }
 
       now.endDraw = function(pathname,layer){
-        paper.project.layers[layer].children['pathname'].simplify(10);
+        paper.project.layers[layer].children[pathname].simplify(10);
         paper.view.draw(); //refresh canvas
       }
       //rename from temp name to dbref name
       now.renamePath = function(old,new,layer){
-        paper.project.layers[layer].children['old'].name = new;
+        paper.project.layers[layer].children[old].name = new;
       }
       
       //Tool Definitions
