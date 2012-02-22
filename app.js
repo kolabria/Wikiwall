@@ -48,30 +48,16 @@ app.helpers({
   _:require('underscore'); // make underscore available to clientside
 })
 
-// Routes
-app.get('/',function(req,res){
-  res.redirect('/walls');
-});
-app.get('/walls',function(req,res){
-  //get all walls
-});
+// Routes not needed as it will be handled by python
+
+//For testing
 app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
   var wall_id = req.params.id;
   //find wall in db & get wall and paths
   res.render('wall', { locals: {wall_id: wall_id, title: wall.name}});
 });
-app.del('/wall/:id', function(req,res){
-  //delete wall
-  res.redirect('/walls');
-});
-app.get('/wall/:id/edit', function(req,res){
-  //display edit page
-    //wall name
-});
-app.put('/wall/:id', function(req,res){
-  //update the wall information
-});
+
 
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
@@ -80,10 +66,6 @@ console.log("Express server listening on port %d in %s mode", app.address().port
 
 var nowjs = require("now");
 var everyone = nowjs.initialize(app);
-var client = {
-  //clientId :
-  //
-}
 
 //Two Main types of now.js functions
 //1. DB functions to be called after all manipulations on a path/object has been completed
@@ -96,19 +78,15 @@ var client = {
 //have an activeWall with an _id and an array of now.js client id's
 
 //start drawing
-everyone.now.sendStart = function(wallId,color,opacity,width,start){
-  everyone.now.recStart(wallId,color,opacity,width,start);
+everyone.now.shareStartDraw = function(wallId,color,width,start){
+  client = this.user.clientId;
+  everyone.now.startDraw(color,width,start,client);
 }
 
 //add points
-everyone.now.sendPoint = function(wallId,pathIndex,spot){
-  everyone.now.rec.recEnd(wallId);
-}
-
-//end drawing
-everyone.now.sendEnd = function(wallId){
-  everyone.now.recEnd(wallId);
-  //make sure to add vector simplification to clientside
+everyone.now.shareUpdateDraw = function(wallId,point){
+  client = this.user.clientId;
+  everyone.now.updateDraw(point,client);
 }
 
 //move object
@@ -118,7 +96,7 @@ everyone.now.sendMoveItem = function(wallId,pathId){
 
 //delete path
 everyone.now.deletePath = function(wallId,pathId){
-  //remove path from database --how? 
+  //remove path from database --how?
   //remove path from clients
 }
 
@@ -127,13 +105,16 @@ everyone.now.deletePath = function(wallId,pathId){
 //pathId will reference the _id ObjectRef of the path object
 
 //called after sendEnd to save newPath (after vector simplification has run)
-everyone.now.NewPath = function(wallId,path){
+everyone.now.NewPath = function(wallId,path,color,width,callback){
+  client = this.user.clientId;
   //create new path
   //get _id 
-  //call setName(_id) on clientside to name paths
+  everyone.now.endDraw(client,layer,newName); //newName = _id
+  callback(newName);
   //save path to db
+  
 }
-//called after a move has been completeed
+//called after a move has been completed
 everyone.new.UpdatePath = function(wallId,pathId,path){
   //update path in db
 }
@@ -141,15 +122,12 @@ everyone.new.UpdatePath = function(wallId,pathId,path){
 everyone.new.DeletePath = function(wallId,pathId){
   //delete path in db
 }
-//iniitial load (data sent with page request)
+//initial load (data sent with page request)
 everyone.now.initWall = function(wallId){
   //get clientId
+  //get info from db
   nowjs.getClient(this.user.clientId, function(){
-    //push it to array of active users for this wall
+    this.now.init()
+    //add this user to a group
   });
 }
-
-//event listners
-
-// on socket close, remove user from active users
-
