@@ -103,7 +103,6 @@ everyone.now.deletePath = function(companyId, wallId,pathId){
 
 //called after sendEnd to save newPath (after vector simplification has run)
 everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,callback){
-  console.log('creating new path');
   client = this.user.clientId;
   //create new path
   Path.create({
@@ -113,7 +112,6 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
     , opacity: 1 //For now, make variable later
     , description: path
   },function(err,doc){
-    console.log('saving');
     if(err){
       console.log(err)
       nowjs.getClient(client, function(){
@@ -122,10 +120,9 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
     }
     //update wall
     Wall.update({
-      name: 'wall1' //hard coded for now
+      _id: wallId //hard coded for now
     },{
-      name: 'wall1'
-      , $push:{paths:doc._id}
+      $push:{paths:doc._id}
     },{upsert:true},function(err,w){
       if(err){
         console.log(err)
@@ -149,21 +146,21 @@ everyone.now.DeletePath = function(companyId, wallId,pathId){
   //delete path in db
 }
 //initial load (data sent with page request)
-everyone.now.initWall = function(companyId, wallId){
+everyone.now.initWall = function(companyId, wallId,callback){
   //initialize connection
   Mongoose.connect('mongodb://localhost/'+companyId);
   var client = this.user.clientId;
+    //add this user to a group      
   nowjs.getGroup('c'+companyId+'u'+wallId).addUser(client);
   //get info from db
   Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
-    nowjs.getClient(client, function(){
-      if(err){
-        console.log(err);
+    if(err){
+      console.log(err);
+      nowjs.getClient(client, function(){
         this.now.tError('Could not connect to Wall');
-      }
-      this.now.init(doc)
-      //add this user to a group      
-    });
+      });
+    }
+    callback(doc);
   });
 }
 

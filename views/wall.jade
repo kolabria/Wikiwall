@@ -40,21 +40,40 @@ body.background
       //var myCanvas = document.getElementById('myCanvas');
       //paper.install(window);
       //paper.setup('myCanvas');
-      var wallId = '4f46971939a9758452ffb089'; //from application
+      var wallId = '4f47be322f8b522d303f1fef'; //from application
       var companyId = 1;
       var color = 'black';
       var width = 2;
      
       //NOW functions
       //populate the canvas
-      now.initWall(companyId, wallId);
-      
-      //convert database info into paperjs object
-      now.init = function(){
+      now.initWall(companyId, wallId, function(d){
+        //convert database info into paperjs object
         //go through all elements and rebuild
+        for(x in d.paths){
+          console.log(d.paths[x]);
+          var p = d.paths[x];
+          if(!paper.project.layers[p.layer]){
+            new Layer();
+          }
+          paper.project.layers[p.layer].activate();
+          points = new Array();
+          for (n in p.description){
+            points.push(JSON.parse(p.description[n]));
+          }
+          var path = new Path(points);
+          path.strokeColor = p.color;
+          path.strokeWidth = p.width;
+          path.opacity = p.opacity;
+          path.name = p._id;
+        }
         paper.view.draw();//refresh canvas
-      };
+      });
       
+      
+  
+
+
       //Start of drawing
       now.startDraw = function(color,width,start,pathname,layer){
         if(!paper.project.layers[layer]){
@@ -96,7 +115,24 @@ body.background
       }
       pen.onMouseUp = function(event){
         pen.path.simplify(10);
-        now.newPath(companyId,wallId,pen.path.segments.toString(),color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
+        var segs = new Array();
+        x = pen.path.segments;
+        for(y in x){
+          var z = {
+            point:{}
+            , handleIn:{}
+            , handleOut:{}
+          }
+          z.point.x = x[y]._point._x;
+          z.point.y = x[y]._point._y;
+          z.handleIn.x = x[y]._handleIn._x;
+          z.handleIn.y = x[y]._handleIn._y;
+          z.handleOut.x = x[y]._handleOut._x;
+          z.handleOut.y = x[y]._handleOut._y;
+          segs.push(JSON.stringify(z));
+        }
+        console.log(segs);
+        now.newPath(companyId,wallId,segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
           pen.path.name = name;
         });
       }
