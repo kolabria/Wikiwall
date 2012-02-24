@@ -94,15 +94,15 @@ body.background
         pen.path.add(event.point);
         now.shareStartDraw(companyId,wallId,color,width,event.point,paper.project.activeLayer.index);
       }
-      pen.onMouseUp = function(mouseUpEvent){
+      pen.onMouseUp = function(event){
         pen.path.simplify(10);
         now.newPath(companyId,wallId,pen.path.segments.toString(),color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
           pen.path.name = name;
         });
       }
-      pen.onMouseDrag = function(dragEvent){
-        pen.path.add(dragEvent.point);
-        now.shareUpdateDraw(companyId,wallId,dragEvent.point,paper.project.activeLayer.index);
+      pen.onMouseDrag = function(event){
+        pen.path.add(event.point);
+        now.shareUpdateDraw(companyId,wallId,event.point,paper.project.activeLayer.index);
       }
 
       //Pan Tool

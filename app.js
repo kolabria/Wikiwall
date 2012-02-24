@@ -79,7 +79,6 @@ var everyone = nowjs.initialize(app);
 
 //start drawing
 everyone.now.shareStartDraw = function(companyId, wallId,color,width,start,layer){
-  console.log(nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId))
   nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.startDraw(color,width,start,this.user.clientId,layer);
 }
 
@@ -103,16 +102,18 @@ everyone.now.deletePath = function(companyId, wallId,pathId){
 //pathId will reference the _id ObjectRef of the path object
 
 //called after sendEnd to save newPath (after vector simplification has run)
-everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer,callback){
+everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,callback){
   console.log('creating new path');
   client = this.user.clientId;
   //create new path
   Path.create({
-    color: pcolor
+    layer: player
+    , color: pcolor
     , width: pwidth
     , opacity: 1 //For now, make variable later
     , description: path
   },function(err,doc){
+    console.log('saving');
     if(err){
       console.log(err)
       nowjs.getClient(client, function(){
@@ -121,17 +122,18 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer,callb
     }
     //update wall
     Wall.update({
-      _id: wallId
+      name: 'wall1' //hard coded for now
     },{
-      $push:{paths:doc._id}
-    },{},function(err,w){
+      name: 'wall1'
+      , $push:{paths:doc._id}
+    },{upsert:true},function(err,w){
       if(err){
         console.log(err)
         nowjs.getClient(client, function(){
           this.now.tError('Could Not Save');
         });
       }
-      nowjs.getGroup('c'+companyId+'u'+wallId).exclude(client).now.endDraw(layer,client,doc._id); //newName = _id
+      nowjs.getGroup('c'+companyId+'u'+wallId).exclude(client).now.endDraw(player,client,doc._id); //newName = _id
       callback(doc._id);
     });
   });
@@ -148,9 +150,8 @@ everyone.now.DeletePath = function(companyId, wallId,pathId){
 }
 //initial load (data sent with page request)
 everyone.now.initWall = function(companyId, wallId){
-  console.log('connected');
   //initialize connection
-  db = Mongoose.createConnection('mongodb://localhost/'+companyId);
+  Mongoose.connect('mongodb://localhost/'+companyId);
   var client = this.user.clientId;
   nowjs.getGroup('c'+companyId+'u'+wallId).addUser(client);
   //get info from db
@@ -165,3 +166,5 @@ everyone.now.initWall = function(companyId, wallId){
     });
   });
 }
+
+//event listener to call refresh on server status change
