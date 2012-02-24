@@ -4,36 +4,16 @@ html
     meta(name="apple-mobile-web-app-capable", content="yes")
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, height=device-height user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
-    title= title
-    
-    link(rel='stylesheet', href='/stylesheets/testcanvas.css') //temp styling
-    link(rel='stylesheet', href='/stylesheets/awwstyle.css') //temp styling
+    title {Wall}
+    link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='/javascripts/paper.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
-    script()
-          paper.install(window);
-          //Keep global references to both tools, so the HTML
-          // links below can access them.
-          var tool1, tool2, tool3;
-          var myZoom;
-          var wallId = $("wallid").html(); //  get wall id from html
-          var drawFlag = false;
-          var drawFlag2 = false;      // is this client drawing?
-          var movePath = false;       // is this client moving the path?
-          var iFlag2 = false;
-          var zoomLevel = 2;
-          var wallId = null; 
-          var lineWidth = 2; // default is 2 - could add to UI to modify later
-          var newZoom;
-          var pathIndex = null;  // used to know the index of the path currently being drawn
-          var start = new Point();
-          var color = 'black'; 
 body.background
   div#container
-    p#wallid #{wall_id-1}
-    .canvas.landscape.aww-crosshair //these clases will be replaced
-      h1 #{title}
+    //these clases will be replaced
+    .canvas.landscape.aww-crosshair 
+      h1 {Wall Name}
       nav#toolbar.toolbar
         ul.navigation
           li
@@ -49,22 +29,25 @@ body.background
           li  
             input.tool(type='button',value='Select')
           li  
-            a.quit(href='/walls/')
+            a.quit(href='/walls/') quit
       .whiteboard
-        canvas#myCanvas
-  script()
-    (function(){
+        canvas#myCanvas(resize)
+
+  script(canvas='myCanvas', type="text/paperscript").
+    now.ready(function(){
       
       //assuming only 1 layer
-
-      paper.install(window);
-      paper.setup('myCanvas');
-      var wallId = $('#wallid').hide().html();
+      //var myCanvas = document.getElementById('myCanvas');
+      //paper.install(window);
+      //paper.setup('myCanvas');
+      var wallId = '4f46971939a9758452ffb089'; //from application
+      var companyId = 1;
       var color = 'black';
+      var width = 2;
      
       //NOW functions
       //populate the canvas
-      now.initWall(wallId);
+      now.initWall(companyId, wallId);
       
       //convert database info into paperjs object
       now.init = function(){
@@ -73,8 +56,12 @@ body.background
       };
       
       //Start of drawing
-      now.startDraw = function(color,width,start,pathname){
-        path = newPath();
+      now.startDraw = function(color,width,start,pathname,layer){
+        if(!paper.project.layers[layer]){
+          new Layer();
+        }
+        paper.project.layers[layer].activate();
+        path = new Path();
         path.strokeColor = color;
         path.strokeWidth = width;
         path.add(start);
@@ -86,15 +73,15 @@ body.background
         paper.view.draw(); //refresh canvas
       }
 
-      now.endDraw = function(pathname,layer){
-        paper.project.layers[layer].children[pathname].simplify(10);
+      now.endDraw = function(layer,pathname,newname){
+        paper.project.layers[layer].children[pathname].simplify(10)
+        paper.project.layers[layer].children[pathname].name = newname;
         paper.view.draw(); //refresh canvas
       }
-      //rename from temp name to dbref name
-      now.renamePath = function(old,new,layer){
-        paper.project.layers[layer].children[old].name = new;
-      }
       
+      now.tError = function(err){
+        alert(err);
+      }
       //Tool Definitions
 
       //Pen Tool
@@ -104,14 +91,15 @@ body.background
         path.strokeColor = color;
         path.strokeWidth = 2;
         path.add(event.point);
-        now.shareStartDraw(wallId,color,width,event.point);
+        now.shareStartDraw(companyId,wallId,color,width,event.point,paper.project.activeLayer.index);
         pen.onMouseDrag = function(dragEvent){
           path.add(dragEvent.point);
-          now.shareUpdateDraw = function(wallId,dragEvent.point,paper.project.activeLayer.index);
+          now.shareUpdateDraw(companyId,wallId,dragEvent.point,paper.project.activeLayer.index);
         }
         pen.onMouseUp = function(mouseUpEvent){
           path.simplify(10);
-          now.newPath(wallId,path.segments.toString(),path.strokeColor,path.strokeWidth,function(name){
+          console.log(path.strokeColor._cssString);
+          now.newPath(companyId,wallId,path.segments.toString(),path.strokeColor,path.strokeWidth,paper.project.activeLayer.index,function(name){
             path.name = name;
           })
         }
@@ -132,29 +120,30 @@ body.background
       //Event listeners
 
       //Change color;
-      $('.color').click(function(){
+      jQuery('.color').click(function(){
         color = $(this).val();
       });
 
       //Change tool
-      $('.tool').click(function(){
+      jQuery('.tool').click(function(){
         var t = $(this).val();
-        c = $('#myCanvas').removeClass();
+        c = jQuery('#myCanvas').removeClass();
+        console.log(t);
         switch(t){
-          case 'pan':
+          case 'Pan':
             c.addClass('move');
             pan.activate();
             break;
-          case 'pen':
+          case 'Pen':
             c.addClass('crosshair');
             pen.activate();
             break;
-          case 'select':
+          case 'Select':
             c.addClass('pointer');
             select.activate();
             break; 
         }
       });
-    })();
+    });
 
     

@@ -4,20 +4,18 @@
  */
 
 var express = require('express')
-  , routes = require('./routes')
   , _ = require('extend') //underscore.js adds some array and object functions
-  , mongoose = require('mongoose') //db interface
+  , Mongoose = require('mongoose') //db interface
   , nowjs = require('now') // Websockets library
   , async = require('async') // Library to reduce callbacks
   //db definitions
-  , path = require('./models/path')
-  , wall = require('./models/wall')
-  , text = require('./models/text')
-  , images = require('./models/images') 
+  , Path = require('./models/path')
+  , Wall = require('./models/wall')
+  , Images = require('./models/images')
 
-var port = process.env.VCAP_APP_PORT || 80;
+var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
-
+var db;
 // Configuration
 
 app.configure(function(){
@@ -41,11 +39,11 @@ app.configure('production', function(){
 
 // Middleware
 app.dynamicHelpers({
-  messages: require('express-messages'); // allow for flash messages
+  messages: require('express-messages') // allow for flash messages
 });
 
 app.helpers({
-  _:require('underscore'); // make underscore available to clientside
+  _:require('underscore') // make underscore available to clientside
 })
 
 // Routes not needed as it will be handled by python
@@ -55,12 +53,12 @@ app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
   var wall_id = req.params.id;
   //find wall in db & get wall and paths
-  res.render('wall', { locals: {wall_id: wall_id, title: wall.name}});
+  res.render('wall', {});
 });
 
 
 app.listen(port);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 
 //Now.JS initialization
 
@@ -76,28 +74,28 @@ var everyone = nowjs.initialize(app);
 
 //modify so that only applicable clients are sent this info
 //have an activeWall with an _id and an array of now.js client id's
+//group is named 'c'+companyId+'w'+wallId. Theoretically wallId should be enough as the chances of having multiple unique wallId's is almost 0, however why take chances?
+
 
 //start drawing
-everyone.now.shareStartDraw = function(wallId,color,width,start){
-  client = this.user.clientId;
-  everyone.now.startDraw(color,width,start,client);
+everyone.now.shareStartDraw = function(companyId, wallId,color,width,start,layer){
+  console.log(nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId))
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.startDraw(color,width,start,this.user.clientId,layer);
 }
 
 //add points
-everyone.now.shareUpdateDraw = function(wallId,point){
-  client = this.user.clientId;
-  everyone.now.updateDraw(point,client);
+everyone.now.shareUpdateDraw = function(companyId, wallId,point,layer){
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateDraw(point,this.user.clientId,layer);
 }
 
 //move object
-everyone.now.sendMoveItem = function(wallId,pathId){
-  //move path on clients
+everyone.now.sendMoveItem = function(companyId, wallId,pathId){
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateMove();
 }
 
 //delete path
-everyone.now.deletePath = function(wallId,pathId){
-  //remove path from database --how?
-  //remove path from clients
+everyone.now.deletePath = function(companyId, wallId,pathId){
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.deleteObject();
 }
 
 //DB functions
@@ -105,29 +103,63 @@ everyone.now.deletePath = function(wallId,pathId){
 //pathId will reference the _id ObjectRef of the path object
 
 //called after sendEnd to save newPath (after vector simplification has run)
-everyone.now.NewPath = function(wallId,path,color,width,callback){
-  client = this.user.clientId;
+everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer){
   //create new path
-  //get _id 
-  everyone.now.endDraw(client,layer,newName); //newName = _id
-  callback(newName);
-  //save path to db
+  Path.create({
+    color: pcolor
+    , width: pwidth
+    , opacity: 1 //For now, make variable later
+    , description: path
+  },function(err,doc){
+    if(err){
+      console.log(err)
+      nowjs.getClient(this.user.clientId, function(){
+        this.now.tError('Could Not Save');
+      });
+    }
+    //update wall
+    Wall.update({
+      _id: wallId
+    },{
+      $push:{paths:doc._id}
+    },{},function(err,w){
+      if(err){
+        console.log(err)
+        nowjs.getClient(this.user.clientId, function(){
+          this.now.tError('Could Not Save');
+        });
+      }
+        nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.endDraw(layer,this.user.clientId,doc._id); //newName = _id
+        callback(doc._id);
+    });
+  });
   
 }
 //called after a move has been completed
-everyone.new.UpdatePath = function(wallId,pathId,path){
+everyone.now.UpdatePath = function(companyId, wallId,pathId,path){
+
   //update path in db
 }
 //called when path is deleted
-everyone.new.DeletePath = function(wallId,pathId){
+everyone.now.DeletePath = function(companyId, wallId,pathId){
   //delete path in db
 }
 //initial load (data sent with page request)
-everyone.now.initWall = function(wallId){
-  //get clientId
+everyone.now.initWall = function(companyId, wallId){
+  console.log('connected');
+  //initialize connection
+  db = Mongoose.createConnection('mongodb://localhost/'+companyId);
+  var client = this.user.clientId;
+  nowjs.getGroup('c'+companyId+'u'+wallId).addUser(client);
   //get info from db
-  nowjs.getClient(this.user.clientId, function(){
-    this.now.init()
-    //add this user to a group
+  Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
+    nowjs.getClient(client, function(){
+      if(err){
+        console.log(err);
+        this.now.tError('Could not connect to Wall');
+      }
+      this.now.init(doc)
+      //add this user to a group      
+    });
   });
 }
