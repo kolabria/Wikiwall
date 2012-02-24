@@ -74,6 +74,7 @@ body.background
       }
 
       now.endDraw = function(layer,pathname,newname){
+        console.log('triggered');
         paper.project.layers[layer].children[pathname].simplify(10)
         paper.project.layers[layer].children[pathname].name = newname;
         paper.view.draw(); //refresh canvas
@@ -87,22 +88,21 @@ body.background
       //Pen Tool
       var pen = new Tool();
       pen.onMouseDown = function(event){
-        var path = new Path();
-        path.strokeColor = color;
-        path.strokeWidth = 2;
-        path.add(event.point);
+        pen.path = new Path();
+        pen.path.strokeColor = color;
+        pen.path.strokeWidth = 2;
+        pen.path.add(event.point);
         now.shareStartDraw(companyId,wallId,color,width,event.point,paper.project.activeLayer.index);
-        pen.onMouseDrag = function(dragEvent){
-          path.add(dragEvent.point);
-          now.shareUpdateDraw(companyId,wallId,dragEvent.point,paper.project.activeLayer.index);
-        }
-        pen.onMouseUp = function(mouseUpEvent){
-          path.simplify(10);
-          console.log(path.strokeColor._cssString);
-          now.newPath(companyId,wallId,path.segments.toString(),path.strokeColor,path.strokeWidth,paper.project.activeLayer.index,function(name){
-            path.name = name;
-          })
-        }
+      }
+      pen.onMouseUp = function(mouseUpEvent){
+        pen.path.simplify(10);
+        now.newPath(companyId,wallId,pen.path.segments.toString(),color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
+          pen.path.name = name;
+        });
+      }
+      pen.onMouseDrag = function(dragEvent){
+        pen.path.add(dragEvent.point);
+        now.shareUpdateDraw(companyId,wallId,dragEvent.point,paper.project.activeLayer.index);
       }
 
       //Pan Tool
@@ -123,7 +123,6 @@ body.background
       jQuery('.color').click(function(){
         color = $(this).val();
       });
-
       //Change tool
       jQuery('.tool').click(function(){
         var t = $(this).val();
@@ -144,6 +143,7 @@ body.background
             break; 
         }
       });
+      jQuery('.tool[value=Pen]').click();
     });
 
     

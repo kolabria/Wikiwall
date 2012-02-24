@@ -103,7 +103,9 @@ everyone.now.deletePath = function(companyId, wallId,pathId){
 //pathId will reference the _id ObjectRef of the path object
 
 //called after sendEnd to save newPath (after vector simplification has run)
-everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer){
+everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer,callback){
+  console.log('creating new path');
+  client = this.user.clientId;
   //create new path
   Path.create({
     color: pcolor
@@ -113,7 +115,7 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer){
   },function(err,doc){
     if(err){
       console.log(err)
-      nowjs.getClient(this.user.clientId, function(){
+      nowjs.getClient(client, function(){
         this.now.tError('Could Not Save');
       });
     }
@@ -125,12 +127,12 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,layer){
     },{},function(err,w){
       if(err){
         console.log(err)
-        nowjs.getClient(this.user.clientId, function(){
+        nowjs.getClient(client, function(){
           this.now.tError('Could Not Save');
         });
       }
-        nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.endDraw(layer,this.user.clientId,doc._id); //newName = _id
-        callback(doc._id);
+      nowjs.getGroup('c'+companyId+'u'+wallId).exclude(client).now.endDraw(layer,client,doc._id); //newName = _id
+      callback(doc._id);
     });
   });
   
