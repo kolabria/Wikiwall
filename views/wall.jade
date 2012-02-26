@@ -26,6 +26,8 @@ body.background
             input.color(type='button',value='Green')
           li  
             input.tool(type='button',value='Pan')
+          li
+            input.tool(type='button',value='Center')
           li  
             input.tool(type='button',value='Select')
           li  
@@ -42,7 +44,29 @@ script(canvas='myCanvas', type="text/paperscript").
     var companyId = 1;
     var color = 'black';
     var width = 2;
-   
+    
+    //helper functions
+    var serializePath = function(path){
+      var segs = new Array();
+      x = pen.path.segments;
+      for(y in x){
+        var z = {
+          point:{}
+          , handleIn:{}
+          , handleOut:{}
+        }
+        z.point.x = x[y]._point._x;
+        z.point.y = x[y]._point._y;
+        z.handleIn.x = x[y]._handleIn._x;
+        z.handleIn.y = x[y]._handleIn._y;
+        z.handleOut.x = x[y]._handleOut._x;
+        z.handleOut.y = x[y]._handleOut._y;
+        segs.push(JSON.stringify(z));
+      }
+      return segs
+    }
+
+
     //NOW functions
     //populate the canvas
     now.initWall(companyId, wallId, function(d){
@@ -68,10 +92,6 @@ script(canvas='myCanvas', type="text/paperscript").
       paper.view.draw();//refresh canvas
     });
     
-    
-
-
-
     //Start of drawing
     now.startDraw = function(color,width,start,pathname,layer){
       if(!paper.project.layers[layer]){
@@ -97,6 +117,13 @@ script(canvas='myCanvas', type="text/paperscript").
       paper.view.draw(); //refresh canvas
     }
     
+    //move an object
+    now.updateMove = function(layer,pathname,delta){
+       paper.project.layers[layer].children[pathname].position.x += delta.x;
+       paper.project.layers[layer].children[pathname].position.y += delta.y;
+       paper.view.draw(); //refresh canvas
+    }
+
     now.tError = function(err){
       alert(err);
     }
@@ -113,23 +140,8 @@ script(canvas='myCanvas', type="text/paperscript").
     }
     pen.onMouseUp = function(event){
       pen.path.simplify(10);
-      var segs = new Array();
       x = pen.path.segments;
-      for(y in x){
-        var z = {
-          point:{}
-          , handleIn:{}
-          , handleOut:{}
-        }
-        z.point.x = x[y]._point._x;
-        z.point.y = x[y]._point._y;
-        z.handleIn.x = x[y]._handleIn._x;
-        z.handleIn.y = x[y]._handleIn._y;
-        z.handleOut.x = x[y]._handleOut._x;
-        z.handleOut.y = x[y]._handleOut._y;
-        segs.push(JSON.stringify(z));
-      }
-      console.log(segs);
+      var segs = serializePath(x);
       now.newPath(companyId,wallId,segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
         pen.path.name = name;
       });
@@ -141,17 +153,37 @@ script(canvas='myCanvas', type="text/paperscript").
 
     //Pan Tool
     var pan = new Tool();
-    pen.onMouseDown = function(event){}
-    pen.onMouseDrag = function(event){}
-    pen.onMouseUp = function(event){}
+    pan.onMouseDrag = function(event){
+      pan.v = new Point()
+      pan.v.x = -event.delta.x;
+      pan.v.y = -event.delta.y;
+      paper.view.scrollBy(pan.v);
+      paper.view.draw();
+    }
 
     //Select Tool
     var select = new Tool();
-    pen.onMouseDown = function(event){}
-    pen.onMouseDrag = function(event){}
-    pen.onMouseUp = function(event){}
+    
+    select.onMouseDown = function(event){
+      select.target = project.hitTest(event.point)
+    }
+    select.onMouseDrag = function(event){
+      if(select.target){
+        select.target.item.position.x += event.delta.x;
+        select.target.item.position.y += event.delta.y;
+        now.sendMoveItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name,event.delta);
+        paper.view.draw(); //refresh canvas
+      }
+    }
+    select.onMouseUp = function(event){
+      x = select.target.item.segments;
+      var segs = serializePath(x);
+      now.updatePath(companyId,wallId,select.target.item.name,segs);
+    }
 
     //Event listeners
+    //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point
+    //How to get all points?
 
     //Change color;
     jQuery('.color').click(function(){
@@ -174,7 +206,14 @@ script(canvas='myCanvas', type="text/paperscript").
         case 'Select':
           c.addClass('pointer');
           select.activate();
-          break; 
+          break;
+        case 'Center':
+          var l = paper.project.activeLayer.bounds.center;
+          var v = paper.view.center;
+          var p = new Point(l.x - v.x,l.y - v.y);
+          view.scrollBy(p);
+          view.draw(); 
+          break;
       }
     });
     jQuery('.tool[value=Pen]').click();

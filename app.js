@@ -88,8 +88,8 @@ everyone.now.shareUpdateDraw = function(companyId, wallId,point,layer){
 }
 
 //move object
-everyone.now.sendMoveItem = function(companyId, wallId,pathId){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateMove();
+everyone.now.sendMoveItem = function(companyId, wallId, layer, pathId, delta){
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateMove(layer,pathId,delta);
 }
 
 //delete path
@@ -137,8 +137,18 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
   
 }
 //called after a move has been completed
-everyone.now.UpdatePath = function(companyId, wallId,pathId,path){
-
+everyone.now.updatePath = function(companyId, wallId,pathId,path){
+  Path.update({
+    _id:pathId
+  },
+  {
+    description:path
+  },{},function(err,doc){
+    if(err){
+      console.log(err);
+      this.now.tError('Could Not Save');
+    }
+  });
   //update path in db
 }
 //called when path is deleted

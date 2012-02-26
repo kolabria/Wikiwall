@@ -42,3 +42,13 @@ canvas{
   position:relative;
   background-image: url(../images/grid_noise.png);
 }
+
+.move{
+  cursor:move;
+}
+.pen{
+  cursor:crosshair;
+}
+.crosshair{
+  cursor:pointer;
+}
