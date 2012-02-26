@@ -1,9 +1,44 @@
 body {
-  padding: 50px;
+  padding:0;
+  margin:0;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  position:relative;
+  overflow:hidden;
+  height:100%;
+  width:100%;
 }
-
+header{
+  position: absolute;
+  width:100%;
+  left:0;
+  bottom:0;
+  background:black;
+}
+header h1{
+  float:right;
+  color:white;
+  padding:0;
+  margin:0;
+}
+nav { 
+  float:left;
+}
+nav ul{
+  display:block;
+  margin:0;
+  padding:0;
+}
+nav ul li{
+  list-style-type: none;
+  margin:0;
+  padding:0;
+  display:inline-block;
+}
 a {
   color: #00B7FF;
 }
-canvas{width:100%;height:100%;}
+
+canvas{
+  position:relative;
+  background-image: url(../images/grid_noise.png);
+}

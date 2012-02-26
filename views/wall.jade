@@ -10,10 +10,10 @@ html
     script(src='//code.jquery.com/jquery-latest.min.js')
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
 body.background
-  div#container
-    //these clases will be replaced
-    .canvas.landscape.aww-crosshair 
-      h1 {Wall Name}
+  .canvas
+    .whiteboard
+      canvas#myCanvas(resize)
+    header  
       nav#toolbar.toolbar
         ul.navigation
           li
@@ -30,156 +30,154 @@ body.background
             input.tool(type='button',value='Select')
           li  
             a.quit(href='/walls/') quit
-      .whiteboard
-        canvas#myCanvas(resize)
-
-  script(canvas='myCanvas', type="text/paperscript").
-    now.ready(function(){
-      
-      //assuming only 1 layer
-      //var myCanvas = document.getElementById('myCanvas');
-      //paper.install(window);
-      //paper.setup('myCanvas');
-      var wallId = '4f47be322f8b522d303f1fef'; //from application
-      var companyId = 1;
-      var color = 'black';
-      var width = 2;
-     
-      //NOW functions
-      //populate the canvas
-      now.initWall(companyId, wallId, function(d){
-        //convert database info into paperjs object
-        //go through all elements and rebuild
-        for(x in d.paths){
-          console.log(d.paths[x]);
-          var p = d.paths[x];
-          if(!paper.project.layers[p.layer]){
-            new Layer();
-          }
-          paper.project.layers[p.layer].activate();
-          points = new Array();
-          for (n in p.description){
-            points.push(JSON.parse(p.description[n]));
-          }
-          var path = new Path(points);
-          path.strokeColor = p.color;
-          path.strokeWidth = p.width;
-          path.opacity = p.opacity;
-          path.name = p._id;
-        }
-        paper.view.draw();//refresh canvas
-      });
-      
-      
-  
-
-
-      //Start of drawing
-      now.startDraw = function(color,width,start,pathname,layer){
-        if(!paper.project.layers[layer]){
+      h1 {Wall Name}
+script(canvas='myCanvas', type="text/paperscript").
+  now.ready(function(){
+    
+    //assuming only 1 layer
+    //var myCanvas = document.getElementById('myCanvas');
+    //paper.install(window);
+    //paper.setup('myCanvas');
+    var wallId = '4f47be322f8b522d303f1fef'; //from application
+    var companyId = 1;
+    var color = 'black';
+    var width = 2;
+   
+    //NOW functions
+    //populate the canvas
+    now.initWall(companyId, wallId, function(d){
+      //convert database info into paperjs object
+      //go through all elements and rebuild
+      for(x in d.paths){
+        console.log(d.paths[x]);
+        var p = d.paths[x];
+        if(!paper.project.layers[p.layer]){
           new Layer();
         }
-        paper.project.layers[layer].activate();
-        path = new Path();
-        path.strokeColor = color;
-        path.strokeWidth = width;
-        path.add(start);
-        path.name = pathname;
-      }
-      
-      now.updateDraw = function(point,pathname,layer){
-        paper.project.layers[layer].children[pathname].add(point);
-        paper.view.draw(); //refresh canvas
-      }
-
-      now.endDraw = function(layer,pathname,newname){
-        console.log('triggered');
-        paper.project.layers[layer].children[pathname].simplify(10)
-        paper.project.layers[layer].children[pathname].name = newname;
-        paper.view.draw(); //refresh canvas
-      }
-      
-      now.tError = function(err){
-        alert(err);
-      }
-      //Tool Definitions
-
-      //Pen Tool
-      var pen = new Tool();
-      pen.onMouseDown = function(event){
-        pen.path = new Path();
-        pen.path.strokeColor = color;
-        pen.path.strokeWidth = 2;
-        pen.path.add(event.point);
-        now.shareStartDraw(companyId,wallId,color,width,event.point,paper.project.activeLayer.index);
-      }
-      pen.onMouseUp = function(event){
-        pen.path.simplify(10);
-        var segs = new Array();
-        x = pen.path.segments;
-        for(y in x){
-          var z = {
-            point:{}
-            , handleIn:{}
-            , handleOut:{}
-          }
-          z.point.x = x[y]._point._x;
-          z.point.y = x[y]._point._y;
-          z.handleIn.x = x[y]._handleIn._x;
-          z.handleIn.y = x[y]._handleIn._y;
-          z.handleOut.x = x[y]._handleOut._x;
-          z.handleOut.y = x[y]._handleOut._y;
-          segs.push(JSON.stringify(z));
+        paper.project.layers[p.layer].activate();
+        points = new Array();
+        for (n in p.description){
+          points.push(JSON.parse(p.description[n]));
         }
-        console.log(segs);
-        now.newPath(companyId,wallId,segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
-          pen.path.name = name;
-        });
+        var path = new Path(points);
+        path.strokeColor = p.color;
+        path.strokeWidth = p.width;
+        path.opacity = p.opacity;
+        path.name = p._id;
       }
-      pen.onMouseDrag = function(event){
-        pen.path.add(event.point);
-        now.shareUpdateDraw(companyId,wallId,event.point,paper.project.activeLayer.index);
-      }
-
-      //Pan Tool
-      var pan = new Tool();
-      pen.onMouseDown = function(event){}
-      pen.onMouseDrag = function(event){}
-      pen.onMouseUp = function(event){}
-
-      //Select Tool
-      var select = new Tool();
-      pen.onMouseDown = function(event){}
-      pen.onMouseDrag = function(event){}
-      pen.onMouseUp = function(event){}
-
-      //Event listeners
-
-      //Change color;
-      jQuery('.color').click(function(){
-        color = $(this).val();
-      });
-      //Change tool
-      jQuery('.tool').click(function(){
-        var t = $(this).val();
-        c = jQuery('#myCanvas').removeClass();
-        console.log(t);
-        switch(t){
-          case 'Pan':
-            c.addClass('move');
-            pan.activate();
-            break;
-          case 'Pen':
-            c.addClass('crosshair');
-            pen.activate();
-            break;
-          case 'Select':
-            c.addClass('pointer');
-            select.activate();
-            break; 
-        }
-      });
-      jQuery('.tool[value=Pen]').click();
+      paper.view.draw();//refresh canvas
     });
+    
+    
+
+
+
+    //Start of drawing
+    now.startDraw = function(color,width,start,pathname,layer){
+      if(!paper.project.layers[layer]){
+        new Layer();
+      }
+      paper.project.layers[layer].activate();
+      path = new Path();
+      path.strokeColor = color;
+      path.strokeWidth = width;
+      path.add(start);
+      path.name = pathname;
+    }
+    
+    now.updateDraw = function(point,pathname,layer){
+      paper.project.layers[layer].children[pathname].add(point);
+      paper.view.draw(); //refresh canvas
+    }
+
+    now.endDraw = function(layer,pathname,newname){
+      console.log('triggered');
+      paper.project.layers[layer].children[pathname].simplify(10)
+      paper.project.layers[layer].children[pathname].name = newname;
+      paper.view.draw(); //refresh canvas
+    }
+    
+    now.tError = function(err){
+      alert(err);
+    }
+    //Tool Definitions
+
+    //Pen Tool
+    var pen = new Tool();
+    pen.onMouseDown = function(event){
+      pen.path = new Path();
+      pen.path.strokeColor = color;
+      pen.path.strokeWidth = 2;
+      pen.path.add(event.point);
+      now.shareStartDraw(companyId,wallId,color,width,event.point,paper.project.activeLayer.index);
+    }
+    pen.onMouseUp = function(event){
+      pen.path.simplify(10);
+      var segs = new Array();
+      x = pen.path.segments;
+      for(y in x){
+        var z = {
+          point:{}
+          , handleIn:{}
+          , handleOut:{}
+        }
+        z.point.x = x[y]._point._x;
+        z.point.y = x[y]._point._y;
+        z.handleIn.x = x[y]._handleIn._x;
+        z.handleIn.y = x[y]._handleIn._y;
+        z.handleOut.x = x[y]._handleOut._x;
+        z.handleOut.y = x[y]._handleOut._y;
+        segs.push(JSON.stringify(z));
+      }
+      console.log(segs);
+      now.newPath(companyId,wallId,segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
+        pen.path.name = name;
+      });
+    }
+    pen.onMouseDrag = function(event){
+      pen.path.add(event.point);
+      now.shareUpdateDraw(companyId,wallId,event.point,paper.project.activeLayer.index);
+    }
+
+    //Pan Tool
+    var pan = new Tool();
+    pen.onMouseDown = function(event){}
+    pen.onMouseDrag = function(event){}
+    pen.onMouseUp = function(event){}
+
+    //Select Tool
+    var select = new Tool();
+    pen.onMouseDown = function(event){}
+    pen.onMouseDrag = function(event){}
+    pen.onMouseUp = function(event){}
+
+    //Event listeners
+
+    //Change color;
+    jQuery('.color').click(function(){
+      color = $(this).val();
+    });
+    //Change tool
+    jQuery('.tool').click(function(){
+      var t = $(this).val();
+      c = jQuery('#myCanvas').removeClass();
+      console.log(t);
+      switch(t){
+        case 'Pan':
+          c.addClass('move');
+          pan.activate();
+          break;
+        case 'Pen':
+          c.addClass('crosshair');
+          pen.activate();
+          break;
+        case 'Select':
+          c.addClass('pointer');
+          select.activate();
+          break; 
+      }
+    });
+    jQuery('.tool[value=Pen]').click();
+  });
 
     
