@@ -4,7 +4,7 @@ html
     meta(name="apple-mobile-web-app-capable", content="yes")
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, height=device-height user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
-    title {Wall}
+    title {Wall Name} // from Application
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='/javascripts/paper.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
@@ -32,7 +32,7 @@ body.background
             input.tool(type='button',value='Select')
           li  
             a.quit(href='/walls/') quit
-      h1 {Wall Name}
+      h1 {Wall Name} //from application
 script(canvas='myCanvas', type="text/paperscript").
   now.ready(function(){
     
@@ -41,7 +41,7 @@ script(canvas='myCanvas', type="text/paperscript").
     //paper.install(window);
     //paper.setup('myCanvas');
     var wallId = '4f47be322f8b522d303f1fef'; //from application
-    var companyId = 1;
+    var companyId = 1; //from application 
     var color = 'black';
     var width = 2;
     
@@ -158,6 +158,9 @@ script(canvas='myCanvas', type="text/paperscript").
       pan.v.x = -event.delta.x;
       pan.v.y = -event.delta.y;
       paper.view.scrollBy(pan.v);
+      
+    }
+    pan.onMouseUp = function(event){
       paper.view.draw();
     }
 
