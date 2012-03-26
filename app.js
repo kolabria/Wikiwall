@@ -93,8 +93,9 @@ everyone.now.sendMoveItem = function(companyId, wallId, layer, pathId, delta){
 }
 
 //delete path
-everyone.now.deletePath = function(companyId, wallId,pathId){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.deleteObject();
+everyone.now.sendDeleteItem = function(companyId, wallId, layer, pathId){
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.removePath(layer,pathId);
+  deletePath(companyId, wallId, pathId);
 }
 
 //DB functions
@@ -136,6 +137,16 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
   });
   
 }
+//called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
+deletePath = function(companyId, wallId,pathId){
+  Path.findOne({_id:pathId}, function(err,doc){
+    if(err){
+      console.log(err);
+      this.now.tError('Could Not Delete');
+    }
+    doc.remove();
+  });
+}
 //called after a move has been completed
 everyone.now.updatePath = function(companyId, wallId,pathId,path){
   Path.update({
@@ -150,10 +161,6 @@ everyone.now.updatePath = function(companyId, wallId,pathId,path){
     }
   });
   //update path in db
-}
-//called when path is deleted
-everyone.now.DeletePath = function(companyId, wallId,pathId){
-  //delete path in db
 }
 //initial load (data sent with page request)
 everyone.now.initWall = function(companyId, wallId,callback){

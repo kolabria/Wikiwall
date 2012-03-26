@@ -73,11 +73,13 @@ now.ready(function(){
   
   //move an object
   now.updateMove = function(layer,pathname,delta){
-     paper.project.layers[layer].children[pathname].position.x += delta.x;
-     paper.project.layers[layer].children[pathname].position.y += delta.y;
-     paper.view.draw(); //refresh canvas
+    paper.project.layers[layer].children[pathname].position.x += delta.x;
+    paper.project.layers[layer].children[pathname].position.y += delta.y;
+    paper.view.draw(); //refresh canvas
   }
-
+  now.removePath = function(layer,pathname){
+    paper.project.layers[layer].children[pathname].remove();
+  }
   now.tError = function(err){
     alert(err);
   }
@@ -157,7 +159,7 @@ now.ready(function(){
     if(select.target.item.remove()){
       jQuery('i').remove();
     }
-    //Send removal request to
+    now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
   //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point
   //How to get all points?
