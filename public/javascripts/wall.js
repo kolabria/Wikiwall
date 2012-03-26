@@ -79,6 +79,7 @@ now.ready(function(){
   }
   now.removePath = function(layer,pathname){
     paper.project.layers[layer].children[pathname].remove();
+    paper.view.draw();
   }
   now.tError = function(err){
     alert(err);
@@ -158,6 +159,7 @@ now.ready(function(){
   jQuery(document).on('click','i',function(){ 
     if(select.target.item.remove()){
       jQuery('i').remove();
+      paper.view.draw();
     }
     now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
