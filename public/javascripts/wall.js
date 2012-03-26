@@ -5,7 +5,7 @@ now.ready(function(){
   //helper functions
   var serializePath = function(path){
     var segs = new Array();
-    x = pen.path.segments;
+    x = path
     for(y in x){
       var z = {
         point:{}
@@ -22,7 +22,6 @@ now.ready(function(){
     }
     return segs
   }
-
 
   //NOW functions
   //populate the canvas
@@ -121,14 +120,18 @@ now.ready(function(){
 
   //Select Tool
   var select = new Tool();
-  /*select.onMouseMove = function(event){
-    select.test = project.hitTest(event.point, {stroke:true,segments:true})
-    if(select.test){
-      select.test
-    }
-  }*/
   select.onMouseDown = function(event){
-    select.target = project.hitTest(event.point, {stroke:true,segments:true})
+    if(select.target){
+      select.target.item.selected = false
+      jQuery('.icon-remove').remove();
+    }
+    select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
+    if(select.target){
+      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
+      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+      select.target.item.selected = true;
+      jQuery('canvas').after('<i class="icon-remove" style="left:'+windowPosX+'px;top:'+windowPosY+'px;"></i>');
+    }
   }
   select.onMouseDrag = function(event){
     if(select.target){
@@ -136,19 +139,31 @@ now.ready(function(){
       select.target.item.position.y += event.delta.y;
       now.sendMoveItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name,event.delta);
       paper.view.draw(); //refresh canvas
+      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
+      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+      jQuery('i').css({left:windowPosX,top:windowPosY})
     }
   }
   select.onMouseUp = function(event){
-    x = select.target.item.segments;
-    var segs = serializePath(x);
-    now.updatePath(companyId,wallId,select.target.item.name,segs);
+    if(select.target){
+      x = select.target.item.segments;
+      var segs = serializePath(x);
+      now.updatePath(companyId,wallId,select.target.item.name,segs);
+    }
   }
 
   //Event listeners
+  jQuery(document).on('click','i',function(){ 
+    if(select.target.item.remove()){
+      jQuery('i').remove();
+    }
+    //Send removal request to
+  });
   //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point
   //How to get all points?
 
   //Change color;
+
   jQuery('.color').click(function(){
     color = $(this).val();
     jQuery('.tool[value=Pen]').click();

@@ -13,6 +13,7 @@ header{
   left:0;
   bottom:0;
   background:black;
+  z-index:1;
 }
 header h1{
   float:right;
@@ -51,4 +52,16 @@ canvas{
 }
 .crosshair{
   cursor:pointer;
+}
+.icon-remove{
+  display: inline-block;
+  z-index:1;
+  position:absolute;
+  width: 14px;
+  height: 14px;
+  vertical-align: text-top;
+  background-image: url(../images/glyphicons-halflings.png);
+  background-position: 14px 14px;
+  background-repeat: no-repeat;
+  background-position:-312px 0;
 }
