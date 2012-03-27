@@ -156,6 +156,47 @@ now.ready(function(){
   }
 
   //Event listeners
+  //keymap
+  jQuery(document).keydown(function(event){
+    switch (event.which) {
+      case 80:
+        //p for pen?
+        jQuery('.tool[value=Pen]').click();
+        break;
+      case 46:
+        //delete for delete?
+        jQuery('i').click();
+        break;
+      case 67:
+        //c for center?
+        jQuery('.tool[value=Center]').click();
+        console.log('center');
+        break;
+      case 83:
+        //s for select?
+        jQuery('.tool[value=Select]').click();
+        break;
+      case 37: //left
+        paper.view.scrollBy({x:-10,y:0});
+        paper.view.draw();
+        break;
+      case 38: //up
+        paper.view.scrollBy({x:0,y:-10});
+        paper.view.draw();
+        break;
+      case 39: //right
+        paper.view.scrollBy({x:10,y:0});
+        paper.view.draw();
+        break;
+      case 40: //down
+        paper.view.scrollBy({x:0,y:10});
+        paper.view.draw();
+        break;
+    }
+  });
+
+
+  //delete
   jQuery(document).on('click','i',function(){ 
     if(select.target.item.remove()){
       jQuery('i').remove();
@@ -163,11 +204,9 @@ now.ready(function(){
     }
     now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
-  //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point
-  //How to get all points?
+  //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point?
 
   //Change color;
-
   jQuery('.color').click(function(){
     color = $(this).val();
     jQuery('.tool[value=Pen]').click();
