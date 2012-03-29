@@ -54,6 +54,7 @@ canvas{
   cursor:pointer;
 }
 .icon-remove{
+  cursor:pointer;
   display: inline-block;
   z-index:1;
   position:absolute;

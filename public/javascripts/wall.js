@@ -133,7 +133,7 @@ now.ready(function(){
       var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
       var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
       select.target.item.selected = true;
-      jQuery('canvas').after('<i class="icon-remove" style="left:'+windowPosX+'px;top:'+windowPosY+'px;"></i>');
+      jQuery('canvas').after('<i onClick="" class="icon-remove" style="left:'+windowPosX+'px;top:'+windowPosY+'px;"></i>');
     }
   }
   select.onMouseDrag = function(event){
@@ -202,8 +202,12 @@ now.ready(function(){
       jQuery('i').remove();
       paper.view.draw();
     }
+    console.log('event triggered');
     now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
+  remove = function(){
+    console.log('worked');
+  }
   //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point?
 
   //Change color;
