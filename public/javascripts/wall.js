@@ -28,21 +28,23 @@ now.ready(function(){
   now.initWall(companyId, wallId, function(d){
     //convert database info into paperjs object
     //go through all elements and rebuild
-    for(x in d.paths){
-      var p = d.paths[x];
-      if(!paper.project.layers[p.layer]){
-        new Layer();
+    if(d){
+      for(x in d.paths){
+        var p = d.paths[x];
+        if(!paper.project.layers[p.layer]){
+          new Layer();
+        }
+        paper.project.layers[p.layer].activate();
+        points = new Array();
+        for (n in p.description){
+          points.push(JSON.parse(p.description[n]));
+        }
+        var path = new Path(points);
+        path.strokeColor = p.color;
+        path.strokeWidth = p.width;
+        path.opacity = p.opacity;
+        path.name = p._id;
       }
-      paper.project.layers[p.layer].activate();
-      points = new Array();
-      for (n in p.description){
-        points.push(JSON.parse(p.description[n]));
-      }
-      var path = new Path(points);
-      path.strokeColor = p.color;
-      path.strokeWidth = p.width;
-      path.opacity = p.opacity;
-      path.name = p._id;
     }
     paper.view.draw();//refresh canvas
   });
@@ -202,12 +204,8 @@ now.ready(function(){
       jQuery('i').remove();
       paper.view.draw();
     }
-    console.log('event triggered');
     now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
-  remove = function(){
-    console.log('worked');
-  }
   //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point?
 
   //Change color;
@@ -242,6 +240,13 @@ now.ready(function(){
     }
   });
   jQuery('.tool[value=Pen]').click();
+  
+  window.addEventListener("deviceorientation", function(event) {
+      jQuery(window).resize();
+      console.log(event.alpha);
+      console.log(event.beta);
+      console.log(event.gamma);
+  }, true);
 });
 
   
