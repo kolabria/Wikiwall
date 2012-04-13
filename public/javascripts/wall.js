@@ -240,13 +240,20 @@ now.ready(function(){
     }
   });
   jQuery('.tool[value=Pen]').click();
-  
-  window.addEventListener("deviceorientation", function(event) {
-      jQuery(window).resize();
-      console.log(event.alpha);
-      console.log(event.beta);
-      console.log(event.gamma);
-  }, true);
+  iOS_disableZooming();
+  iOS_disableScrolling();
+  window.onorientationchange = function(){
+      if ( orientation == 0 ) {
+        window.scrollTo(0,1);
+      }  
+      else if ( orientation == 90 ) {  
+      }  
+      else if ( orientation == -90 ) {  
+      }  
+      else if ( orientation == 180 ) {  
+        window.scrollTo(0,1); 
+      }  
+   }
 });
 
   
