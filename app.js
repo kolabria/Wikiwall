@@ -55,7 +55,9 @@ app.get('/wall/:id', function(req, res){
   //find wall in db & get wall and paths
   res.render('wall', {});
 });
-
+app.get('/test', function(req,res){
+  res.render('test',{});
+})
 
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
