@@ -1,0 +1,63 @@
+!!! 5
+html
+  head
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='/javascripts/paper.js')
+    script(src='/javascripts/ios.js')
+    script(src='//code.jquery.com/jquery-latest.min.js')
+    meta(charset='utf-8')
+    title UI Draggable Test
+    style
+      .draggable { 
+        width: 90px; 
+        height: 90px; 
+        padding: 0.5em; 
+        float: left; 
+        margin: 0 10px 10px 0;
+        background:red;
+      }
+      #draggable5{
+        background:blue;
+      }
+    script(src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js")
+    script
+      $(function() {
+        iOS_disableZooming();
+        iOS_disableScrolling();
+        function touchHandler(event){
+          var touches = event.changedTouches,
+          first = touches[0],
+          type = "";
+          switch(event.type){
+            case "touchstart": type = "mousedown"; break;
+            case "touchmove":  type="mousemove"; break;        
+            case "touchend":   type="mouseup"; break;
+            default: return;
+          }
+          //initMouseEvent(type, canBubble, cancelable, view, clickCount, 
+          //           screenX, screenY, clientX, clientY, ctrlKey, 
+          //           altKey, shiftKey, metaKey, button, relatedTarget);
+
+          var simulatedEvent = document.createEvent("MouseEvent");
+          simulatedEvent.initMouseEvent(
+            type, true, true, window, 1,first.screenX, first.screenY, 
+            first.clientX, first.clientY, false, 
+            false, false, false, 0/*left*/, null
+          );
+          first.target.dispatchEvent(simulatedEvent);
+            event.preventDefault();
+        }
+        function init(){
+            document.addEventListener("touchstart", touchHandler, true);
+            document.addEventListener("touchmove", touchHandler, true);
+            document.addEventListener("touchend", touchHandler, true);
+            document.addEventListener("touchcancel", touchHandler, true);    
+        }
+        $("#draggable5" ).draggable({containment: "parent"})
+      });
+  body
+    .draggable.ui-widget-content
+      p#draggable5.ui-widget-header I'm contained within my parent
