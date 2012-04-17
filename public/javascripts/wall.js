@@ -87,7 +87,7 @@ now.ready(function(){
     alert(err);
   }
   //Tool Definitions
-
+  tool.distanceThreshhold = 5;
   //Pen Tool
   var pen = new Tool();
   pen.onMouseDown = function(event){
