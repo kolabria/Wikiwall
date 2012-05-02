@@ -13,21 +13,213 @@ html
     meta(charset='utf-8')
     title UI Draggable Test
     style
-      .draggable { 
-        width: 90px; 
-        height: 190px; 
-        padding: 0.5em; 
+      .navigation{
+        position:relative;
+      }
+      #navWindow { 
+        width: 200px; 
+        height: 150px; 
         float: left; 
-        margin: 0 10px 10px 0;
         background:red;
+        display:none;
+        position:absolute;
+        bottom:0px;
+        left:0;
       }
-      #draggable5{
+      #view{
         background:blue;
+        display:block
       }
-    script
+    body.background
+     .canvas
+       .whiteboard
+         canvas#myCanvas(resize)
+       div#navWindow
+        div#view
+       header  
+         nav#toolbar.toolbar
+           ul.navigation
+             li
+               input.tool(type='button',value='ZoomIn')
+             li.navigation
+               input.tool(type='button',value='Nav');
+             li
+               input.tool(type='button',value='ZoomOut')
+             li
+               input.tool(type='button',value='Pen')
+         h1 {Wall Name} //from application
+         
+    script(src='/nowjs/now.js') //this is what allows realtime communication,
+    script(canvas='myCanvas', type="text/paperscript").
+      now.ready(function(){
+        var worker = new Worker('/javascripts/worker.js');
+        worker.addEventListener('message', function(e){
+          pen.path.add(e.data);
+        }, false);
+        var color = 'black';
+        var width = 2;
+        tool.distanceThreshhold = 10;
+        //Pen Tool
+         var pen = new Tool();
+         pen.onMouseDown = function(event){
+           pen.path = new Path();
+           pen.path.strokeColor = color;
+           pen.path.strokeWidth = 2;
+           pen.path.add(event.point);
+         }
+         pen.onMouseUp = function(event){
+           pen.path.simplify(10);
+         }
+         pen.onMouseDrag = function(event){
+           worker.postMessage(event.point);
+         }
+        //Pan Tool
+        var pan = new Tool();
+        pan.onMouseDrag = function(event){
+          pan.v = new Point()
+          pan.v.x = -event.delta.x;
+          pan.v.y = -event.delta.y;
+          paper.view.scrollBy(pan.v);
+          paper.view.draw();
+        }
+        pan.onMouseUp = function(event){
+          paper.view.draw();
+        }
+        
+        //Event listeners
+        //keymap
+        jQuery(document).keydown(function(event){
+          switch (event.which) {
+            case 80:
+              //p for pen?
+              jQuery('.tool[value=Pen]').click();
+              break;
+            case 46:
+              //delete for delete?
+              jQuery('i').click();
+              break;
+            case 67:
+              //c for center?
+              jQuery('.tool[value=Center]').click();
+              console.log('center');
+              break;
+            case 83:
+              //s for select?
+              jQuery('.tool[value=Select]').click();
+              break;
+            case 37: //left
+              paper.view.scrollBy({x:-10,y:0});
+              paper.view.draw();
+              break;
+            case 38: //up
+              paper.view.scrollBy({x:0,y:-10});
+              paper.view.draw();
+              break;
+            case 39: //right
+              paper.view.scrollBy({x:10,y:0});
+              paper.view.draw();
+              break;
+            case 40: //down
+              paper.view.scrollBy({x:0,y:10});
+              paper.view.draw();
+              break;
+          }
+        });
+        //Change tool
+        jQuery('.tool').click(function(){
+          var t = jQuery(this).val();
+          c = jQuery('#myCanvas').removeClass();
+          nw = jQuery('#navWindow').hide('slow');
+          switch(t){
+            case 'Nav':
+              c.addClass('nav');
+              nw.show('slow').css('bottom',jQuery('header').height());
+              var windowLength = paper.view.bounds.width;
+              var windowHeight = paper.view.bounds.height;
+              var windowX = paper.view.bounds.top;
+              var windowY = paper.view.bounds.left;
+              var paperLength = paper.project.activeLayer.bounds.width;
+              var paperHeight = paper.project.activeLayer.bounds.height;
+              var paperX = paper.project.activeLayer.bounds.top;
+              var paperY = paper.project.activeLayer.bounds.left;
+              var rLength = paperLength / 192;
+              var rHeight = paperHeight / 120;
+              var offsetX = 0 - paperX;
+              var offsetY = 0 - paperY;
+              var prLength = paperLength / windowLength; //Needed?
+              var prHeight = paperHeight / windowHeight; //Needed?
+              
+              
+              //determine initial positioning
+              //determine movement
+              //translate movement to view change
+              
+              console.log(windowLength);
+              console.log(windowHeight);
+              console.log(paperLength);
+              console.log(paperHeight);
+              console.log(windowX)
+              console.log(windowY)
+              console.log(paperX)
+              console.log(paperY)
+              console.log(rLength);
+              console.log(rHeight);
+              jQuery('#view')
+                .width(windowLength / rLength)
+                .height(windowHeight / rHeight)
+                .css({
+                  top : (windowY-paperX)/rHeight,
+                  left : (windowY-paperY)/rLength
+                });
+              
+              jQuery('#view').draggable({containment:"parent"});
+              break;
+            case 'ZoomOut':
+              paper.view.zoom = paper.view.zoom /2
+              break;
+            case 'ZoomIn':
+              paper.view.zoom = paper.view.zoom * 2
+              break;
+            case 'Pan':
+              c.addClass('move');
+              pan.activate();
+              break;
+            case 'Pen':
+              c.addClass('crosshair');
+              pen.activate();
+              break;
+            case 'Select':
+              c.addClass('pointer');
+              select.activate();
+              break;
+            case 'Center':
+              var l = paper.project.activeLayer.bounds.center;
+              var v = paper.view.center;
+              var p = new Point(l.x - v.x,l.y - v.y);
+              view.scrollBy(p);
+              view.draw(); 
+              break;
+          }
+        });
+        iOS_disableZooming();
+        iOS_disableScrolling();
+        window.onorientationchange = function(){
+            if ( orientation == 0 ) {
+              window.scrollTo(0,1);
+            }  
+            else if ( orientation == 90 ) {  
+            }  
+            else if ( orientation == -90 ) {  
+            }  
+            else if ( orientation == 180 ) {  
+              window.scrollTo(0,1); 
+            }  
+         }
+      });
+
+
+    
         jQuery(function() {
           jQuery("#draggable5").draggable({containment:"parent"});
         });
-  body
-    .draggable.ui-widget-content
-      p#draggable5.ui-widget-header I'm contained within my parent
+        

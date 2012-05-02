@@ -9,9 +9,9 @@ body {
 }
 header{
   position: absolute;
-  width:100%;
   left:0;
-  bottom:0;
+  bottom:0px;
+  width:100%;
   background:black;
   z-index:1;
   overflow:hidden;
@@ -19,8 +19,9 @@ header{
 header h1{
   float:right;
   color:white;
-  padding:0;
+  padding:10px;
   margin:0;
+  display:block;  
 }
 nav { 
   float:left;

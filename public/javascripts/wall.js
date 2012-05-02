@@ -1,7 +1,12 @@
 now.ready(function(){
   var color = 'black';
   var width = 2;
-  
+
+  var worker = new Worker('/javascripts/worker.js');
+  worker.addEventListener('message', function(e){
+    pen.path.add(e.data);
+    now.shareUpdateDraw(companyId,wallId,e.data,paper.project.activeLayer.index);
+  }, false);
   //helper functions
   var serializePath = function(path){
     var segs = new Array();
@@ -87,7 +92,7 @@ now.ready(function(){
     alert(err);
   }
   //Tool Definitions
-  tool.distanceThreshhold = 5;
+  tool.distanceThreshhold = 10;
   //Pen Tool
   var pen = new Tool();
   pen.onMouseDown = function(event){
@@ -106,8 +111,7 @@ now.ready(function(){
     });
   }
   pen.onMouseDrag = function(event){
-    pen.path.add(event.point);
-    now.shareUpdateDraw(companyId,wallId,event.point,paper.project.activeLayer.index);
+    worker.postMessage(event.point);
   }
 
   //Pan Tool
@@ -206,37 +210,43 @@ now.ready(function(){
     }
     now.sendDeleteItem(companyId,wallId,paper.project.activeLayer.index,select.target.item.name);
   });
-  //Improve Center - currently centers on activeLayer, better would take average x of all points, and average y of all points, scroll to that point?
-
-  //Change color;
-  jQuery('.color').click(function(){
-    color = $(this).val();
-    jQuery('.tool[value=Pen]').click();
-  });
-  //Change tool
-  jQuery('.tool').click(function(){
-    var t = $(this).val();
+  //Change tool or color
+  jQuery('#toolbar').click(function(e){
+    var obj = jQuery(e.target);
+    var t = obj.attr('value');
+    var cl = obj.attr('class');
     c = jQuery('#myCanvas').removeClass();
-    switch(t){
-      case 'Pan':
-        c.addClass('move');
-        pan.activate();
-        break;
-      case 'Pen':
-        c.addClass('crosshair');
-        pen.activate();
-        break;
-      case 'Select':
-        c.addClass('pointer');
-        select.activate();
-        break;
-      case 'Center':
-        var l = paper.project.activeLayer.bounds.center;
-        var v = paper.view.center;
-        var p = new Point(l.x - v.x,l.y - v.y);
-        view.scrollBy(p);
-        view.draw(); 
-        break;
+    if(cl == 'tool'){
+      switch(t){
+        case 'Pan':
+          c.addClass('move');
+          pan.activate();
+          break;
+        case 'ZoomOut':
+          paper.view.zoom = paper.view.zoom /2
+          break;
+        case 'ZoomIn':
+          paper.view.zoom = paper.view.zoom * 2
+          break;
+        case 'Pen':
+          c.addClass('crosshair');
+          pen.activate();
+          break;
+        case 'Select':
+          c.addClass('pointer');
+          select.activate();
+          break;
+        case 'Center':
+          var l = paper.project.activeLayer.bounds.center;
+          var v = paper.view.center;
+          var p = new Point(l.x - v.x,l.y - v.y);
+          view.scrollBy(p);
+          view.draw(); 
+          break;
+      }
+    }else if(cl=='color'){
+      color = t
+      jQuery('.tool[value=Pen]').click();
     }
   });
   jQuery('.tool[value=Pen]').click();
