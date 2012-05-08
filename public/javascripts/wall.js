@@ -69,7 +69,6 @@ now.ready(function(){
   
   now.updateDraw = function(point,pathname,layer){
     paper.project.layers[layer].children[pathname].add(point);
-    paper.view.draw(); //refresh canvas
   }
 
   now.endDraw = function(layer,pathname,newname){

@@ -6904,7 +6904,7 @@ var View = this.View = Base.extend(Callback, {
 			tool._onHandleEvent('mousedown', curPoint, event);
 		view.draw(true);
 	}
-
+  var interval = 2;
 	function mousemove(event) {
 		var view;
 		if (!dragging) {
@@ -6932,7 +6932,11 @@ var View = this.View = Base.extend(Callback, {
 				DomEvent.stop(event);
 			}
 		}
-		view.draw(true);
+		interval--;
+		if(!interval){
+	    view.draw(true);
+	    interval = 2;
+		}
 	}
 
 	function mouseup(event) {

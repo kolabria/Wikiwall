@@ -68,7 +68,7 @@ html
            pen.path.add(event.point);
          }
          pen.onMouseUp = function(event){
-           pen.path.simplify(10);
+           //pen.path.simplify(10);
          }
          pen.onMouseDrag = function(event){
            worker.postMessage(event.point);
@@ -134,45 +134,67 @@ html
             case 'Nav':
               c.addClass('nav');
               nw.show('slow').css('bottom',jQuery('header').height());
+              var windowTop = paper.view.bounds.top;
+              var windowRight = paper.view.bounds.right;
+              var windowBottom = paper.view.bounds.bottom;
+              var windowLeft = paper.view.bounds.left;
+              var paperTop = paper.project.activeLayer.bounds.top;
+              var paperRight = paper.project.activeLayer.bounds.right;
+              var paperBottom = paper.project.activeLayer.bounds.bottom;
+              var paperLeft = paper.project.activeLayer.bounds.left;
+
+              var navTop = Math.min(windowTop,paperTop);
+              var navRight = Math.max(windowRight, paperRight);
+              var navBottom = Math.max(windowBottom, paperBottom);
+              var navLeft = Math.min(windowLeft, paperLeft);
               var windowLength = paper.view.bounds.width;
               var windowHeight = paper.view.bounds.height;
-              var windowX = paper.view.bounds.top;
-              var windowY = paper.view.bounds.left;
-              var paperLength = paper.project.activeLayer.bounds.width;
-              var paperHeight = paper.project.activeLayer.bounds.height;
-              var paperX = paper.project.activeLayer.bounds.top;
-              var paperY = paper.project.activeLayer.bounds.left;
-              var rLength = paperLength / 192;
-              var rHeight = paperHeight / 120;
-              var offsetX = 0 - paperX;
-              var offsetY = 0 - paperY;
-              var prLength = paperLength / windowLength; //Needed?
-              var prHeight = paperHeight / windowHeight; //Needed?
+              var navLength = navRight - navLeft
+              var navHeight = navBottom - navTop
+
+              var rLength = navLength / 200;
+              var rHeight = navHeight / 150;           
+              var canvas
               
-              
-              //determine initial positioning
-              //determine movement
-              //translate movement to view change
-              
-              console.log(windowLength);
-              console.log(windowHeight);
-              console.log(paperLength);
-              console.log(paperHeight);
-              console.log(windowX)
-              console.log(windowY)
-              console.log(paperX)
-              console.log(paperY)
-              console.log(rLength);
-              console.log(rHeight);
+              var originalPosition = {
+                top  : false,
+                left : false
+              }
+
               jQuery('#view')
                 .width(windowLength / rLength)
                 .height(windowHeight / rHeight)
                 .css({
-                  top : (windowY-paperX)/rHeight,
-                  left : (windowY-paperY)/rLength
+                  top : (windowTop-navTop)/rHeight,
+                  left : (windowLeft-navLeft)/rLength
                 });
               
-              jQuery('#view').draggable({containment:"parent"});
+              jQuery('#view').draggable({
+                containment:"parent",
+                drag: function(event, ui){
+                  if(originalPosition.left === false && originalPosition.top === false){
+                    originalPosition.left = ui.originalPosition.left
+                    originalPosition.top = ui.originalPosition.top
+                  }
+                  offsetLeft = ui.position.left - originalPosition .left
+                  offsetTop = ui.position.top - originalPosition.top
+                  originalPosition.left = ui.position.left 
+                  originalPosition.top = ui.position.top  
+                  console.log(offsetLeft)
+                  console.log(offsetTop)
+                  pan.v = new Point()
+                  pan.v.x = offsetLeft * rLength * paper.view.zoom;
+                  pan.v.y = offsetTop * rHeight * paper.view.zoom;
+                  console.log(pan)
+                  paper.view.scrollBy(pan.v)
+                  paper.view.draw();
+                },
+                stop: function(event, ui){
+                  originalPosition.left = false;
+                  originalPosition.top = false;
+                }
+
+              });
               break;
             case 'ZoomOut':
               paper.view.zoom = paper.view.zoom /2
