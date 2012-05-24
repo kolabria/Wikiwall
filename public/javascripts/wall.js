@@ -217,9 +217,67 @@ now.ready(function(){
     c = jQuery('#myCanvas').removeClass();
     if(cl == 'tool'){
       switch(t){
-        case 'Pan':
-          c.addClass('move');
-          pan.activate();
+        case 'Nav':
+          c.addClass('nav');
+          nw.show('slow').css('bottom',jQuery('header').height());
+          var windowTop = paper.view.bounds.top;
+          var windowRight = paper.view.bounds.right;
+          var windowBottom = paper.view.bounds.bottom;
+          var windowLeft = paper.view.bounds.left;
+          var paperTop = paper.project.activeLayer.bounds.top;
+          var paperRight = paper.project.activeLayer.bounds.right;
+          var paperBottom = paper.project.activeLayer.bounds.bottom;
+          var paperLeft = paper.project.activeLayer.bounds.left;
+
+          var navTop = Math.min(windowTop,paperTop);
+          var navRight = Math.max(windowRight, paperRight);
+          var navBottom = Math.max(windowBottom, paperBottom);
+          var navLeft = Math.min(windowLeft, paperLeft);
+          var windowLength = paper.view.bounds.width;
+          var windowHeight = paper.view.bounds.height;
+          var navLength = navRight - navLeft
+          var navHeight = navBottom - navTop
+
+          var rLength = navLength / 200;
+          var rHeight = navHeight / 150;           
+          var canvas
+              
+          var originalPosition = {
+            top  : false,
+            left : false
+          }
+
+          jQuery('#view')
+            .width(windowLength / rLength)
+            .height(windowHeight / rHeight)
+            .css({
+              top : (windowTop-navTop)/rHeight,
+              left : (windowLeft-navLeft)/rLength
+            });
+              
+          jQuery('#view').draggable({
+            containment:"parent",
+            drag: function(event, ui){
+              if(originalPosition.left === false && originalPosition.top === false){
+                originalPosition.left = ui.originalPosition.left
+                originalPosition.top = ui.originalPosition.top
+              }
+              offsetLeft = ui.position.left - originalPosition .left
+              offsetTop = ui.position.top - originalPosition.top
+              originalPosition.left = ui.position.left 
+              originalPosition.top = ui.position.top  
+              pan.v = new Point()
+              pan.v.x = offsetLeft * rLength * paper.view.zoom;
+              pan.v.y = offsetTop * rHeight * paper.view.zoom;
+              paper.view.scrollBy(pan.v)
+              paper.view.draw();
+            },
+            stop: function(event, ui){
+              originalPosition.left = false;
+              originalPosition.top = false;
+            }
+
+          });
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2

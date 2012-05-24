@@ -1,0 +1,62 @@
+!!! 5
+html
+  head
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
+    title {Wall Name} // from Application
+    link(rel='stylesheet', href='/stylesheets/wall.css')
+    script(src='/javascripts/paper.js')
+    script(src='/javascripts/ios.js')
+    script(src='//code.jquery.com/jquery-latest.min.js')
+    script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
+    script(src='/javascripts/touch-punch.min.js')   
+    script(src='/nowjs/now.js') //this is what allows realtime communication, 
+  body.background
+    .canvas
+      header  
+        nav#toolbar.toolbar
+          ul.navigation
+            li
+              input.tool(type='button',value='Pen')
+              ul
+                li
+                  input.color(type='button',value='Black')
+                li
+                  input.color(type='button',value='Red')
+                li 
+                  input.color(type='button',value='Green')
+            li  
+              input.tool(type='button',value='Nav')
+              ul
+                li  
+                  input.tool(type='button',value='ZoomIn')
+                li
+                  input.tool(type='button',value='Center')
+                li  
+                  input.tool(type='button',value='ZoomOut')
+            li  
+              input.tool(type='button',value='Select').
+            li
+              input.share(type='button', value='Users')
+            li  
+              a.quit(href='/walls/') Quit //url to quit page
+        h1 {Wall Name} //from application
+      .whiteboard
+        canvas#myCanvas(resize)
+      #navWindow
+        #view
+      #users
+        //populated with node.js, may get fancier in the future, but keep it simple now.
+        ul
+          li.username username
+          li.username username
+          li.username username
+          li.username username
+          li.username username
+  script
+    var wallId = '4f47be322f8b522d303f1fef'; //from application
+    var companyId = 1; //from application
+    var username = 'Joe' //from application
+  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
+  script(src='/javascripts/hostappliance.js') //specific JS

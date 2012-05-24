@@ -57,8 +57,16 @@ app.get('/wall/:id', function(req, res){
 });
 app.get('/test', function(req,res){
   res.render('test',{});
+});
+app.get('/clientuser', function(req,res){
+  res.render('clientuser',{});
+});
+app.get('/clientappliance', function(req,res){
+  res.render('clientappliance',{});
+});
+app.get('/hostappliance', function(req,res){
+  res.render('hostappliance',{});
 })
-
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 

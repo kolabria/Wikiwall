@@ -68,3 +68,21 @@ canvas{
   background-repeat: no-repeat;
   background-position:-312px 0;
 }
+.navigation{
+  position:relative;
+}
+#navWindow { 
+  width: 200px; 
+  height: 150px; 
+  float: left; 
+  background:red;
+  display:none;
+  position:absolute;
+  bottom:0px;
+  left:0;
+}
+#view{
+  background:blue;
+  display:block
+}
+#shareto, #walls, #users{display:none;}
