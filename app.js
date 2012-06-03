@@ -4,7 +4,7 @@
  */
 
 var express = require('express')
-  , _ = require('extend') //underscore.js adds some array and object functions
+  , _ = require('underscore') //underscore.js adds some array and object functions
   , Mongoose = require('mongoose') //db interface
   , nowjs = require('now') // Websockets library
   , async = require('async') // Library to reduce callbacks
@@ -16,6 +16,9 @@ var express = require('express')
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
 var db;
+var boxes = {};
+var shares = {};
+var users = {};
 // Configuration
 
 app.configure(function(){
@@ -88,24 +91,24 @@ var everyone = nowjs.initialize(app);
 
 
 //start drawing
-everyone.now.shareStartDraw = function(companyId, wallId,color,width,start,layer){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.startDraw(color,width,start,this.user.clientId,layer);
+everyone.now.shareStartDraw = function(color,width,start,layer){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.startDraw(color,width,start,this.user.clientId,layer);
 }
 
 //add points
-everyone.now.shareUpdateDraw = function(companyId, wallId,point,layer){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateDraw(point,this.user.clientId,layer);
+everyone.now.shareUpdateDraw = function(point,layer){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.updateDraw(point,this.user.clientId,layer);
 }
 
 //move object
-everyone.now.sendMoveItem = function(companyId, wallId, layer, pathId, delta){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.updateMove(layer,pathId,delta);
+everyone.now.sendMoveItem = function(layer, pathId, delta){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.updateMove(layer,pathId,delta);
 }
 
 //delete path
-everyone.now.sendDeleteItem = function(companyId, wallId, layer, pathId){
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(this.user.clientId).now.removePath(layer,pathId);
-  deletePath(companyId, wallId, pathId);
+everyone.now.sendDeleteItem = function(layer, pathId){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.removePath(layer,pathId);
+  deletePath(pathId);
 }
 
 //DB functions
@@ -113,8 +116,10 @@ everyone.now.sendDeleteItem = function(companyId, wallId, layer, pathId){
 //pathId will reference the _id ObjectRef of the path object
 
 //called after sendEnd to save newPath (after vector simplification has run)
-everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,callback){
+everyone.now.newPath = function(path,pcolor,pwidth,player,callback){
   client = this.user.clientId;
+  var wallId = this.now.wallId
+  var companyId = this.now.companyId
   //create new path
   Path.create({
     layer: player
@@ -129,6 +134,7 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
         this.now.tError('Could Not Save');
       });
     }
+
     //update wall
     Wall.update({
       _id: wallId //hard coded for now
@@ -148,7 +154,7 @@ everyone.now.newPath = function(companyId, wallId,path,pcolor,pwidth,player,call
   
 }
 //called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
-deletePath = function(companyId, wallId,pathId){
+deletePath = function(pathId){
   Path.findOne({_id:pathId}, function(err,doc){
     if(err){
       console.log(err);
@@ -158,7 +164,7 @@ deletePath = function(companyId, wallId,pathId){
   });
 }
 //called after a move has been completed
-everyone.now.updatePath = function(companyId, wallId,pathId,path){
+everyone.now.updatePath = function(pathId,path){
   Path.update({
     _id:pathId
   },
@@ -173,22 +179,106 @@ everyone.now.updatePath = function(companyId, wallId,pathId,path){
   //update path in db
 }
 //initial load (data sent with page request)
-everyone.now.initWall = function(companyId, wallId,callback){
+everyone.now.initWall = function(callback){
   //initialize connection
-  Mongoose.connect('mongodb://localhost/'+companyId);
+  Mongoose.connect('mongodb://localhost/'+this.now.companyId);
   var client = this.user.clientId;
+  var name = this.now.name;
+  var wallId = this.now.wallId;
+  var usernames = [];
     //add this user to a group      
-  nowjs.getGroup('c'+companyId+'u'+wallId).addUser(client);
-  //get info from db
-  Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
-    if(err){
-      console.log(err);
-      nowjs.getClient(client, function(){
-        this.now.tError('Could not connect to Wall');
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).addUser(client);
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client);
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).getUsers(function(users){
+    async.forEach(users, function(item, callback){
+      nowjs.getClient(item, function(){
+        usernames.push({
+            name: this.now.name
+            , id: this.user.clientId
+          });
+        callback();
+      })
+    }, function(err){
+      Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
+        if(err){
+          console.log(err);
+          nowjs.getClient(client, function(){
+            this.now.tError('Could not connect to Wall');
+          });
+        }
+        callback(doc, usernames);
       });
+    });
+  });
+  //get info from db
+}
+//register appliance
+everyone.now.register = function(cb){
+  client = this.user.clientId
+  id = this.now.boxID
+  name = this.now.name
+  sharedWith = [];
+  boxes[id] = {
+    connectionID: client
+    , boxName : name
+  }
+  async.series([
+    function(callback){
+      _.each(shares, function(v,k){
+        if(_.find(v, function(x){
+          return x == id
+        })){
+          sharedWith.push({id:k,name:boxes[k].boxName})
+        }
+      });
+      callback(null);
     }
-    callback(doc);
+  ], 
+  function(err){
+    cb(shares[id], sharedWith);
+  })
+}
+    
+//On Share wall
+everyone.now.shareWall = function(target){
+  var boxID = this.now.boxID; 
+  var name = this.now.name
+  var id = boxes[target].connectionID;
+  if(!_.isArray(shares[boxID])){
+    shares[boxID] = []
+  }
+  shares[boxID].push(target);
+  nowjs.getClient(id, function(){
+    this.now.share(boxID, name);
   });
 }
 
-//event listener to call refresh on server status change
+everyone.now.clear = function(callback){
+  boxID = this.now.boxID;
+  companyId = this.now.companyId;
+  wallId = this.now.wallId;
+  clientId = this.user.clientId;
+  async.series([
+    function(cb){
+      nowjs.getGroup('c'+companyId+'u'+wallId).exclude(clientId).now.quit();
+      cb(null)
+    }
+    , function(cb){
+      _.each(shares[boxID], function(v){
+        nowjs.getClient(boxes[v].connectionID, function(){
+          this.now.unshare(boxID)
+        });
+      })
+      cb(null)
+    }
+  ],function(err){
+    delete shares[boxID];
+    callback();
+  });
+}
+
+
+nowjs.on('disconnect', function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
+  delete boxes[this.now.boxID];
+});

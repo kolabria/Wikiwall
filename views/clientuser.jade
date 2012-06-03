@@ -6,11 +6,12 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
     link(rel='stylesheet', href='/stylesheets/wall.css')
+    link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
     script(src='/javascripts/paper.js')
     script(src='/javascripts/ios.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
     script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-    script(src='/javascripts/touch-punch.min.js')   
+    script(src='/javascripts/touch-punch.min.js')     
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
   body.background
     .canvas
@@ -18,45 +19,63 @@ html
         nav#toolbar.toolbar
           ul.navigation
             li
-              input.tool(type='button',value='Pen')
+              button.btn.tool(type='button', onclick='', value='Pen')
+                i.icon-pencil
               ul
                 li
-                  input.color(type='button',value='Black')
+                  button.btn.btn-inverse.color(type='button', onclick='', value='Black')
                 li
-                  input.color(type='button',value='Red')
+                  button.btn.btn-danger.color(type='button', onclick='', value='Red')
                 li 
-                  input.color(type='button',value='Green')
-            li  
-              input.tool(type='button',value='Nav')
-              ul
-                li  
-                  input.tool(type='button',value='ZoomIn')
+                  button.btn.btn-success.color(type='button', onclick='', value='Green')
                 li
-                  input.tool(type='button',value='Center')
-                li  
-                  input.tool(type='button',value='ZoomOut')
+                  button.btn.btn-primary.color(type='button', onclick='', value='Blue')
             li  
-              input.tool(type='button',value='Select').
+              button.btn.tool(type='button', onclick='', value='Nav')
+                i.icon-move
+            li  
+              button.btn.tool(type='button', onclick='', value='Select')
+                i.icon-hand-up
             li
-              input.share(type='button', value='Users')
+              button.btn.share(type='button', onclick='',  value='Users') 
+                i.icon-user
             li  
-              a.quit(href='/walls/') Quit //url to quit page
+              a.quit.btn(href='/walls/')
+                i.icon-off
         h1 {Wall Name} //from application
       .whiteboard
         canvas#myCanvas(resize)
       #navWindow
         #view
-      #users
-        //populated with node.js, may get fancier in the future, but keep it simple now.
-        ul
-          li.username username
-          li.username username
-          li.username username
-          li.username username
-          li.username username
+        .btn-group                  
+          button.btn.tool(type='button', onclick='', value='ZoomIn')
+            i.icon-plus
+          button.btn.tool(type='button', onclick='', value='Center')
+            i.icon-asterisk
+          button.btn.tool(type='button', onclick='', value='ZoomOut')
+            i.icon-minus
+      #users.modal.fade
+        .modal-header
+          button.close(data-dismiss='modal') x
+          h3 Online Users
+        .modal-body
+          //populated with node.js, may get fancier in the future, but keep it simple now.
+          ul
+      #alerts
   script
-    var wallId = '4f47be322f8b522d303f1fef'; //from application
-    var companyId = 1; //from application
-    var username = 'Joe' //from application
+    var wallId = '4f47be322f8b522d303f1fef';
+    var companyId = 1; //from application 
+    var name = "PCUpstairs"
   script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
-  script(src='/javascripts/hostappliance.js') //specific JS
+  script(src='http://my.wikiwall.com/static/js/bootstrap-transition.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-alert.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-modal.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-dropdown.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-scrollspy.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-tab.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-tooltip.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-popover.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-button.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-collapse.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-carousel.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-typeahead.js')

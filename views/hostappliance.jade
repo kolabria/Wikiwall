@@ -6,6 +6,7 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
     link(rel='stylesheet', href='/stylesheets/wall.css')
+    link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
     script(src='/javascripts/paper.js')
     script(src='/javascripts/ios.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
@@ -18,73 +19,91 @@ html
         nav#toolbar.toolbar
           ul.navigation
             li
-              input.tool(type='button',value='Pen')
+              button.btn.tool(type='button', onclick='', value='Pen')
+                i.icon-pencil
               ul
                 li
-                  input.color(type='button',value='Black')
+                  button.btn.btn-inverse.color(type='button', onclick='', value='Black')
                 li
-                  input.color(type='button',value='Red')
+                  button.btn.btn-danger.color(type='button', onclick='', value='Red')
                 li 
-                  input.color(type='button',value='Green')
-            li  
-              input.tool(type='button',value='Nav')
-              ul
-                li  
-                  input.tool(type='button',value='ZoomIn')
+                  button.btn.btn-success.color(type='button', onclick='', value='Green')
                 li
-                  input.tool(type='button',value='Center')
-                li  
-                  input.tool(type='button',value='ZoomOut')
+                  button.btn.btn-primary.color(type='button', onclick='', value='Blue')
             li  
-              input.tool(type='button',value='Select')
-            li
-              input.share(type='button', value='Share')
-            li
-              input.share(type='button', value='Shared')
-            li
-              input.share(type='button', value='Users')
-            li
-              a.settings(href='/settings') //URL to settings page
+              button.btn.tool(type='button', onclick='', value='Nav')
+                i.icon-move
             li  
-              a.quit(href='/walls/') Erase //URL to quit page (so that DB can be wiped)
+              button.btn.tool(type='button', onclick='', value='Select')
+                i.icon-hand-up
+            li
+              button.btn.share(type='button', onclick='',  value='Share')
+                i.icon-share
+            li
+              button.btn.share(type='button', onclick='',  value='Shared')
+                i.icon-inbox
+            li
+              button.btn.share(type='button', onclick='',  value='Users') 
+                i.icon-user
+            li
+              a.settings.btn(href='/settings')
+                i.icon-wrench
+            li  
+              a.clear.btn(href='/walls/')
+                i.icon-trash
         h1 {Wall Name} //from application
       .whiteboard
-        canvas#myCanvas(resize) 
-      div#navWindow
-        div#view
-      div#shareTo
-        h2 {Pin Number} //the pin number
-        //Populated by template, to idententify which is shared will be handled via JS, onClick logic handled via JS and nodeJS,
-        //Does Django need to store anything for permissions? or do we assume because it's on the approved share list that all is good.
-        ul
-          li.{boxID} {Appliance Name}
-          li.{boxID} {Appliance Name}
-          li.{boxID} {Appliance Name}
-          li.{boxID} {Appliance Name}
-          li.{boxID} {Appliance Name}
-      div#walls
+        canvas#myCanvas(resize)
+      #navWindow
+        #view
+        .btn-group                  
+          button.btn.tool(type='button', onclick='', value='ZoomIn')
+            i.icon-plus
+          button.btn.tool(type='button', onclick='', value='Center')
+            i.icon-asterisk
+          button.btn.tool(type='button', onclick='', value='ZoomOut')
+            i.icon-minus
+      #shareTo.modal.fade
+        .modal-header
+          button.close(data-dismiss='modal') x
+          h3 Share Wall {Pin Number}
+        .modal-body
+          //Populated by template, to idententify which is shared will be handled via JS, onClick logic handled via JS and nodeJS,
+          //Does Django need to store anything for permissions? or do we assume because it's on the approved share list that all is good.
+          ul
+            li.btn(data-value='23231121') 
+              span ClientPC 
+              i 
+      #walls.modal.fade
+        .modal-header
+          button.close(data-dismiss='modal') x
+          h3 Shared Walls
         //populated with node.js with possible exception of this appliances wall, which is populated by template
-        ul
-          li.{boxID}
-            a(href="{url to that wall}") {Appliance Name}          
-          li.{boxID}
-            a(href="{url to that wall}") {Appliance Name}          
-          li.{boxID}
-            a(href="{url to that wall}") {Appliance Name}          
-          li.{boxID}
-            a(href="{url to that wall}") {Appliance Name}
-      div#users
-        //populated with node.js, may get fancier in the future, but keep it simple now.
-        ul
-          li.username username
-          li.username username
-          li.username username
-          li.username username
-          li.username username
+        .modal-body
+          ul
+      #users.modal.fade
+        .modal-header
+          button.close(data-dismiss='modal') x
+          h3 Online Users
+        .modal-body
+          //populated with node.js, may get fancier in the future, but keep it simple now.
+          ul
+      #alerts
   script
     var wallId = '4f47be322f8b522d303f1fef';
+    var name = "hostPC"
     var companyId = 1; //from application 
-    var boxname = "hostPC"
     var boxID = "12341142" //if name is not unique
   script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
-  script(src='/javascripts/hostappliance.js') //specific JS
+  script(src='http://my.wikiwall.com/static/js/bootstrap-transition.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-alert.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-modal.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-dropdown.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-scrollspy.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-tab.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-tooltip.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-popover.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-button.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-collapse.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-carousel.js')
+  script(src='http://my.wikiwall.com/static/js/bootstrap-typeahead.js')

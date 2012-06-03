@@ -11,10 +11,10 @@ header{
   position: absolute;
   left:0;
   bottom:0px;
+  line-height:56px;
   width:100%;
   background:black;
   z-index:1;
-  overflow:hidden;
 }
 header h1{
   float:right;
@@ -30,6 +30,7 @@ nav ul{
   display:block;
   margin:0;
   padding:0;
+  background:black;
 }
 nav ul li{
   list-style-type: none;
@@ -37,6 +38,11 @@ nav ul li{
   padding:0;
   display:inline-block;
 }
+nav li{width:46px;text-align:center;line-height:56px;}
+nav ul{position:relative;}
+nav li li{float:left;clear:both;}
+nav ul ul{position:absolute;bottom:56px;display:none;}
+nav ul li:hover ul{display:block;}
 a {
   color: #00B7FF;
 }
@@ -73,16 +79,27 @@ canvas{
 }
 #navWindow { 
   width: 200px; 
-  height: 150px; 
+  height: 150px;
+  padding:2px; 
   float: left; 
-  background:red;
+  background:black;
   display:none;
   position:absolute;
-  bottom:0px;
+  bottom:56px;
   left:0;
 }
+#navWindow .btn-group{
+  width: 200px;
+  position: absolute;
+  top: -28px;
+  left: 0px;
+  background:black;
+  padding: 2px;
+}
+#navWindow .btn-group .btn{width:33%;}
 #view{
   background:blue;
   display:block
 }
-#shareto, #walls, #users{display:none;}
+#toolbar i, #navWindow i{pointer-events:none}
+#alerts{position:absolute;top:0;right:0;width:200px;height:auto;}
