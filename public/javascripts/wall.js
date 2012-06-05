@@ -402,20 +402,6 @@ now.ready(function(){
     }
   });
   jQuery('.tool[value=Pen]').click();
-  iOS_disableZooming();
-  iOS_disableScrolling();
-  window.onorientationchange = function(){
-      if ( orientation == 0 ) {
-        window.scrollTo(0,1);
-      }  
-      else if ( orientation == 90 ) {  
-      }  
-      else if ( orientation == -90 ) {  
-      }  
-      else if ( orientation == 180 ) {  
-        window.scrollTo(0,1); 
-      }  
-   }
 });
 
   
