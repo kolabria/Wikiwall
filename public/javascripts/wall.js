@@ -15,11 +15,10 @@ now.ready(function(){
           jQuery('#walls').find('ul').append('<li class="'+shares[i].id+'"><a href="/connect/'+shares[i].id+'">'+shares[i].name+'</a></li>');
         }
       }
-
-    //loop through shares
-    //change style of shared
     });
   }
+
+  var events = 0;
   var color = 'black';
   var width = 2;
 
@@ -109,8 +108,8 @@ now.ready(function(){
   gAlert = function(message){
     jQuery('<div class="alert fade in">'+message+'</div>')
       .appendTo('#alerts')
-      .delay(1000).slideUp(300, function(){
-        this.detach();
+      .delay(2000).slideUp(300, function(){
+        $(this).detach();
       })
   }
 
@@ -129,6 +128,11 @@ now.ready(function(){
   
   now.updateDraw = function(point,pathname,layer){
     paper.project.layers[layer].children[pathname].add(point);
+    events++
+    if(events = 4){
+      events = 0;
+      paper.view.draw();
+    }
   }
 
   now.endDraw = function(layer,pathname,newname){
