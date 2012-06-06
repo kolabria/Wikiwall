@@ -97,7 +97,6 @@ everyone.now.shareStartDraw = function(color,width,start,layer){
 
 //add points
 everyone.now.shareUpdateDraw = function(point,layer){
-  console.log(point, layer);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.updateDraw(point,this.user.clientId,layer);
 }
 

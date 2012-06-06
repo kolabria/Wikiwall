@@ -5,8 +5,8 @@ html
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
-    link(rel='stylesheet', href='/stylesheets/wall.css')
     link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/wall.css')
     script(src='/javascripts/paper.js')
     script(src='/javascripts/ios.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
@@ -15,13 +15,15 @@ html
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
   body.background
     .canvas
-      header  
+      header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
-          ul.navigation
-            li
+          ul.nav.pull-left
+            li.btn-group.dropup.pen
               button.btn.tool(type='button', onclick='', value='Pen')
-                i.icon-pencil
-              ul
+                i.icon-pencil   
+              button.btn.dropdown-toggle(data-toggle="dropdown")       
+                span.caret
+              ul.dropdown-menu.pull-right
                 li
                   button.btn.btn-inverse.color(type='button', onclick='', value='Black')
                 li
@@ -36,22 +38,37 @@ html
             li  
               button.btn.tool(type='button', onclick='', value='Select')
                 i.icon-hand-up
-            li
-              button.btn.share(type='button', onclick='',  value='Share')
-                i.icon-share
-            li
-              button.btn.share(type='button', onclick='',  value='Shared')
-                i.icon-inbox
-            li
-              button.btn.share(type='button', onclick='',  value='Users') 
-                i.icon-user
-            li
+            li.btn-group.dropup#shareTo
+                button.btn.dropdown-toggle(data-toggle="dropdown")
+                  i.icon-share
+                  span.caret
+                ul.dropdown-menu
+                  li
+                    h4 Share Wall {{ Pin Number }}
+                  li.divider
+            li.btn-group.dropup#walls
+                button.btn.dropdown-toggle(data-toggle="dropdown")
+                  i.icon-inbox
+                  span.caret
+                ul.dropdown-menu
+                  li
+                    h4 Shared Walls
+                  li.divider
+            li.btn-group.dropup#users
+                button.btn.dropdown-toggle(data-toggle="dropdown")
+                  i.icon-user
+                  span.caret
+                ul.dropdown-menu
+                  li
+                    h4 Active Users
+                  li.divider            
+          .pull-right
+            a.brand(href="#") {Wall Name}
+            .nav.btn-group
               a.settings.btn(href='/settings')
-                i.icon-wrench
-            li  
+                i.icon-wrench 
               a.clear.btn(href='/walls/')
                 i.icon-trash
-        h1 {Wall Name} //from application
       .whiteboard
         canvas#myCanvas(resize)
       #navWindow
@@ -63,31 +80,6 @@ html
             i.icon-asterisk
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
-      #shareTo.modal.fade
-        .modal-header
-          button.close(data-dismiss='modal') x
-          h3 Share Wall {Pin Number}
-        .modal-body
-          //Populated by template, to idententify which is shared will be handled via JS, onClick logic handled via JS and nodeJS,
-          //Does Django need to store anything for permissions? or do we assume because it's on the approved share list that all is good.
-          ul
-            li.btn(data-value='23231121') 
-              span ClientPC 
-              i 
-      #walls.modal.fade
-        .modal-header
-          button.close(data-dismiss='modal') x
-          h3 Shared Walls
-        //populated with node.js with possible exception of this appliances wall, which is populated by template
-        .modal-body
-          ul
-      #users.modal.fade
-        .modal-header
-          button.close(data-dismiss='modal') x
-          h3 Online Users
-        .modal-body
-          //populated with node.js, may get fancier in the future, but keep it simple now.
-          ul
       #alerts
   script
     var wallId = '4f47be322f8b522d303f1fef';

@@ -8,45 +8,20 @@ body {
   width:100%;
 }
 header{
-  position: absolute;
-  left:0;
-  bottom:0px;
-  line-height:56px;
-  width:100%;
-  background:black;
-  z-index:1;
-}
-header h1{
-  float:right;
-  color:white;
-  padding:10px;
-  margin:0;
-  display:block;  
-}
-nav { 
-  float:left;
-}
-nav ul{
-  display:block;
-  margin:0;
-  padding:0;
   background:black;
 }
-nav ul li{
-  list-style-type: none;
-  margin:0;
-  padding:0;
-  display:inline-block;
+h4{
+  text-align:center;
 }
-nav li{width:46px;text-align:center;line-height:56px;}
-nav ul{position:relative;}
-nav li li{float:left;clear:both;}
-nav ul ul{position:absolute;bottom:56px;display:none;}
-nav ul li:hover ul{display:block;}
-a {
-  color: #00B7FF;
+.dropdown-menu{
+  padding:5px;
 }
+.pen .dropdown-menu{
+  min-width:28px;
+  background:black;
 
+  text-align:center;
+}
 canvas{
   position:relative;
   background-image: url(../img/grid_noise.png);
@@ -61,19 +36,7 @@ canvas{
 .crosshair{
   cursor:pointer;
 }
-.icon-remove{
-  cursor:pointer;
-  display: inline-block;
-  z-index:1;
-  position:absolute;
-  width: 14px;
-  height: 14px;
-  vertical-align: text-top;
-  background-image: url(../img/glyphicons-halflings.png);
-  background-position: 14px 14px;
-  background-repeat: no-repeat;
-  background-position:-312px 0;
-}
+
 .navigation{
   position:relative;
 }
@@ -88,6 +51,7 @@ canvas{
   bottom:56px;
   left:0;
 }
+
 #navWindow .btn-group{
   width: 200px;
   position: absolute;

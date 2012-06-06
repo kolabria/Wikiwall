@@ -383,14 +383,11 @@ now.ready(function(){
       jQuery('.tool[value=Pen]').click();
     }else if(/.*share.*/.test(cl)){
       switch(t){
-        case 'Share':
-          jQuery('#shareTo').modal({});
+        case 'Share':        
           break;
         case 'Shared':
-          jQuery('#walls').modal({});
           break;
         case 'Users':
-          jQuery('#users').modal({});
           break;
       }
     }else{

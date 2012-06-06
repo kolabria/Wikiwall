@@ -5,8 +5,8 @@ html
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
-    link(rel='stylesheet', href='/stylesheets/wall.css')
     link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/wall.css')
     script(src='/javascripts/paper.js')
     script(src='/javascripts/ios.js')
     script(src='//code.jquery.com/jquery-latest.min.js')
@@ -15,21 +15,24 @@ html
     script(src='/nowjs/now.js') //this is what allows realtime communication, 
   body.background
     .canvas
-      header  
+      header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
-          ul.navigation
+          ul.nav.pull-left
             li
-              button.btn.tool(type='button', onclick='', value='Pen')
-                i.icon-pencil
-              ul
-                li
-                  button.btn.btn-inverse.color(type='button', onclick='', value='Black')
-                li
-                  button.btn.btn-danger.color(type='button', onclick='', value='Red')
-                li 
-                  button.btn.btn-success.color(type='button', onclick='', value='Green')
-                li
-                  button.btn.btn-primary.color(type='button', onclick='', value='Blue')
+              .btn-group.dropup.pen
+                button.btn.tool(type='button', onclick='', value='Pen')
+                  i.icon-pencil   
+                button.btn.dropdown-toggle(data-toggle="dropdown")       
+                  span.caret
+                ul.dropdown-menu.pull-right
+                  li
+                    button.btn.btn-inverse.color(type='button', onclick='', value='Black')
+                  li
+                    button.btn.btn-danger.color(type='button', onclick='', value='Red')
+                  li 
+                    button.btn.btn-success.color(type='button', onclick='', value='Green')
+                  li
+                    button.btn.btn-primary.color(type='button', onclick='', value='Blue')
             li  
               button.btn.tool(type='button', onclick='', value='Nav')
                 i.icon-move
@@ -37,12 +40,19 @@ html
               button.btn.tool(type='button', onclick='', value='Select')
                 i.icon-hand-up
             li
-              button.btn.share(type='button', onclick='', value='Users') 
-                i.icon-user
-            li  
-              a.quit.btn(href='/walls/')
+              .btn-group.dropup#users
+                button.btn.dropdown-toggle(data-toggle="dropdown")
+                  i.icon-user
+                  span.caret
+                ul.dropdown-menu
+                  li
+                    h4 Active Users
+                  li.divider            
+          .pull-right
+            a.brand(href="#") {Wall Name}
+            .nav.btn-group
+              a.quit.btn.pull-right(href='/walls/')
                 i.icon-off
-        h1 {Wall Name} //from application
       .whiteboard
         canvas#myCanvas(resize)
       #navWindow
@@ -53,14 +63,7 @@ html
           button.btn.tool(type='button', onclick='', value='Center')
             i.icon-asterisk
           button.btn.tool(type='button', onclick='', value='ZoomOut')
-            i.icon-minus
-      #users.modal.fade
-        .modal-header
-          button.close(data-dismiss='modal') x
-          h3 Online Users
-        .modal-body
-          //populated with node.js, may get fancier in the future, but keep it simple now.
-          ul
+            i.icon-minus  
       #alerts
   script
     var wallId = '4f47be322f8b522d303f1fef';
