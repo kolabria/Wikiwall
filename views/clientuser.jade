@@ -7,19 +7,12 @@ html
     title {Wall Name} // from Application
     link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/wall.css')
-    script(src='/javascripts/paper.js')
-    script(src='/javascripts/ios.js')
-    script(src='//code.jquery.com/jquery-latest.min.js')
-    script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-    script(src='/javascripts/touch-punch.min.js')     
-    script(src='/nowjs/now.js') //this is what allows realtime communication, 
-  body.background
+     body.background
     .canvas
       header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
           ul.nav.pull-left
-            li
-              .btn-group.dropup.pen
+            li.btn-group.dropup.pen
                 button.btn.tool(type='button', onclick='', value='Pen')
                   i.icon-pencil   
                 button.btn.dropdown-toggle(data-toggle="dropdown")       
@@ -48,11 +41,11 @@ html
                   li
                     h4 Active Users
                   li.divider            
-          .pull-right
-            a.brand(href="#") {Wall Name}
-            .nav.btn-group
-              a.quit.btn.pull-right(href='/walls/')
-                i.icon-off
+        .pull-right
+          a.brand(href="#") {Wall Name}
+          nav.nav.btn-group
+            a.quit.btn.pull-right(href='/walls/')
+              i.icon-off
       .whiteboard
         canvas#myCanvas(resize)
       #navWindow
@@ -65,11 +58,9 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus  
       #alerts
-  script
-    var wallId = '4f47be322f8b522d303f1fef';
-    var companyId = 1; //from application 
-    var name = "PCUpstairs"
-  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
+  script(src='http://my.wikiwall.com/static/js/jquery-1.7.2.min.js')
+  //script(src='http://my.wikiwall.com/static/js/bootstrap.min.js')
+  script(src='/javascripts/ios.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-transition.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-alert.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-modal.js')
@@ -82,3 +73,20 @@ html
   script(src='http://my.wikiwall.com/static/js/bootstrap-collapse.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-carousel.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-typeahead.js')
+  script
+      iOS_disableZooming();
+      iOS_disableScrolling();
+      window.onorientationchange = function(){
+        if ( orientation == 0 || orientation == 180) {
+          window.scrollTo(0,1);
+        }  
+      }
+  script
+    var wallId = '4f47be322f8b522d303f1fef';
+    var companyId = 1; //from application 
+    var name = "PCUpstairs"
+  script(src='/javascripts/paper.js')
+  script(src='/javascripts/touch-punch.min.js')     
+  script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
+  script(src='/nowjs/now.js') //this is what allows realtime communication, 
+  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
