@@ -7,31 +7,25 @@ html
     title {Wall Name} // from Application
     link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/wall.css')
-    script(src='/javascripts/paper.js')
-    script(src='/javascripts/ios.js')
-    script(src='//code.jquery.com/jquery-latest.min.js')
-    script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-    script(src='/javascripts/touch-punch.min.js')     
-    script(src='/nowjs/now.js') //this is what allows realtime communication, 
   body.background
     .canvas
       header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
           ul.nav.pull-left
             li.btn-group.dropup.pen
-                button.btn.tool(type='button', onclick='', value='Pen')
-                  i.icon-pencil   
-                button.btn.dropdown-toggle(data-toggle="dropdown")       
-                  span.caret
-                ul.dropdown-menu.pull-right
-                  li
-                    button.btn.btn-inverse.color(type='button', onclick='', value='Black')
-                  li
-                    button.btn.btn-danger.color(type='button', onclick='', value='Red')
-                  li 
-                    button.btn.btn-success.color(type='button', onclick='', value='Green')
-                  li
-                    button.btn.btn-primary.color(type='button', onclick='', value='Blue')
+              button.btn.tool(type='button', onclick='', value='Pen')
+                i.icon-pencil   
+              button.btn.dropdown-toggle(data-toggle="dropdown")       
+                span.caret
+              ul.dropdown-menu.pull-right
+                li
+                  button.btn.btn-inverse.color(type='button', onclick='', value='Black')
+                li
+                  button.btn.btn-danger.color(type='button', onclick='', value='Red')
+                li 
+                  button.btn.btn-success.color(type='button', onclick='', value='Green')
+                li
+                  button.btn.btn-primary.color(type='button', onclick='', value='Blue')
             li  
               button.btn.tool(type='button', onclick='', value='Nav')
                 i.icon-move
@@ -56,7 +50,7 @@ html
                   li.divider            
         .pull-right
           a.brand(href="#") {Wall Name}
-          nav.nav.btn-group
+          nav#functions.nav.btn-group
             a.settings.btn(href='/settings')
               i.icon-wrench
             a.quit.btn.pull-right(href='/walls/')
@@ -73,12 +67,8 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
       #alerts
-  script
-    var wallId = '4f47be322f8b522d303f1fef';
-    var name = "clientPC"
-    var companyId = 1; //from application 
-    var boxID = "23231121" //if name is not unique
-  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
+  script(src='http://my.wikiwall.com/static/js/jquery-1.7.2.min.js')
+  script(src='/javascripts/ios.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-transition.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-alert.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-modal.js')
@@ -91,3 +81,21 @@ html
   script(src='http://my.wikiwall.com/static/js/bootstrap-collapse.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-carousel.js')
   script(src='http://my.wikiwall.com/static/js/bootstrap-typeahead.js')
+  script
+    iOS_disableZooming();
+    iOS_disableScrolling();
+    window.onorientationchange = function(){
+      if ( orientation == 0 || orientation == 180) {
+        window.scrollTo(0,1);
+      }  
+    }
+  script
+    var wallId = '4f47be322f8b522d303f1fef';
+    var name = "clientPC"
+    var companyId = 1; //from application 
+    var boxID = "23231121" //if name is not unique
+  script(src='/javascripts/paper.js')
+  script(src='/javascripts/touch-punch.min.js')     
+  script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
+  script(src='/nowjs/now.js') //this is what allows realtime communication, 
+  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS

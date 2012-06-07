@@ -65,5 +65,5 @@ canvas{
   background:blue;
   display:block
 }
-#toolbar i, #navWindow i{pointer-events:none}
+#toolbar i, #navWindow i, #functions i{pointer-events:none}
 #alerts{position:absolute;top:0;right:0;width:200px;height:auto;}
