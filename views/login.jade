@@ -1,0 +1,16 @@
+h1= title
+p Welcome to #{title}
+
+p Login to your WikiWalls
+  form.users(name='login', action='/login', method='POST')
+    div
+      label Email:
+      input(name='company[adminEmail]', value=company.adminEmail || '')
+    div
+      label Password:
+      input(name='company[password]', value=company.password || '', type='password')
+    div
+        input(type='submit', value='Log In')
+  br
+  a(href='/register') Create a new account
+  br
