@@ -12,6 +12,7 @@ var express = require('express')
   , Path = require('./models/path')
   , Wall = require('./models/wall')
   , Images = require('./models/images')
+  , Company = require('./models/company')
 
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
@@ -26,8 +27,8 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
-  //will need cookieparse
-  //will need session or redis-session
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'your secret here' }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -48,6 +49,29 @@ app.dynamicHelpers({
 app.helpers({
   _:require('underscore') // make underscore available to clientside
 })
+
+// login middleware
+
+function requiresLogin(req,res,next){
+  if (req.session.company_id) {
+    Company.findById(req.session.company_id, function(err, company) {
+      if (company) {
+        req.currentCompany = company;
+        next();
+      } else {
+        res.redirect('/login');
+      }
+    });
+  } else {
+    res.redirect('/login');
+  }
+};
+
+// Database
+
+Mongoose.connect('mongodb://localhost/cdb2');
+
+
 
 // Routes not needed as it will be handled by python
 
@@ -70,6 +94,84 @@ app.get('/clientappliance', function(req,res){
 app.get('/hostappliance', function(req,res){
   res.render('hostappliance',{});
 })
+app.get('/register', function(req,res){
+  res.render('register',{
+    title: 'Register', company: new Company()	
+  });
+})
+
+app.get('/login', function(req, res){
+  res.render('login', {
+    title: 'Login', company: new Company()
+    });
+});
+
+app.get('/', function(req,res){
+  res.local('layout', false);
+  res.render('index',{
+    title: 'Kolabria'	
+  });
+})
+
+
+app.post('/login', function(req, res){
+	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
+	    if (company && company.authenticate(req.body.company.password,company.password)) {
+	      req.session.company_id = company.id;
+          res.redirect('/account');
+	    } else {
+		  console.log('Login failed');
+	      //req.flash('warn', 'Login Failed');
+	      res.redirect('/login');
+	    }
+	  });
+});
+
+app.post('/register.:format?', function(req, res){
+  var company = new Company(req.body.company);
+
+  function companySaveFailed() {
+   // req.flash('warn', 'Account creation failed');
+    console.log('account creation failed');
+    res.render('register', {
+      locals: { title: 'Register', company: company }
+    });
+  }
+
+  company.save(function(err) {
+    if (err) return companySaveFailed();
+
+   // req.flash('info', 'Your account has been created');
+    console.log('Account Created');
+
+    switch (req.params.format) {
+      case 'json':
+        res.send(company.toObject());
+      break;
+
+      default:
+        req.session.company_id = company.id;
+        res.redirect('/account');
+    }
+  });
+});
+
+app.get('/account', requiresLogin, function(req,res){
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	       res.render('account', {
+		    title: 'Company', cname: company.name, email: company.adminEmail
+		    });
+	    }});
+})
+
+app.get('/sdestroy', function(req, res){
+  if (req.session) {
+    req.session.destroy(function() {});
+  }
+  res.redirect('/login');
+});
+
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 
