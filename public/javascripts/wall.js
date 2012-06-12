@@ -184,7 +184,7 @@ now.ready(function(){
     }
   }
   now.quit = function(){
-    window.location = jQuery('#toolbar').find('.quit').attr('href');
+    window.location = jQuery('.navbar').find('.quit').attr('href');
   }
   now.share = function(host, name){
     jQuery('#walls').find('ul').append('<li class="'+host+'"><a href="/connect/'+host+'">'+name+'</a></li>');
@@ -415,7 +415,6 @@ now.ready(function(){
           view.draw(); 
           break;
         case 'Export':
-          alert('save')
           exportCanvas();
           break;
       }
