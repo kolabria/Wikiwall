@@ -5,7 +5,7 @@ html
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
-    link(rel='stylesheet', href='http://my.wikiwall.com/static/css/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/wall.css')
   body.background
     .canvas
@@ -67,20 +67,9 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
       #alerts
-  script(src='http://my.wikiwall.com/static/js/jquery-1.7.2.min.js')
+  script(src='/javascripts/jquery-1.7.2.min.js')
   script(src='/javascripts/ios.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-transition.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-alert.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-modal.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-dropdown.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-scrollspy.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-tab.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-tooltip.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-popover.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-button.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-collapse.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-carousel.js')
-  script(src='http://my.wikiwall.com/static/js/bootstrap-typeahead.js')
+  script(src='/javascripts/bootstrap.min.js')
   script
     iOS_disableZooming();
     iOS_disableScrolling();

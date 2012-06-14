@@ -52,6 +52,9 @@ app.helpers({
 // Routes not needed as it will be handled by python
 
 //For testing
+app.get('/', function(req,res){
+  res.render('index',{});
+});
 app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
   var wall_id = req.params.id;
@@ -70,6 +73,12 @@ app.get('/clientappliance', function(req,res){
 app.get('/hostappliance', function(req,res){
   res.render('hostappliance',{});
 })
+app.get('/images/:file', function(req,res){
+
+})
+app.post('/images', function(req,res){
+
+})
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 
@@ -78,6 +87,11 @@ console.log("Express server listening on port %d in %s mode", port, app.settings
 var nowjs = require("now");
 var everyone = nowjs.initialize(app);
 
+
+//Functions
+uploadImage = function(){
+
+}
 //Two Main types of now.js functions
 //1. DB functions to be called after all manipulations on a path/object has been completed
 //2. Inter-Client functions that offer realtime updates between clients. 
