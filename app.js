@@ -13,6 +13,8 @@ var express = require('express')
   , Wall = require('./models/wall')
   , Images = require('./models/images')
   , Company = require('./models/company')
+  , Box = require('./models/box')
+  , Iwall = require('./models/iwall.js')
 
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
@@ -67,9 +69,36 @@ function requiresLogin(req,res,next){
   }
 };
 
+function requiresBoxID(req,res,next){
+	console.log('BoxAuth - User-Agent: ' + req.headers['user-agent']);
+	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+  if (req.session.boxID) {
+    Company.findById(req.session.company_id, function(err, company) {
+      if (company) {
+        req.currentCompany = company;
+        next();
+      } else {
+        res.redirect('/login');
+      }
+    });
+  } else {
+    res.redirect('/login');
+  }
+};
+
+function getBoxFromUA(ua){
+	if (i = ua.search("WWA")) {
+		BoxID = ua.substr(i);
+		return BoxID;
+	}
+	return null;
+}
+
+
+
 // Database
 
-Mongoose.connect('mongodb://localhost/cdb2');
+Mongoose.connect('mongodb://localhost/cdb4');
 
 
 
@@ -107,18 +136,56 @@ app.get('/login', function(req, res){
 });
 
 app.get('/', function(req,res){
-  res.local('layout', false);
+  //res.local('layout', false);
   res.render('index',{
     title: 'Kolabria'	
   });
 })
+
+app.get('/join', function(req,res){
+  res.render('join',{
+    title: 'Kolabria'	
+  });
+})
+
+app.post('/join', function(req,res){
+ console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
+  	Box.findOne({ name: req.body.room}, function(err, box) {
+		 if(err){
+		    console.log(err);
+		  }
+		if (box) {
+			// console.log('Join-- box.PIN', box.PIN);
+			  if (box.PIN == req.body.code) {
+				  res.render('clientuser', {
+			        title: 'Kolabria', box: box, userName: req.body.name
+		          });
+			  }
+		} 	
+     });	
+})
+
+//app.post('/join', function(req,res){
+// console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
+//  	Box.find({ name: "dog"}, function(err, box) {
+//		 if(err){
+//		    console.log(err);
+//		  }
+//		  console.log('Join-- box.PIN', box.PIN);
+//		  if (box.PIN == req.body.code) {
+//			  res.render('clienuser', {
+//		        title: 'Kolabria', box: box, userName: req.body.name
+//	          });
+//		  }
+//     });	
+//})
 
 
 app.post('/login', function(req, res){
 	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
 	    if (company && company.authenticate(req.body.company.password,company.password)) {
 	      req.session.company_id = company.id;
-          res.redirect('/account');
+          res.redirect('/controllers');
 	    } else {
 		  console.log('Login failed');
 	      //req.flash('warn', 'Login Failed');
@@ -151,19 +218,196 @@ app.post('/register.:format?', function(req, res){
 
       default:
         req.session.company_id = company.id;
-        res.redirect('/account');
+        res.redirect('/controllers');
     }
   });
 });
 
-app.get('/account', requiresLogin, function(req,res){
+app.get('/controllers', requiresLogin, function(req,res){	
 	Company.findById(req.session.company_id, function(err, company) {
 	    if (company) {
-	       res.render('account', {
-		    title: 'Company', cname: company.name, email: company.adminEmail
-		    });
+	      Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+			 if(err){
+			    console.log(err);
+			  }
+		      res.render('controllers', {
+		        title: 'Kolabria', company: company , boxes: boxes
+	          });
+	       });	
 	    }});
-})
+});
+
+//Path.findOne({_id:pathId}, function(err,doc){
+  // if(err){
+    // console.log(err);
+     //this.now.tError('Could Not Delete');
+  // }
+  // doc.remove();
+ // });
+
+// Wall PIN generator
+function newPIN(){
+	return Math.floor(Math.random() * 9000) + 1000;
+}
+
+
+// add new box
+app.post('/controllers.:format?', requiresLogin, function(req,res){
+	//console.log('Add new box');
+	var b = new Box();
+	var w = new Iwall();
+	w.company_id = req.session.company_id;
+	w.PIN = newPIN();
+	w.name = req.body.box_name;
+	w.save(function(err) {
+	      if (err) console.log('New wall add failed');
+	   });
+	
+    function boxSaveFailed() {
+      console.log('New box add  failed');
+      res.redirect('/controllers');
+    }
+    b.name = req.body.box_name;
+    b.company_id = req.session.company_id;
+    b.id = req.body.box_id;
+    b.defaultWall_ID = w.id; 
+    b.PIN = w.PIN;
+    console.log('default wall id: ',b.defaultWall_ID);
+	b.save(function(err) {
+	      if (err) return boxSaveFailed();
+	   });
+
+	
+	//console.log('Added Box name: ', req.body.box_name);
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	      Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+			 if(err){
+			    console.log(err);
+			  }
+		      res.render('controllers', {
+		        title: 'Kolabria', company: company , boxes: boxes
+	          });
+	       });	
+	    }});
+});
+// remove box
+app.get('/controllers/:id.:format?/remove', requiresLogin, function(req,res){
+    console.log('Remove Box: ID -  ', req.params.id);
+    async.waterfall([
+        function(callback){
+            Box.findOne({ id: req.params.id}, function(err, box) {
+                callback(null, box);
+            });
+        },
+        function(box, callback){
+            Iwall.findById(box.defaultWall_ID, function (err, wall) {
+                callback(null, box, wall);
+            });
+        }
+    ],function(err, box, wall){
+	    if(err){
+		    console.log(err);
+		  }
+        wall.remove();
+        box.remove();
+        res.redirect('/controllers');
+    });
+});
+
+
+// host appliance draw view test
+app.get('/host/:id.:format?/draw', function(req,res){
+	console.log('Draw - Box ID  ', req.params.id);
+	Box.findOne({ id: req.params.id}, function(err, box) {
+	   if(err){
+	     console.log(err);
+	   }
+       res.local('layout', false); 
+	   res.render('hostappliance',{ box: box   
+       });
+    });
+});
+// host appliance draw view test using user agent
+app.get('/host/draw', function(req,res){
+	console.log('User-Agent: ' + req.headers['user-agent']);
+//	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+		console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		   if(err){
+		     console.log(err);
+		   }
+	       res.local('layout', false); 
+		   res.render('hostappliance',{ box: box   
+	       });
+	    });	
+	}
+});
+
+
+app.get('/trash/:id.:format?', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+		var w = new Iwall();  // create a new wall
+		console.log('Trash - Box ID  ', req.params.id);
+		Box.findOne({ id: req.params.id}, function(err, box) {
+		   if(err){
+		     console.log(err);
+		   }
+		   if (box){
+		     console.log("Trash - Box dwall: ", box.defaultWall_ID);
+		     Iwall.findById(box.defaultWall_ID, function (err, wall) {
+		        if(err){
+			       console.log(err);
+			     }
+			     if(wall) {
+			       console.log("Trash - wall id: ", wall.id);
+			       wall.remove(); //remove old wall
+			       w.company_id = box.company_id;
+			       w.PIN = newPIN();
+			       w.name = box.name;
+			       box.defaultWall_ID = w.id;
+			       box.PIN = w.PIN 
+			       console.log('Trash - new wall PIN: ', box.PIN, w.PIN);
+			       w.save(function(err) {
+			        if (err) console.log(' Trash - New wall add failed');
+		           });
+		           box.save(function(err) {
+			        if (err) console.log(' Trash - box update failed');
+		           });
+			     }	   
+		     });
+	       }
+	       res.redirect('/host/draw');	
+	       //res.local('layout', false); 
+		   //res.render('hostappliance',{ box: box   
+	       // });
+	    });		
+	} 
+});
+app.get('/connect/:id', function(req,res){  
+
+	console.log('ID  ', req.params.id);
+//	console.log('ID  ', req.params.name);
+	
+	console.log('User-Agent: ' + req.headers['user-agent']);
+	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+	console.log('Box ID: ',bid);
+	Box.findOne({ id: bid}, function(err, rbox) {
+      if(err){
+	    console.log(err);
+	  }
+      Box.findOne({ id: req.params.id}, function(err, hbox) {
+	    if(err){
+	      console.log(err);
+	    }
+        res.local('layout', false); 
+	    res.render('clientappliance',{ hbox: hbox,rbox: rbox 
+        });
+      });		
+	});
+});
+
 
 app.get('/sdestroy', function(req, res){
   if (req.session) {

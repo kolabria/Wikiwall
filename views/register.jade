@@ -1,19 +1,48 @@
-h1= title
-p Welcome to #{title}
-
-p Register your company
-  form.users(name='register', action='/register', method='POST')
-    div
-      label Email:
-      input(name='company[adminEmail]', value=company.adminEmail || '')
-    div
-      label Password:
-      input(name='company[password]', value=company.password || '', type='password')
-    div
-      label Company:
-      input(name='company[name]', value=company.name || '')
-    div
-        input(type='submit', value='Register')
-  br
-  a(href='Login') Login
-  br
+body
+  .navbar.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href='#') #{title}
+        .nav-collapse
+          ul.nav
+            li.active
+              a(href='/') Home
+            li
+              a(href='#about') About
+            li
+              a(href='#contact') Contact
+        //
+          /.nav-collapse 
+  .container
+    .span6
+      .hero-unit.well
+        p Register your company
+        form.users(name='register', action='/register', method='POST')
+          div
+            label Email:
+            input(name='company[adminEmail]', value=company.adminEmail || '')
+          div
+            label Password:
+            input(name='company[password]', value=company.password || '', type='password')
+          div
+            label Company:
+            input(name='company[name]', value=company.name || '')
+          div
+              br
+              input.btn.btn-primary.pull-right(type='submit', value='Register')
+        br
+        a(href='Login') Login
+        br
+  //
+     /container 
+  //
+     Le javascript
+  //
+     Placed at the end of the document so the pages load faster 
+      script(src='../assets/js/jquery.js')
+  script(src='//code.jquery.com/jquery-latest.min.js')
+  script(src='/javascripts/bootstrap.js')

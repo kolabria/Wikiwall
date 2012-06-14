@@ -1,16 +1,46 @@
-h1= title
-p Welcome to #{title}
+body
+  .navbar.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href='#') #{title}
+        .nav-collapse
+          ul.nav
+            li.active
+              a(href='/') Home
+            li
+              a(href='#about') About
+            li
+              a(href='#contact') Contact
+        //
+          /.nav-collapse 
+  .container
+    .span6
+      .hero-unit.well
+        p Login to your WikiWall account
+        form.users(name='login', action='/login', method='POST')
+          div
+            label Email:
+            input(name='company[adminEmail]', value=company.adminEmail || '')
+          div
+            label Password:
+            input(name='company[password]', value=company.password || '', type='password')
+          div
+              input.btn.btn-primary.pull-right(type='submit', value='Log In')
+          br
+          a(href='/register') Create a new account
+          br
 
-p Login to your WikiWalls
-  form.users(name='login', action='/login', method='POST')
-    div
-      label Email:
-      input(name='company[adminEmail]', value=company.adminEmail || '')
-    div
-      label Password:
-      input(name='company[password]', value=company.password || '', type='password')
-    div
-        input(type='submit', value='Log In')
-  br
-  a(href='/register') Create a new account
-  br
+     
+  //
+     /container 
+  //
+     Le javascript
+  //
+     Placed at the end of the document so the pages load faster 
+      script(src='../assets/js/jquery.js')
+  script(src='//code.jquery.com/jquery-latest.min.js')
+  script(src='/javascripts/bootstrap.js')

@@ -7,7 +7,8 @@
 */
 var Mongoose = require("mongoose")
   , Schema = Mongoose.Schema
-  , ObjectId = Schema.ObjectId;
+  , ObjectId = Schema.ObjectId
+
 var crypto = require('crypto');
 
 function validatePresenceOf(value) {

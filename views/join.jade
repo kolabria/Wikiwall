@@ -20,13 +20,23 @@ body
         //
           /.nav-collapse 
   .container
-    h1 WikiWall Home
-    p
-      | This is the starting point to use and manage WikiWalls
-    p
-      a.btn.btn-primary.btn-large.pull-left(href='/join/') Join Meeting
-  //
-     /container 
+    .span6
+      h1 Join a WikiWall Meeting
+      br
+      form.form-vertical(action='.', method='post')
+        div(style='display: none;')
+          input(type='hidden', name='csrfmiddlewaretoken', value='45b16908914c89b01dcf288d3f52a6d4')
+        p
+          | Name 
+          input#id_name.span4(name='name', maxlength='30', placeholder='Your Name', type='text')
+        p
+          | Room
+          input#id_room.span4(name='room', maxlength='30', placeholder='Case Insensitive', type='text')
+        p
+          | Code
+          input#id_code.span4(name='code', maxlength='30', placeholder='4-digit secret code', type='text')
+        input.btn.btn-primary.offset3(type='submit', value='Enter')
+
   //
      Le javascript
   //
