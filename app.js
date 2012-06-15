@@ -126,12 +126,24 @@ app.get('/test', function(req,res){
   res.render('test',{});
 });
 app.get('/clientuser', function(req,res){
+  //render a Join room view
   res.render('clientuser',{});
 });
+app.post('/clientuser', function(req,res){
+	//Validate the Pin and Box
+	//Get the active WallID and companyId
+	//Send companyID, wallID, username to the view.
+	res.render('clientuser',{});
+});
 app.get('/clientappliance', function(req,res){
+	//Find box to connect to validate that the wall has been shared with this device
+	//Get the active wallID and companyId
+	//Send companyID, wallID, and this box ID (and boxname).
   res.render('clientappliance',{});
 });
 app.get('/hostappliance', function(req,res){
+	//Find the active wallID and company ID, for this box (and boxname)
+	//Send companyId, wallId, boxname, and this box ID.
   res.render('hostappliance',{});
 })
 
