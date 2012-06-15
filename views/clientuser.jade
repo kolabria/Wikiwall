@@ -41,11 +41,11 @@ html
                     h4 Active Users
                   li.divider            
         .pull-right
-          a.brand(href="#") {Wall Name}
+          a.brand(href="#") #{box.name}
           nav#functions.nav.btn-group
             button.tool.btn(type='button', onclick='', value='Export')
               i.icon-download-alt
-            a.quit.btn.pull-right(href='/walls/')
+            a.quit.btn.pull-right(href='/join')
               i.icon-off
       .whiteboard
         canvas#myCanvas(resize)
@@ -71,13 +71,13 @@ html
       }  
     }
   script
-    var wallId = '4f47be322f8b522d303f1fef';
-    var companyId = 1; //from application 
-    var name = "PCUpstairs"
+    var wallId = '#{box.defaultWall_ID}';
+    var companyId = '#{box.company_id}'; //from application 
+    var name = "#{userName}"
   script(src='/javascripts/paper.js')
   script(src='/javascripts/canvas-toBlob.min.js')
   script(src='/javascripts/FileSaver.min.js')
   script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-  script(src='/javascripts/touch-punch.min.js')     
+  script(src='/javascripts/touch-punch.min.js')
   script(src='/nowjs/now.js') //this is what allows realtime communication, 
   script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS

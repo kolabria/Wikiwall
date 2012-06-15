@@ -1,0 +1,82 @@
+body
+  .navbar.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href='#') #{title}
+        .nav-collapse
+          ul.nav
+            li.active
+              a(href='/') Home
+            li
+              a(href='#about') About
+            li
+              a(href='#contact') Contact
+        p.navbar-text.pull-right
+              | Logged in as 
+              a(href='#')  
+              | | 
+              a(href='sdestroy') Logout
+
+  .container
+    h1 Company ID:  #{companyID}
+    h1 Box ID:  #{boxID}
+    br
+    .row-fluid
+        br
+        h3 Controller List:
+        br
+        table.table
+          thead
+            tr
+              th Controller ID
+              th Controller Name
+              th Edit
+              th Remove
+          tbody
+            tr
+              td WWA1
+              td kb1
+              td
+                a.btn(href='/devices/edit/WWA1') edit
+              td
+                a.btn(href='/devices/remove/WWA1') remove
+            tr
+              td WWA2
+              td kb2
+              td
+                a.btn(href='/devices/edit/WWA2') edit
+              td
+                a.btn(href='/devices/remove/WWA2') remove
+            tr
+              td WWA3
+              td kb3
+              td
+               a.btn(href='/devices/edit/WWA3') edit
+              td
+               a.btn(href='/devices/remove/WWA3') remove
+            tr
+              form.form-horizontal(action='.', method='post')
+               //
+                 div(style='display: none;')
+                   input(type='hidden', name='csrfmiddlewaretoken', value='45b16908914c89b01dcf288d3f52a6d4')
+              td
+                input#id_box_id(type='text', name='box_id')
+              td
+                input#id_box_name(type='text', name='box_name')
+              td
+                input.btn.btn-primary.btn-small(type='submit', value='Add')
+              td
+
+  //
+     /container 
+  //
+     Le javascript
+  //
+     Placed at the end of the document so the pages load faster 
+      script(src='../assets/js/jquery.js')
+  script(src='//code.jquery.com/jquery-latest.min.js')
+  script(src='/javascripts/bootstrap.js')

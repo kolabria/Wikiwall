@@ -6,6 +6,8 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
     title {Wall Name} // from Application
     link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+    title #{rbox.name} // from Application
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/wall.css')
   body.background
     .canvas
@@ -38,7 +40,7 @@ html
                   span.caret
                 ul.dropdown-menu
                   li
-                    h4 Shared Walls
+                    h4 Available Walls
                   li.divider
             li.btn-group.dropup#users
                 button.btn.dropdown-toggle(data-toggle="dropdown")
@@ -49,11 +51,11 @@ html
                     h4 Active Users
                   li.divider            
         .pull-right
-          a.brand(href="#") {Wall Name}
+          a.brand(href="#") #{hbox.name}
           nav#functions.nav.btn-group
             a.settings.btn(href='/settings')
               i.icon-wrench
-            a.quit.btn.pull-right(href='/walls/')
+            a.quit.btn.pull-right(href='/host/draw')
               i.icon-off
       .whiteboard
         canvas#myCanvas(resize)
@@ -79,12 +81,12 @@ html
       }  
     }
   script
-    var wallId = '4f47be322f8b522d303f1fef';
-    var name = "clientPC"
-    var companyId = 1; //from application 
-    var boxID = "23231121" //if name is not unique
-  script(src='/javascripts/paper.js')
+    var wallId = '#{hbox.defaultWall_ID}';
+    var name = "#{rbox.name}";
+    var companyId = '#{hbox.company_id}'; //from application 
+    var boxID = '#{rbox.id}'; //if name is not unique
+  script(src='/javascripts/paper.js')     
   script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-  script(src='/javascripts/touch-punch.min.js')     
+  script(src='/javascripts/touch-punch.min.js')
   script(src='/nowjs/now.js') //this is what allows realtime communication, 
   script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
