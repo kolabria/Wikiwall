@@ -180,6 +180,30 @@ app.post('/join', function(req,res){
      });	
 })
 
+app.get('/about', function(req,res){
+
+})
+app.get('/contact', function(req, res){
+
+})
+app.post('/contact', function(req,res){
+
+})
+app.get('/product', function(req,res){
+
+})
+
+//For Blog if needed, maybe look if there is already a node blog out there that works
+app.get('/blog.:format?', function(req,res){
+
+});
+app.get('/blog/:title.:format?',function(req,res){
+
+})
+app.post('/blog', function(req,res){
+
+})
+
 //app.post('/join', function(req,res){
 // console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
 //  	Box.find({ name: "dog"}, function(err, box) {
@@ -261,7 +285,7 @@ app.get('/controllers', requiresLogin, function(req,res){
   // doc.remove();
  // });
 
-// Wall PIN generator
+// Wall PIN generator TODO move outside of routes
 function newPIN(){
 	return Math.floor(Math.random() * 9000) + 1000;
 }
