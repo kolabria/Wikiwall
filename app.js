@@ -272,6 +272,10 @@ everyone.now.clear = function(callback){
   companyId = this.now.companyId;
   wallId = this.now.wallId;
   clientId = this.user.clientId;
+  //TODO wipe wall
+  //TODO create new wall
+  //TODO call clientId context redirect to wall page
+  //TODO wipe images
   async.series([
     function(cb){
       nowjs.getGroup('c'+companyId+'u'+wallId).exclude(clientId).now.quit();
