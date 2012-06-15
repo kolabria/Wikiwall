@@ -126,12 +126,26 @@ app.get('/test', function(req,res){
   res.render('test',{});
 });
 app.get('/clientuser', function(req,res){
+  //render a Join room view
   res.render('clientuser',{});
 });
+app.post('/clientuser', function(req,res){
+	//Validate the Pin and Box
+	//Get the active WallID and companyId
+	//Send companyID, wallID, username to the view.
+	res.render('clientuser',{});
+});
 app.get('/clientappliance', function(req,res){
+	//Make sure this is an appliance
+	//Find box to connect to validate that the wall has been shared with this device
+	//Get the active wallID and companyId
+	//Send companyID, wallID, and this box ID (and boxname).
   res.render('clientappliance',{});
 });
 app.get('/hostappliance', function(req,res){
+	//Make sure this is an appliance
+	//Find the active wallID and company ID, for this box (and boxname)
+	//Send companyId, wallId, boxname, and this box ID.
   res.render('hostappliance',{});
 })
 
@@ -178,6 +192,30 @@ app.post('/join', function(req,res){
 			  }
 		} 	
      });	
+})
+
+app.get('/about', function(req,res){
+
+})
+app.get('/contact', function(req, res){
+
+})
+app.post('/contact', function(req,res){
+
+})
+app.get('/product', function(req,res){
+
+})
+
+//For Blog if needed, maybe look if there is already a node blog out there that works
+app.get('/blog.:format?', function(req,res){
+
+});
+app.get('/blog/:title.:format?',function(req,res){
+
+})
+app.post('/blog', function(req,res){
+
 })
 
 //app.post('/join', function(req,res){
@@ -261,7 +299,7 @@ app.get('/controllers', requiresLogin, function(req,res){
   // doc.remove();
  // });
 
-// Wall PIN generator
+// Wall PIN generator TODO move outside of routes
 function newPIN(){
 	return Math.floor(Math.random() * 9000) + 1000;
 }
