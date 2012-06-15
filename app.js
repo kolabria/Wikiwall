@@ -15,6 +15,7 @@ var express = require('express')
   , Company = require('./models/company')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
+  , ShareWall = require('./models/sharewall.js')
 
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
@@ -315,6 +316,96 @@ app.get('/controllers/:id.:format?/remove', requiresLogin, function(req,res){
     });
 });
 
+// edit box info 	
+app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	      console.log('Edit Box: ID -  ', req.params.id);
+	      Box.findOne({id: req.params.id}, function(err, box) {
+	        if(err){
+			    console.log(err);
+		    }
+	        if (box){
+			     res.render('editbox', {
+			        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+			      });
+		    }
+		  });
+	    }
+	});
+});
+
+// edit box info - update box name	
+app.post('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	      console.log('Edit Box: ID -  ', req.params.id);
+	      Box.findOne({id: req.params.id}, function(err, box) {
+	        if(err){
+			    console.log(err);
+		    }
+	        if (box){
+		      box.name = req.body.box_name;
+		      box.save(function(err) {
+			    if (err) console.log(' Box edit box update failed');
+		      });
+			  res.render('editbox', {
+		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      });
+		    }
+		  });
+	    }
+	});
+});
+
+// Edit box info - add box to share list 	
+app.post('/controllers/:id.:format?/share', requiresLogin, function(req,res){
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	      console.log('Edit Box share: ID -  ', req.params.id);
+	      console.log('Edit Box share: Box id to add: ', req.body.data);
+	      Box.findOne({id: req.params.id}, function(err, box) {
+	        if(err){
+			    console.log(err);
+		    }
+	        if (box){
+		      box.shareList.push(req.body.data );
+		      box.save(function(err) {
+			    if (err) console.log(' Box edit box update failed');
+		      });
+			  res.render('editbox', {
+		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      });
+		    }
+		  });
+	    }
+	});
+});
+
+//  Edit box info - remove box from share list 
+app.get('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res){
+	Company.findById(req.session.company_id, function(err, company) {
+	    if (company) {
+	      console.log('Edit Box share: ID -  ', req.params.id);
+	      console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
+	      Box.findOne({id: req.params.id}, function(err, box) {
+	        if(err){
+			    console.log(err);
+		    }
+	        if (box){
+		      
+		      box.shareList.splice(box.shareList.indexOf(req.params.sb),1 );
+		      box.save(function(err) {
+			    if (err) console.log(' Box edit box update failed');
+		      });
+			  res.render('editbox', {
+		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      });
+		    }
+		  });
+	    }
+	});
+});
 
 // host appliance draw view test
 app.get('/host/:id.:format?/draw', function(req,res){

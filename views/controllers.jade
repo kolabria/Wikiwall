@@ -19,7 +19,7 @@ body
               | Logged in as 
               a(href='#') #{company.adminEmail} 
               | | 
-              a(href='sdestroy') Logout
+              a(href='/sdestroy') Logout
 
   .container
     h1 Company:  #{company.name}
@@ -41,7 +41,7 @@ body
                 td #{box.id}
                 td #{box.name}
                 td
-                  a.btn(href='/devices/edit/WWA1') edit
+                  a.btn(href='/controllers/#{box.id}/edit') edit
                 td
                   a.btn(href='/controllers/#{box.id}/remove/') remove
             

@@ -8,7 +8,7 @@ var Mongoose = require('mongoose')
   , company_id: ObjectId
   , defaultWall_ID: {type: ObjectId}   // , default: '4f47be322f8b522d303f1fef'
   , PIN: String
-  , shareList: [{type:String}]
+  , shareList: [String]
  });
 
 boxSchema

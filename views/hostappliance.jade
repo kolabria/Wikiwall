@@ -40,9 +40,10 @@ html
                   li
                     h4 Share Wall {#{box.PIN}}
                   li.divider
-                  li.btn(data-value='WWA2')
-                    span WWA2
-                    i
+                  for sb in box.shareList
+                    li.btn(data-value='#{sb}')
+                      span #{sb}
+                      i
             li.btn-group.dropup#walls
                 button.btn.dropdown-toggle(data-toggle="dropdown")
                   i.icon-inbox
