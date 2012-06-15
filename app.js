@@ -136,12 +136,14 @@ app.post('/clientuser', function(req,res){
 	res.render('clientuser',{});
 });
 app.get('/clientappliance', function(req,res){
+	//Make sure this is an appliance
 	//Find box to connect to validate that the wall has been shared with this device
 	//Get the active wallID and companyId
 	//Send companyID, wallID, and this box ID (and boxname).
   res.render('clientappliance',{});
 });
 app.get('/hostappliance', function(req,res){
+	//Make sure this is an appliance
 	//Find the active wallID and company ID, for this box (and boxname)
 	//Send companyId, wallId, boxname, and this box ID.
   res.render('hostappliance',{});
