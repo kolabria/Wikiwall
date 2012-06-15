@@ -107,8 +107,16 @@ Mongoose.connect('mongodb://localhost/cdb4');
 
 //For testing
 app.get('/', function(req,res){
-  res.render('index',{});
+  res.local('layout', false);
+  res.render('index',{ company: new Company()});
 });
+app.get('/tindex', function(req,res){
+  //res.local('layout', false);
+  res.render('tindex',{
+    title: 'Kolabria'	
+  });
+})
+
 app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
   var wall_id = req.params.id;
@@ -136,27 +144,23 @@ app.post('/images', function(req,res){
 })
 
 app.get('/register', function(req,res){
+  res.local('layout', false);
   res.render('register',{
     title: 'Register', company: new Company()	
   });
 })
 
 app.get('/login', function(req, res){
+  res.local('layout', false);
   res.render('login', {
     title: 'Login', company: new Company()
     });
 });
 
-app.get('/', function(req,res){
-  //res.local('layout', false);
-  res.render('index',{
-    title: 'Kolabria'	
-  });
-})
-
 app.get('/join', function(req,res){
+  res.local('layout', false);
   res.render('join',{
-    title: 'Kolabria'	
+    title: 'Kolabria', company: new Company()
   });
 })
 
@@ -242,6 +246,7 @@ app.get('/controllers', requiresLogin, function(req,res){
 			 if(err){
 			    console.log(err);
 			  }
+			  res.local('layout', false);
 		      res.render('controllers', {
 		        title: 'Kolabria', company: company , boxes: boxes
 	          });
@@ -297,6 +302,7 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 			 if(err){
 			    console.log(err);
 			  }
+			  res.local('layout', false);
 		      res.render('controllers', {
 		        title: 'Kolabria', company: company , boxes: boxes
 	          });
@@ -328,15 +334,16 @@ app.get('/controllers/:id.:format?/remove', requiresLogin, function(req,res){
 });
 
 // edit box info 	
-app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
+app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){      res.local('layout', false);
 	Company.findById(req.session.company_id, function(err, company) {
 	    if (company) {
-	      console.log('Edit Box: ID -  ', req.params.id);
+	      console.log('Edit Box: ID -N  ', req.params.id);
 	      Box.findOne({id: req.params.id}, function(err, box) {
 	        if(err){
 			    console.log(err);
 		    }
 	        if (box){
+		         res.local('layout', false);
 			     res.render('editbox', {
 			        title: 'Kolabria', company: company, box: box, shareList: box.shareList
 			      });
@@ -360,6 +367,7 @@ app.post('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
 		      box.save(function(err) {
 			    if (err) console.log(' Box edit box update failed');
 		      });
+		      res.local('layout', false);
 			  res.render('editbox', {
 		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
 		      });
@@ -384,7 +392,9 @@ app.post('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 		      box.save(function(err) {
 			    if (err) console.log(' Box edit box update failed');
 		      });
+		      res.local('layout', false);
 			  res.render('editbox', {
+
 		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
 		      });
 		    }
@@ -409,6 +419,7 @@ app.get('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res
 		      box.save(function(err) {
 			    if (err) console.log(' Box edit box update failed');
 		      });
+		      res.local('layout', false);
 			  res.render('editbox', {
 		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
 		      });
@@ -518,7 +529,6 @@ app.get('/sdestroy', function(req, res){
   res.redirect('/login');
 });
 
->>>>>>> ww-lite
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 

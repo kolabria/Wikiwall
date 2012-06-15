@@ -1,26 +1,100 @@
-body
-  .navbar.navbar-fixed-top
-    .navbar-inner
-      .container
-        a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        a.brand(href='#') #{title}
-        .nav-collapse
-          ul.nav
-            li.active
-              a(href='/') Home
-            li
-              a(href='#about') About
-            li
-              a(href='#contact') Contact
-        p.navbar-text.pull-right
-              | Logged in as 
-              a(href='#') #{company.adminEmail} 
-              | | 
-              a(href='/sdestroy') Logout
+!!! 5
+//if lt IE 7
+  html.no-js.lt-ie9.lt-ie8.lt-ie7(lang="en")
+//if IE 7
+  html.no-js.lt-ie9.lt-ie8.(lang="en")
+//if IE 8
+  html.no-js.lt-ie9(lang="en")
+//if gt IE 8
+  html.no-js(lang='en')
 
+head
+  meta(charset='utf-8')
+  meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+  title Kolabria - Homepage
+  meta(name='description', content='')
+  meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  //
+     Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons 
+  link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+  link(rel='stylesheet', href='/stylesheets/bootstrap-responsive.min.css')
+  link(href='http://fonts.googleapis.com/css?family=Permanent+Marker', rel='stylesheet', type='text/css')
+  link(rel='stylesheet', href='/stylesheets/style.css')
+  //if lt IE 9
+    script(src='//html5shiv.googlecode.com/svn/trunk/html5.js')
+
+body
+  //if lt IE 7
+    p.chromeframe
+      | Your browser is
+      em ancient!
+      a(href='http://browsehappy.com/') Upgrade to a different browser
+      | or
+      a(href='http://www.google.com/chromeframe/?redirect=true') install Google Chrome Frame
+      | to experience this site.
+  header.container
+    ul.nav.nav-tabs.language.pull-right
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown')
+          i.icon-globe
+          | Change Language
+          b.caret
+        ul.dropdown-menu.pull-right
+          li
+            a(href='#')
+              i.flag.flag-ca
+              | English
+          li
+            a(href='#')
+              i.flag.flag-fr
+              | French
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown')
+          i.icon-user
+          | Join Meeting
+          b.caret
+        #signin-dropdown.dropdown-menu.pull-right
+          form.form-vertical(action='/join', method='post')
+            div(style='display: none;')
+              input(type='hidden', name='csrfmiddlewaretoken', value='e49fb64f716e93e7bd6ba16774c14a28')
+            label(for='id_name') Name
+            input#id_name.span3(name='name', maxlength='30', placeholder='Your Name', type='text')
+            label(for='id_room') Room
+            input#id_room.span3(name='room', maxlength='30', placeholder='Case Insensitive', type='text')
+            label(for='id_code') Room Code
+            input#id_code.span3(name='code', maxlength='30', placeholder='4-digit secret code', type='text')
+            input.btn.btn-primary.center(type='submit', value='Join')
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown')
+          i.icon-user
+          | Login
+          b.caret
+        #signin-dropdown.dropdown-menu.pull-right
+          form.form-vertical(action='/login', method='post')
+            div(style='display: none;')
+              input(type='hidden', name='csrfmiddlewaretoken', value='')
+            label(for='id_name') Email
+            input#id_name.span3(name='company[adminEmail]', maxlength='30', value=company.adminEmail || '', type='text')
+            label(for='id_room') Password
+            input#id_room.span3(name='company[password]',value=company.password || '', maxlength='30', type='password')
+            input.btn.btn-primary.center(type='submit', value='Login')
+            br
+            a.pull-right(href='/register') Create a new account
+    .navbar
+      a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      hgroup.brand.pull-left
+        h1.logo Kolabria
+        h2 Sharing Visual Ideas
+      .nav-collapse
+        nav.mainnav.nav.btn-group.pull-right
+          a.btn.btn-large(href='/') Home
+          a.btn.btn-large(href='#') Product
+          a.btn.btn-large(href='#') About
+          a.btn.btn-large(href='#') Blog
+          a.btn.btn-large(href='#') Contact
   .container
     h1 Company:  #{company.name}
     br
@@ -44,10 +118,8 @@ body
                   a.btn(href='/controllers/#{box.id}/edit') edit
                 td
                   a.btn(href='/controllers/#{box.id}/remove/') remove
-            
             tr
               form.form-horizontal(action='/controllers', method='POST')
-               
                 td
                   input#id_box_id(type='text', name='box_id')
                 td
@@ -55,13 +127,33 @@ body
                 td
                   input.btn.btn-primary.btn-small(type='submit', value='Add')
                 td
-
+  footer
+    .container
+      .sm
+        span.st_fblike_hcount
+        span.st_twitter_hcount
+        span.st_plusone_hcount
+        span.st_email_hcount
+        span.st_sharethis_hcount
+      small Copyright 2012 by Kolabria. All Rights Reserved
   //
-     /container 
-  //
-     Le javascript
-  //
-     Placed at the end of the document so the pages load faster 
-      script(src='../assets/js/jquery.js')
-  script(src='//code.jquery.com/jquery-latest.min.js')
-  script(src='/javascripts/bootstrap.js')
+    div.pointers
+      span.logo Logo And Byline
+      span.menu Menu
+      span.video Product Video
+      span.c2a1 Call to Action
+      span.cases Use Cases
+      span.legal Legal Stuff
+      span.social Social Media stuff, share with a friend!
+  script(src='http://code.jquery.com/jquery.min.js')
+  script(src='/javascripts/bootstrap.min.js')
+  script(src='/javascripts/plugins.js')
+  script(src='/javascripts/script.js')
+  script(type='text/javascript', src='http://w.sharethis.com/button/buttons.js')
+  script
+    stLight.options({publisher: "614ee07c-bb32-4c04-8b2a-52d217ebdbd8"});
+    //Analytics
+    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g,s)}(document,'script'));

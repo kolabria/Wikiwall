@@ -54,7 +54,7 @@ body
           | Join Meeting
           b.caret
         #signin-dropdown.dropdown-menu.pull-right
-          form.form-vertical(action='my.wikiwall.com/join/', method='post')
+          form.form-vertical(action='/join', method='post')
             div(style='display: none;')
               input(type='hidden', name='csrfmiddlewaretoken', value='e49fb64f716e93e7bd6ba16774c14a28')
             label(for='id_name') Name
@@ -63,7 +63,23 @@ body
             input#id_room.span3(name='room', maxlength='30', placeholder='Case Insensitive', type='text')
             label(for='id_code') Room Code
             input#id_code.span3(name='code', maxlength='30', placeholder='4-digit secret code', type='text')
-            input.btn.btn-primary.center(type='submit', value='Enter')
+            input.btn.btn-primary.center(type='submit', value='Join')
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown')
+          i.icon-user
+          | Login
+          b.caret
+        #signin-dropdown.dropdown-menu.pull-right
+          form.form-vertical(action='/login', method='post')
+            div(style='display: none;')
+              input(type='hidden', name='csrfmiddlewaretoken', value='')
+            label(for='id_name') Email
+            input#id_name.span3(name='company[adminEmail]', maxlength='30', value=company.adminEmail || '', type='text')
+            label(for='id_room') Password
+            input#id_room.span3(name='company[password]',value=company.password || '', maxlength='30', type='password')
+            input.btn.btn-primary.center(type='submit', value='Login')
+            br
+            a.pull-right(href='/register') Create a new account
     .navbar
       a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
         span.icon-bar
@@ -71,7 +87,7 @@ body
         span.icon-bar
       hgroup.brand.pull-left
         h1.logo Kolabria
-        h2 A Persistant, Collaborative Whiteboard
+        h2 Sharing Visual Ideas
       .nav-collapse
         nav.mainnav.nav.btn-group.pull-right
           a.btn.btn-large(href='#') Home
@@ -85,7 +101,7 @@ body
         img(src='http://lorempixum.com/700/315')
       aside
         p
-          | WikiWalls connect people so they can draw, write and share information no matter where they are
+          | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
         form
           label.control-label(for='appendedInputButton') Leave your email and we will let you know when WikiWall will be available
           .input-append
