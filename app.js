@@ -15,7 +15,6 @@ var express = require('express')
   , Company = require('./models/company')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
-  , ShareWall = require('./models/sharewall.js')
 
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
