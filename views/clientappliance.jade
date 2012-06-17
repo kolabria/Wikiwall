@@ -1,5 +1,5 @@
 extends drawlayout
-append toolbar
+block toolbar
   li.btn-group.dropup#walls
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-inbox
@@ -19,12 +19,12 @@ append toolbar
 
 block functions            
   .pull-right
-  a.brand(href="#") #{hbox.name}
-  nav#functions.nav.btn-group
-    a.settings.btn(href='/settings')
-      i.icon-wrench
-    a.quit.btn.pull-right(href='/host/draw')
-      i.icon-off
+    a.brand(href="#") #{hbox.name}
+    nav#functions.nav.btn-group
+      a.settings.btn(href='/settings')
+        i.icon-wrench
+      a.quit.btn.pull-right(href='/host/draw')
+        i.icon-off
 
 block localjs
   script

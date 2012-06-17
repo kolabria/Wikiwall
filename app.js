@@ -265,20 +265,21 @@ app.post('/blog', function(req,res){
 
 })
 
-//app.post('/join', function(req,res){
-// console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
-//  	Box.find({ name: "dog"}, function(err, box) {
-//		 if(err){
-//		    console.log(err);
-//		  }
-//		  console.log('Join-- box.PIN', box.PIN);
-//		  if (box.PIN == req.body.code) {
-//			  res.render('clienuser', {
-//		        title: 'Kolabria', box: box, userName: req.body.name
-//	          });
-//		  }
-//     });	
-//})
+/* TODO remove?
+app.post('/join', function(req,res){
+ console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
+  	Box.find({ name: "dog"}, function(err, box) {
+		 if(err){
+		    console.log(err);
+		  }
+		  console.log('Join-- box.PIN', box.PIN);
+		  if (box.PIN == req.body.code) {
+			  res.render('clienuser', {
+		        title: 'Kolabria', box: box, userName: req.body.name
+	          });
+		  }
+     });	
+})*/
 
 app.post('/login', function(req, res){
 	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
@@ -441,9 +442,7 @@ app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 	  if (company) {
 	    console.log('Edit Box: ID -  ', req.params.id);
 	    Box.findOne({id: req.params.id}, function(err, box) {
-	    	if(err){
-			    console.log(err);
-		    }
+	    	if(err) console.log(err);
 	      if (box){
 		      box.name = req.body.box_name;
 		      box.save(function(err) {
@@ -469,9 +468,7 @@ app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 	    console.log('Edit Box share: ID -  ', req.params.id);
 	    console.log('Edit Box share: Box id to add: ', req.body.data);
 	    Box.findOne({id: req.params.id}, function(err, box) {
-	      if(err){
-			    console.log(err);
-		    }
+	      if(err) console.log(err);
 	      if (box){
 		      box.shareList.push(req.body.data );
 		      box.save(function(err) {
@@ -497,9 +494,7 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 	    console.log('Edit Box share: ID -  ', req.params.id);
 	    console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
 	    Box.findOne({id: req.params.id}, function(err, box) {
-	      if(err){
-			    console.log(err);
-		    }
+	      if(err) console.log(err);
 	      if (box){
 		      box.shareList.splice(box.shareList.indexOf(req.params.sb),1 );
 		      box.save(function(err) {
@@ -518,14 +513,17 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 	});
 });
 
+/**
+* Drawing Views
+**/
+
 // host appliance draw view test
 app.get('/host/:id.:format?/draw', function(req,res){
+  res.local('layout', 'hostappliance'); 
+  res.local('title', 'Host Wall')
 	console.log('Draw - Box ID  ', req.params.id);
 	Box.findOne({ id: req.params.id}, function(err, box) {
-	  if(err){
-	    console.log(err);
-	  }
-    res.local('layout', 'hostappliance'); 
+	  if(err) console.log(err);
 	  res.render('draw',
 	   	{ 
 	   		box: box   
@@ -534,38 +532,34 @@ app.get('/host/:id.:format?/draw', function(req,res){
 });
 // host appliance draw view test using user agent
 app.get('/host/draw', function(req,res){
+	res.local('layout', 'hostappliance'); 
+	res.local('title', 'Host Wall')
 	console.log('User-Agent: ' + req.headers['user-agent']);
-//	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+  //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
-		  if(err){
-		    console.log(err);
-		  }
-	    res.local('layout', 'hostappliance'); 
-		  res.render('draw',
-		  	{ 
-		  		box: box
-	      });
+			console.log(box);
+		  if(err) console.log(err);
+		  res.render('draw',{ 
+		  	box: box
+	    });
 	  });	
 	}
 });
 
 
+//TODO move some of the functions to the now Clear function? or redirect host to this page?
 app.get('/trash/:id.:format?', function(req,res){
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		var w = new Iwall();  // create a new wall
 		console.log('Trash - Box ID  ', req.params.id);
 		Box.findOne({ id: req.params.id}, function(err, box) {
-		  if(err){
-		    console.log(err);
-		  }
+		  if(err) console.log(err);
 		  if (box){
 		    console.log("Trash - Box dwall: ", box.defaultWall_ID);
 		    Iwall.findById(box.defaultWall_ID, function (err, wall) {
-		      if(err){
-			      console.log(err);
-			    }
+		      if(err) console.log(err);
 			    if(wall) {
 			      console.log("Trash - wall id: ", wall.id);
 			      wall.remove(); //remove old wall
@@ -590,6 +584,8 @@ app.get('/trash/:id.:format?', function(req,res){
 });
 
 app.get('/connect/:id', function(req,res){  
+  res.local('layout', 'clientappliance'); 
+  res.local('title', 'Client Wall'); 
 	console.log('ID  ', req.params.id);
   //console.log('ID  ', req.params.name);
 	console.log('User-Agent: ' + req.headers['user-agent']);
@@ -599,7 +595,6 @@ app.get('/connect/:id', function(req,res){
     if (err) console.log(err)
     Box.findOne({ id: req.params.id}, function(err, hbox) {
 	    if (err) console.log(err)
-      res.local('layout', 'clientappliance'); 
 	    res.render('draw',{
 	    	 hbox: hbox
 	    	 , rbox: rbox 
@@ -647,17 +642,20 @@ deletePath = function(pathId){
   });
 }
 
-//Two Main types of now.js functions
-//1. DB functions to be called after all manipulations on a path/object has been completed
-//2. Inter-Client functions that offer realtime updates between clients. 
 
-
-//Inter Client
-
-//modify so that only applicable clients are sent this info
-//have an activeWall with an _id and an array of now.js client id's
-//group is named 'c'+companyId+'w'+wallId. Theoretically wallId should be enough as the chances of having multiple unique wallId's is almost 0, however why take chances?
-
+/**
+* NOW JS function calls
+* Two Main types of now.js functions
+* 1. DB functions to be called after all manipulations on a path/object has been completed
+* 2. Inter-Client functions that offer realtime updates between clients. 
+*
+* Inter Client
+*
+* modify so that only applicable clients are sent this info
+* have an activeWall with an _id and an array of now.js client id's
+* group is named 'c'+companyId+'w'+wallId. Theoretically wallId should be enough as the chances of having multiple unique wallId's is almost 0, however why take chances?
+*
+**/
 
 //start drawing
 everyone.now.shareStartDraw = function(color,width,start,layer){

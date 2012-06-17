@@ -1,5 +1,5 @@
 extends drawlayout
-append toolbar
+block toolbar
   li.btn-group.dropup#shareTo
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-share
@@ -30,17 +30,15 @@ append toolbar
         li.divider
 block functions                     
   .pull-right
-  a.brand(href="#") #{name} - Home Wall
-  nav#functions.nav.btn-group
-    a.settings.btn(href='/settings')
-      i.icon-wrench 
-    a.clear.btn(href='/trash/#{box.id}')
-      i.icon-trash
-
+    a.brand(href="#") #{box.name} - Home Wall
+    nav#functions.nav.btn-group
+      a.settings.btn(href='/settings')
+        i.icon-wrench 
+      a.clear.btn(href='/trash/#{box.id}')
+        i.icon-trash
 block localjs
   script
-    var wallId = '#{box.defaultWall_ID}';  
+    var wallId = '#{box.defaultWall_ID}';
     var name = "#{box.name}";
     var companyId = '#{box.company_id}'; //from application 
     var boxID = '#{box.id}'; //if name is not unique
-

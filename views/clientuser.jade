@@ -1,5 +1,5 @@
 extends drawlayout
-append toolbar
+block toolbar
   li.btn-group.dropup#users
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-user
@@ -11,12 +11,12 @@ append toolbar
 
 block functions                        
   .pull-right
-  a.brand(href="#") #{box.name}
-  nav#functions.nav.btn-group
-    button.tool.btn(type='button', onclick='', value='Export')
-      i.icon-download-alt
-    a.quit.btn.pull-right(href='/join')
-      i.icon-off
+    a.brand(href="#") #{box.name}
+    nav#functions.nav.btn-group
+      button.tool.btn(type='button', onclick='', value='Export')
+        i.icon-download-alt
+      a.quit.btn.pull-right(href='/join')
+        i.icon-off
 
 block localjs
   script
