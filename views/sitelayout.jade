@@ -11,7 +11,7 @@
 head
   meta(charset='utf-8')
   meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
-  title Kolabria - Homepage
+  title= title
   meta(name='description', content='')
   meta(name='viewport', content='width=device-width, initial-scale=1.0')
   base(href='http://'+base+'/')
@@ -63,28 +63,28 @@ body
             label(for='id_name') Name
             input#id_name.span3(name='name', maxlength='30', placeholder='Your Name', type='text')
             label(for='id_room') Room
-            input#id_room.span3(name='room', maxlength='30', placeholder='Case Insensitive', type='text')
+            input#id_room.span3(name='room', maxlength='30', placeholder='Room Name', type='text')
             label(for='id_code') Room Code
             input#id_code.span3(name='code', maxlength='30', placeholder='4-digit secret code', type='text')
-            input.btn.btn-primary.center(type='submit', value='Join')
-      li.dropdown
-        a.dropdown-toggle(href='#', data-toggle='dropdown')
-          i.icon-user
-          | Login
-          b.caret
-        #join-dropdown.dropdown-menu.pull-right
-          form.form-vertical(action='/login', method='post')
-            //TODO remove inline styles
-            div(style='display: none;') 
-              //TODO needs to be randomly generated and verified
-              input(type='hidden', name='csrfmiddlewaretoken', value='') 
-            label(for='id_email') Email
-            input#id_email.span3(name='company[adminEmail]', maxlength='30', placeholder='Email@email.com', type='text')
-            label(for='id_password') Password
-            input#id_password.span3(name='company[password]', maxlength='30', placeholder='Password', type='password')
-            input.btn.btn-primary.center(type='submit', value='Login')
-            br
-            a.pull-right(href='/register') Create a new account
+            input.btn.btn-primary.pull-right(type='submit', value='Join')
+      block login
+        li.dropdown
+          a.dropdown-toggle(href='#', data-toggle='dropdown')
+            i.icon-user
+            | Login
+            b.caret
+          #join-dropdown.dropdown-menu.pull-right
+            form.form-vertical(action='/login', method='post')
+              //TODO remove inline styles
+              div(style='display: none;') 
+                //TODO needs to be randomly generated and verified
+                input(type='hidden', name='csrfmiddlewaretoken', value='') 
+              label(for='id_email') Email
+              input#id_email.span3(name='company[adminEmail]', maxlength='30', placeholder='Email@email.com', type='text')
+              label(for='id_password') Password
+              input#id_password.span3(name='company[password]', maxlength='30', placeholder='Password', type='password')
+              a.pull-left(href='/register') Create a new account
+              input.btn.btn-primary.pull-right(type='submit', value='Login')
     .navbar
       a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
         span.icon-bar
@@ -95,21 +95,23 @@ body
         h2 Sharing Visual Ideas
       .nav-collapse
         nav.mainnav.nav.btn-group.pull-right
-          a.btn.btn-large(href='#') Home
-          a.btn.btn-large(href='#') Product
-          a.btn.btn-large(href='#') About
-          a.btn.btn-large(href='#') Blog
-          a.btn.btn-large(href='#') Contact
+          block navbuttons
+            a.btn.btn-large(href='#') Home
+            a.btn.btn-large(href='#') Product
+            a.btn.btn-large(href='#') About
+            a.btn.btn-large(href='#') Blog
+            a.btn.btn-large(href='#') Contact
   !=body
-  footer
-    .container
-      .sm
-        span.st_fblike_hcount
-        span.st_twitter_hcount
-        span.st_plusone_hcount
-        span.st_email_hcount
-        span.st_sharethis_hcount
-      small Copyright 2012 by Kolabria. All Rights Reserved
+  footer.navbar.navbar-fixed-bottom
+    block footer
+      .container
+        .sm
+          span.st_fblike_hcount
+          span.st_twitter_hcount
+          span.st_plusone_hcount
+          span.st_email_hcount
+          span.st_sharethis_hcount
+        small Copyright 2012 by Kolabria. All Rights Reserved
   //
     div.pointers
       span.logo Logo And Byline

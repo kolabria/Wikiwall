@@ -167,6 +167,7 @@ app.get('/hostappliance', function(req,res){
 
 app.get('/', function(req,res){
   res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Sharing Visual Ideas')
   res.render('index',{});
 });
 
@@ -180,70 +181,87 @@ app.get('/tindex', function(req,res){
 
 app.get('/register', function(req,res){
   res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - Register')
   res.render('register',{
-    title: 'Register', company: new Company()	
+    company: new Company()	//needed?
   });
 })
 
 app.get('/login', function(req, res){
   res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - Login')
   res.render('login', {
-    title: 'Login', company: new Company()
-    });
+    company: new Company() //needed?
+  });
 });
 
 app.get('/join', function(req,res){
   res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Join A Session')
   res.render('join',{
-    title: 'Kolabria', company: new Company()
+    company: new Company() //needed?
   });
 })
 
 app.post('/join', function(req,res){
- console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
-  	Box.findOne({ name: req.body.room}, function(err, box) {
-		 if(err){
-		    console.log(err);
-		  }
+	res.local('layout', 'sitelayout');
+  console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
+	Box.findOne({ name: req.body.room}, function(err, box) {
+	 	if(err) console.log(err);
 		if (box) {
-			// console.log('Join-- box.PIN', box.PIN);
-			  if (box.PIN == req.body.code) {
-				  res.render('clientuser', {
-			        title: 'Kolabria', box: box, userName: req.body.name
-		          });
-			  }
-		} 	
-     });	
+		// console.log('Join-- box.PIN', box.PIN);
+		  if (box.PIN == req.body.code) {
+  			res.local('title', 'Kolabria - '+box.name)
+			  res.render('clientuser', {
+		      title: 'Kolabria', box: box, userName: req.body.name
+	      });
+		  }
+		}
+  });
+  res.redirect('/join')	
 })
 
 app.get('/about', function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
 
 })
 app.get('/contact', function(req, res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 })
 app.post('/contact', function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 })
 app.get('/product', function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 })
 
 //For Blog if needed, maybe look if there is already a node blog out there that works
 app.get('/blog.:format?', function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 });
 app.get('/blog/:title.:format?',function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 })
 app.post('/blog', function(req,res){
-	res.render('layout', 'sitelayout')
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+
 
 })
 
@@ -315,7 +333,7 @@ app.get('/controllers', requiresLogin, function(req,res){
 				if(err){
 			    console.log(err);
 			  }
-			  res.local('layout', 'sitelayout');
+			  res.local('layout', 'loginlayout');
 		    res.render('controllers', {
 		      title: 'Kolabria'
 		      , company: company
@@ -361,7 +379,7 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 			  if(err){
 			    console.log(err);
 			  }
-			  res.local('layout', 'sitelayout');
+			  res.local('layout', 'loginlayout');
 		    res.render('controllers', {
 		      title: 'Kolabria'
 		      , company: company
@@ -397,7 +415,7 @@ app.delete('/controllers/:id.:format?', requiresLogin, function(req,res){
 
 // edit box info 	
 app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){      
-	res.local('layout', 'sitelayout');
+	res.local('layout', 'loginlayout');
 	Company.findById(req.session.company_id, function(err, company){
 	  if (company) {
 	    console.log('Edit Box: ID -N  ', req.params.id);
@@ -431,7 +449,7 @@ app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 		      box.save(function(err) {
 			  	  if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', 'sitelayout');
+		      res.local('layout', 'loginlayout');
 			  	res.render('editbox', {
 		        title: 'Kolabria'
 		        , company: company
@@ -459,7 +477,7 @@ app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 		      box.save(function(err) {
 			    	if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', 'sitelayout');
+		      res.local('layout', 'loginlayout');
 			  	res.render('editbox', {
 		        title: 'Kolabria'
 		        , company: company
@@ -487,7 +505,7 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 		      box.save(function(err) {
 			    	if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', 'sitelayout');
+		      res.local('layout', 'loginlayout');
 			  	res.render('editbox', {
 		        title: 'Kolabria'
 		        , company: company
