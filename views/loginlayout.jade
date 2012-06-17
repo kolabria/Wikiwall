@@ -1,0 +1,32 @@
+extends stdlayout
+
+block navdropdown
+   ul.nav.nav-tabs.language.pull-right
+     li.dropdown
+       a.dropdown-toggle(href='#', data-toggle='dropdown')
+         i.icon-globe
+         | Change Language
+         b.caret
+       ul.dropdown-menu.pull-right
+         li
+           a(href='#')
+             i.flag.flag-ca
+             | English
+         li
+           a(href='#')
+             i.flag.flag-fr
+             | French
+     li.dropdown
+       a.dropdown-toggle(href='#') 
+         i.icon-user
+         |  #{company.adminEmail} 
+     li.dropdown
+       a.dropdown-toggle(href='/sdestroy')
+         | Logout
+
+block navbuttons
+  nav.mainnav.nav.btn-group.pull-right
+    a.btn.btn-large(href='/') Home
+    a.btn.btn-large(href='#') Account
+    a.btn.btn-large(href='/controllers') Controllers
+    a.btn.btn-large(href='#') Support
