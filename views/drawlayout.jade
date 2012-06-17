@@ -12,9 +12,32 @@ html
   body.background
     .canvas
       header.navbar.navbar-fixed-bottom 
-        nav#toolbar.toolbar!= body
-      .whiteboard
-        canvas#myCanvas(resize)
+        nav#toolbar.toolbar
+          block toolbar
+            ul.nav.pull-left
+              li.btn-group.dropup.pen
+                button.btn.tool(type='button', onclick='', value='Pen')
+                  i.icon-pencil   
+                button.btn.dropdown-toggle(data-toggle="dropdown")       
+                  span.caret
+                ul.dropdown-menu.pull-right
+                  li
+                    button.btn.btn-inverse.color(type='button', onclick='', value='Black')
+                  li
+                    button.btn.btn-danger.color(type='button', onclick='', value='Red')
+                  li 
+                    button.btn.btn-success.color(type='button', onclick='', value='Green')
+                  li
+                    button.btn.btn-primary.color(type='button', onclick='', value='Blue')
+              li  
+                button.btn.tool(type='button', onclick='', value='Nav')
+                  i.icon-move
+              li  
+                button.btn.tool(type='button', onclick='', value='Select')
+                  i.icon-hand-up
+          block functions
+
+      .whiteboard!= body
       #navWindow
         #view
         .btn-group                  
@@ -25,11 +48,8 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
       #alerts
-    script
-      var wallId = '#{wallId}';  
-      var name = "#{name}";
-      var companyId = '#{companyId}'; 
-      var boxID = '#{boxId}'; 
+
+    block localjs
     script(src='/javascripts/jquery-1.7.2.min.js')
     script(src='/javascripts/ios.js')
     script(src='/javascripts/bootstrap.min.js')

@@ -142,23 +142,23 @@ app.post('/clientuser', function(req,res){
 	//Validate the Pin and Box
 	//Get the active WallID and companyId
 	//Send companyID, wallID, username to the view.
-  res.local('layout', 'drawlayout');
-	res.render('clientuser',{});
+  res.local('layout', 'clientuser');
+	res.render('draw',{});
 });
 app.get('/clientappliance', function(req,res){
 	//Make sure this is an appliance
 	//Find box to connect to validate that the wall has been shared with this device
 	//Get the active wallID and companyId
 	//Send companyID, wallID, and this box ID (and boxname).
-  res.local('layout', 'drawlayout');
-  res.render('clientappliance',{});
+  res.local('layout', 'clientappliance');
+  res.render('draw',{});
 });
 app.get('/hostappliance', function(req,res){
 	//Make sure this is an appliance
 	//Find the active wallID and company ID, for this box (and boxname)
 	//Send companyId, wallId, boxname, and this box ID.
-	res.local('layout', 'drawlayout');
-  res.render('hostappliance',{});
+	res.local('layout', 'hostappliance');
+  res.render('draw',{});
 })
 
 /**
@@ -525,8 +525,8 @@ app.get('/host/:id.:format?/draw', function(req,res){
 	  if(err){
 	    console.log(err);
 	  }
-    res.local('layout', false); 
-	  res.render('hostappliance',
+    res.local('layout', 'hostappliance'); 
+	  res.render('draw',
 	   	{ 
 	   		box: box   
       });
@@ -542,8 +542,8 @@ app.get('/host/draw', function(req,res){
 		  if(err){
 		    console.log(err);
 		  }
-	    res.local('layout', false); 
-		  res.render('hostappliance',
+	    res.local('layout', 'hostappliance'); 
+		  res.render('draw',
 		  	{ 
 		  		box: box
 	      });
@@ -599,8 +599,8 @@ app.get('/connect/:id', function(req,res){
     if (err) console.log(err)
     Box.findOne({ id: req.params.id}, function(err, hbox) {
 	    if (err) console.log(err)
-      res.local('layout', false); 
-	    res.render('clientappliance',{
+      res.local('layout', 'clientappliance'); 
+	    res.render('draw',{
 	    	 hbox: hbox
 	    	 , rbox: rbox 
     	});
