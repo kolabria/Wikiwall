@@ -1,0 +1,53 @@
+!!! 5
+html
+  head
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
+    base(href=base)
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+    title #{title} // from Application
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/wall.css')
+  body.background
+    .canvas
+      header.navbar.navbar-fixed-bottom 
+        nav#toolbar.toolbar!= body
+      .whiteboard
+        canvas#myCanvas(resize)
+      #navWindow
+        #view
+        .btn-group                  
+          button.btn.tool(type='button', onclick='', value='ZoomIn')
+            i.icon-plus
+          button.btn.tool(type='button', onclick='', value='Center')
+            i.icon-asterisk
+          button.btn.tool(type='button', onclick='', value='ZoomOut')
+            i.icon-minus
+      #alerts
+    script
+      var wallId = '#{wallId}';  
+      var name = "#{name}";
+      var companyId = '#{companyId}'; 
+      var boxID = '#{boxId}'; 
+    script(src='/javascripts/jquery-1.7.2.min.js')
+    script(src='/javascripts/ios.js')
+    script(src='/javascripts/bootstrap.min.js')
+    script(src='/javascripts/paper.js')     
+    script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
+    script(src='/javascripts/touch-punch.min.js')
+    script(src='/nowjs/now.js') //this is what allows realtime communication, 
+    script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
+    script
+      //Analytics  
+      var _gaq=[['_setAccount','UA-32675686-1'], ['_setDomainName', 'kolabria.com'], ['_trackPageview']];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g,s)}(document,'script'));
+      //IOS and mobile adjustments
+      iOS_disableZooming();
+      iOS_disableScrolling();
+      window.onorientationchange = function(){
+        if ( orientation == 0 || orientation == 180) {
+          window.scrollTo(0,1);
+      }  

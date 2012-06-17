@@ -1,7 +1,7 @@
 
 /**
  * Module dependencies.
- */
+ **/
 
 var express = require('express')
   , _ = require('underscore') //underscore.js adds some array and object functions
@@ -16,13 +16,23 @@ var express = require('express')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
 
+/**
+* Initialize Variables and Global Database
+**/
+
 var port = process.env.VCAP_APP_PORT || 8000;
 var app = module.exports = express.createServer();
 var db;
 var boxes = {};
 var shares = {};
 var users = {};
-// Configuration
+
+Mongoose.connect('mongodb://localhost/cdb4');
+
+
+/**
+* Configuration
+**/
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -43,16 +53,24 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
-// Middleware
+/**
+* Middleware
+**/
+
 app.dynamicHelpers({
   messages: require('express-messages') // allow for flash messages
+  , base: function(req,res){
+  	return req.header('host')
+  }
 });
 
 app.helpers({
   _:require('underscore') // make underscore available to clientside
 })
 
-// login middleware
+/**
+* Login Middleware
+**/
 
 function requiresLogin(req,res,next){
   if (req.session.company_id) {
@@ -86,6 +104,10 @@ function requiresBoxID(req,res,next){
   }
 };
 
+/**
+* Helper Functions
+**/
+
 function getBoxFromUA(ua){
 	if (i = ua.search("WWA")) {
 		BoxID = ua.substr(i);
@@ -94,27 +116,14 @@ function getBoxFromUA(ua){
 	return null;
 }
 
+// Wall PIN generator 
+function newPIN(){
+	return Math.floor(Math.random() * 9000) + 1000;
+}
 
-
-// Database
-
-Mongoose.connect('mongodb://localhost/cdb4');
-
-
-
-// Routes not needed as it will be handled by python
-
-//For testing
-app.get('/', function(req,res){
-  res.local('layout', false);
-  res.render('index',{ company: new Company()});
-});
-app.get('/tindex', function(req,res){
-  //res.local('layout', false);
-  res.render('tindex',{
-    title: 'Kolabria'	
-  });
-})
+/**
+* Tests Routes
+**/
 
 app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
@@ -127,12 +136,13 @@ app.get('/test', function(req,res){
 });
 app.get('/clientuser', function(req,res){
   //render a Join room view
-  res.render('clientuser',{});
+  res.render('join',{});
 });
 app.post('/clientuser', function(req,res){
 	//Validate the Pin and Box
 	//Get the active WallID and companyId
 	//Send companyID, wallID, username to the view.
+  res.local('layout', 'drawlayout');
 	res.render('clientuser',{});
 });
 app.get('/clientappliance', function(req,res){
@@ -140,38 +150,50 @@ app.get('/clientappliance', function(req,res){
 	//Find box to connect to validate that the wall has been shared with this device
 	//Get the active wallID and companyId
 	//Send companyID, wallID, and this box ID (and boxname).
+  res.local('layout', 'drawlayout');
   res.render('clientappliance',{});
 });
 app.get('/hostappliance', function(req,res){
 	//Make sure this is an appliance
 	//Find the active wallID and company ID, for this box (and boxname)
 	//Send companyId, wallId, boxname, and this box ID.
+	res.local('layout', 'drawlayout');
   res.render('hostappliance',{});
 })
 
-app.get('/images/:file', function(req,res){
+/**
+* Site Routes
+**/
 
-})
-app.post('/images', function(req,res){
+app.get('/', function(req,res){
+  res.local('layout', 'sitelayout');
+  res.render('index',{});
+});
 
+//Todo Remove?
+app.get('/tindex', function(req,res){
+  //res.local('layout', false);
+  res.render('tindex',{
+    title: 'Kolabria'	
+  });
 })
 
 app.get('/register', function(req,res){
-  res.local('layout', false);
+  res.local('layout', 'sitelayout');
   res.render('register',{
     title: 'Register', company: new Company()	
   });
 })
 
 app.get('/login', function(req, res){
-  res.local('layout', false);
+  res.local('layout', 'sitelayout');
   res.render('login', {
     title: 'Login', company: new Company()
     });
 });
 
 app.get('/join', function(req,res){
-  res.local('layout', false);
+  res.local('layout', 'sitelayout');
   res.render('join',{
     title: 'Kolabria', company: new Company()
   });
@@ -195,26 +217,33 @@ app.post('/join', function(req,res){
 })
 
 app.get('/about', function(req,res){
+	res.render('layout', 'sitelayout')
 
 })
 app.get('/contact', function(req, res){
+	res.render('layout', 'sitelayout')
 
 })
 app.post('/contact', function(req,res){
+	res.render('layout', 'sitelayout')
 
 })
 app.get('/product', function(req,res){
+	res.render('layout', 'sitelayout')
 
 })
 
 //For Blog if needed, maybe look if there is already a node blog out there that works
 app.get('/blog.:format?', function(req,res){
+	res.render('layout', 'sitelayout')
 
 });
 app.get('/blog/:title.:format?',function(req,res){
+	res.render('layout', 'sitelayout')
 
 })
 app.post('/blog', function(req,res){
+	res.render('layout', 'sitelayout')
 
 })
 
@@ -233,18 +262,17 @@ app.post('/blog', function(req,res){
 //     });	
 //})
 
-
 app.post('/login', function(req, res){
 	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
-	    if (company && company.authenticate(req.body.company.password,company.password)) {
-	      req.session.company_id = company.id;
-          res.redirect('/controllers');
-	    } else {
+	  if (company && company.authenticate(req.body.company.password,company.password)) {
+	    req.session.company_id = company.id;
+      res.redirect('/controllers');
+	  } else {
 		  console.log('Login failed');
-	      //req.flash('warn', 'Login Failed');
-	      res.redirect('/login');
-	    }
-	  });
+	    //req.flash('warn', 'Login Failed');
+	    res.redirect('/login');
+	  }
+	});
 });
 
 app.post('/register.:format?', function(req, res){
@@ -260,205 +288,211 @@ app.post('/register.:format?', function(req, res){
 
   company.save(function(err) {
     if (err) return companySaveFailed();
-
-   // req.flash('info', 'Your account has been created');
+    // req.flash('info', 'Your account has been created');
     console.log('Account Created');
 
     switch (req.params.format) {
       case 'json':
         res.send(company.toObject());
-      break;
+      	break;
 
       default:
         req.session.company_id = company.id;
         res.redirect('/controllers');
+      	break;
     }
   });
 });
 
+/**
+* Admin Views
+**/
+
 app.get('/controllers', requiresLogin, function(req,res){	
 	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      Box.find({ company_id: req.session.company_id}, function(err, boxes) {
-			 if(err){
+	  if (company) {
+	    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+				if(err){
 			    console.log(err);
 			  }
-			  res.local('layout', false);
-		      res.render('controllers', {
-		        title: 'Kolabria', company: company , boxes: boxes
-	          });
-	       });	
-	    }});
+			  res.local('layout', 'sitelayout');
+		    res.render('controllers', {
+		      title: 'Kolabria'
+		      , company: company
+		      , boxes: boxes
+	      });
+	    });	
+	  }
+	});
 });
-
-//Path.findOne({_id:pathId}, function(err,doc){
-  // if(err){
-    // console.log(err);
-     //this.now.tError('Could Not Delete');
-  // }
-  // doc.remove();
- // });
-
-// Wall PIN generator TODO move outside of routes
-function newPIN(){
-	return Math.floor(Math.random() * 9000) + 1000;
-}
-
 
 // add new box
 app.post('/controllers.:format?', requiresLogin, function(req,res){
-	//console.log('Add new box');
+		//console.log('Add new box');
 	var b = new Box();
 	var w = new Iwall();
 	w.company_id = req.session.company_id;
 	w.PIN = newPIN();
 	w.name = req.body.box_name;
-	w.save(function(err) {
-	      if (err) console.log('New wall add failed');
-	   });
+	b.name = req.body.box_name;
+  b.company_id = req.session.company_id;
+  b.id = req.body.box_id;
+  b.defaultWall_ID = w.id; 
+  b.PIN = w.PIN;
+  
+  console.log('default wall id: ',b.defaultWall_ID);
 	
-    function boxSaveFailed() {
-      console.log('New box add  failed');
-      res.redirect('/controllers');
-    }
-    b.name = req.body.box_name;
-    b.company_id = req.session.company_id;
-    b.id = req.body.box_id;
-    b.defaultWall_ID = w.id; 
-    b.PIN = w.PIN;
-    console.log('default wall id: ',b.defaultWall_ID);
+	function boxSaveFailed() {
+    console.log('New box add  failed');
+    res.redirect('/controllers');
+  }
+	
+	w.save(function(err) {
+	  if (err) console.log('New wall add failed');
+	});
 	b.save(function(err) {
-	      if (err) return boxSaveFailed();
-	   });
-
+	  if (err) return boxSaveFailed();
+	});
 	
 	//console.log('Added Box name: ', req.body.box_name);
 	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      Box.find({ company_id: req.session.company_id}, function(err, boxes) {
-			 if(err){
+	  if (company) {
+	    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+			  if(err){
 			    console.log(err);
 			  }
-			  res.local('layout', false);
-		      res.render('controllers', {
-		        title: 'Kolabria', company: company , boxes: boxes
-	          });
-	       });	
-	    }});
-});
-// remove box
-app.get('/controllers/:id.:format?/remove', requiresLogin, function(req,res){
-    console.log('Remove Box: ID -  ', req.params.id);
-    async.waterfall([
-        function(callback){
-            Box.findOne({ id: req.params.id}, function(err, box) {
-                callback(null, box);
-            });
-        },
-        function(box, callback){
-            Iwall.findById(box.defaultWall_ID, function (err, wall) {
-                callback(null, box, wall);
-            });
-        }
-    ],function(err, box, wall){
-	    if(err){
-		    console.log(err);
-		  }
-        wall.remove();
-        box.remove();
-        res.redirect('/controllers');
-    });
-});
-
-// edit box info 	
-app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){      res.local('layout', false);
-	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      console.log('Edit Box: ID -N  ', req.params.id);
-	      Box.findOne({id: req.params.id}, function(err, box) {
-	        if(err){
-			    console.log(err);
-		    }
-	        if (box){
-		         res.local('layout', false);
-			     res.render('editbox', {
-			        title: 'Kolabria', company: company, box: box, shareList: box.shareList
-			      });
-		    }
-		  });
-	    }
+			  res.local('layout', 'sitelayout');
+		    res.render('controllers', {
+		      title: 'Kolabria'
+		      , company: company
+		      , boxes: boxes
+	      });
+	    });	
+	  }
 	});
 });
 
+// remove box
+app.delete('/controllers/:id.:format?', requiresLogin, function(req,res){
+  console.log('Remove Box: ID -  ', req.params.id);
+  async.waterfall([
+    function(callback){
+      Box.findOne({ id: req.params.id}, function(err, box) {
+        callback(null, box);
+      });
+    }
+    , function(box, callback){
+      Iwall.findById(box.defaultWall_ID, function (err, wall) {
+        callback(null, box, wall);
+      });
+    }]
+    , function(err, box, wall){
+	    if(err) console.log(err);
+      wall.remove();
+      box.remove();
+      res.redirect('/controllers');
+    }
+  );
+});
+
+// edit box info 	
+app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){      
+	res.local('layout', 'sitelayout');
+	Company.findById(req.session.company_id, function(err, company){
+	  if (company) {
+	    console.log('Edit Box: ID -N  ', req.params.id);
+	    Box.findOne({id: req.params.id}, function(err, box){
+	      if (err) console.log(err);
+	      if (box){
+			    res.render('editbox', {
+			      title: 'Kolabria'
+			      , company: company
+			      , box: box
+			      , shareList: box.shareList
+			    });
+		    }
+		  });
+	  }
+	});
+	//TODO redirect to error page
+});
+
 // edit box info - update box name	
-app.post('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
+app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      console.log('Edit Box: ID -  ', req.params.id);
-	      Box.findOne({id: req.params.id}, function(err, box) {
-	        if(err){
+	  if (company) {
+	    console.log('Edit Box: ID -  ', req.params.id);
+	    Box.findOne({id: req.params.id}, function(err, box) {
+	    	if(err){
 			    console.log(err);
 		    }
-	        if (box){
+	      if (box){
 		      box.name = req.body.box_name;
 		      box.save(function(err) {
-			    if (err) console.log(' Box edit box update failed');
+			  	  if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', false);
-			  res.render('editbox', {
-		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      res.local('layout', 'sitelayout');
+			  	res.render('editbox', {
+		        title: 'Kolabria'
+		        , company: company
+		        , box: box
+		        , shareList: box.shareList
 		      });
 		    }
 		  });
-	    }
+	  }
 	});
 });
 
 // Edit box info - add box to share list 	
-app.post('/controllers/:id.:format?/share', requiresLogin, function(req,res){
+app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      console.log('Edit Box share: ID -  ', req.params.id);
-	      console.log('Edit Box share: Box id to add: ', req.body.data);
-	      Box.findOne({id: req.params.id}, function(err, box) {
-	        if(err){
+	  if (company) {
+	    console.log('Edit Box share: ID -  ', req.params.id);
+	    console.log('Edit Box share: Box id to add: ', req.body.data);
+	    Box.findOne({id: req.params.id}, function(err, box) {
+	      if(err){
 			    console.log(err);
 		    }
-	        if (box){
+	      if (box){
 		      box.shareList.push(req.body.data );
 		      box.save(function(err) {
-			    if (err) console.log(' Box edit box update failed');
+			    	if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', false);
-			  res.render('editbox', {
-
-		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      res.local('layout', 'sitelayout');
+			  	res.render('editbox', {
+		        title: 'Kolabria'
+		        , company: company
+		        , box: box
+		        , shareList: box.shareList
 		      });
 		    }
 		  });
-	    }
+	  }
 	});
 });
 
 //  Edit box info - remove box from share list 
-app.get('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res){
+app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res){
 	Company.findById(req.session.company_id, function(err, company) {
-	    if (company) {
-	      console.log('Edit Box share: ID -  ', req.params.id);
-	      console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
-	      Box.findOne({id: req.params.id}, function(err, box) {
-	        if(err){
+	  if (company) {
+	    console.log('Edit Box share: ID -  ', req.params.id);
+	    console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
+	    Box.findOne({id: req.params.id}, function(err, box) {
+	      if(err){
 			    console.log(err);
 		    }
-	        if (box){
-		      
+	      if (box){
 		      box.shareList.splice(box.shareList.indexOf(req.params.sb),1 );
 		      box.save(function(err) {
-			    if (err) console.log(' Box edit box update failed');
+			    	if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', false);
-			  res.render('editbox', {
-		        title: 'Kolabria', company: company, box: box, shareList: box.shareList
+		      res.local('layout', 'sitelayout');
+			  	res.render('editbox', {
+		        title: 'Kolabria'
+		        , company: company
+		        , box: box
+		        , shareList: box.shareList
 		      });
 		    }
 		  });
@@ -470,13 +504,15 @@ app.get('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res
 app.get('/host/:id.:format?/draw', function(req,res){
 	console.log('Draw - Box ID  ', req.params.id);
 	Box.findOne({ id: req.params.id}, function(err, box) {
-	   if(err){
-	     console.log(err);
-	   }
-       res.local('layout', false); 
-	   res.render('hostappliance',{ box: box   
-       });
-    });
+	  if(err){
+	    console.log(err);
+	  }
+    res.local('layout', false); 
+	  res.render('hostappliance',
+	   	{ 
+	   		box: box   
+      });
+  });
 });
 // host appliance draw view test using user agent
 app.get('/host/draw', function(req,res){
@@ -485,13 +521,15 @@ app.get('/host/draw', function(req,res){
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
-		   if(err){
-		     console.log(err);
-		   }
-	       res.local('layout', false); 
-		   res.render('hostappliance',{ box: box   
-	       });
-	    });	
+		  if(err){
+		    console.log(err);
+		  }
+	    res.local('layout', false); 
+		  res.render('hostappliance',
+		  	{ 
+		  		box: box
+	      });
+	  });	
 	}
 });
 
@@ -501,63 +539,63 @@ app.get('/trash/:id.:format?', function(req,res){
 		var w = new Iwall();  // create a new wall
 		console.log('Trash - Box ID  ', req.params.id);
 		Box.findOne({ id: req.params.id}, function(err, box) {
-		   if(err){
-		     console.log(err);
-		   }
-		   if (box){
-		     console.log("Trash - Box dwall: ", box.defaultWall_ID);
-		     Iwall.findById(box.defaultWall_ID, function (err, wall) {
-		        if(err){
-			       console.log(err);
-			     }
-			     if(wall) {
-			       console.log("Trash - wall id: ", wall.id);
-			       wall.remove(); //remove old wall
-			       w.company_id = box.company_id;
-			       w.PIN = newPIN();
-			       w.name = box.name;
-			       box.defaultWall_ID = w.id;
-			       box.PIN = w.PIN 
-			       console.log('Trash - new wall PIN: ', box.PIN, w.PIN);
-			       w.save(function(err) {
+		  if(err){
+		    console.log(err);
+		  }
+		  if (box){
+		    console.log("Trash - Box dwall: ", box.defaultWall_ID);
+		    Iwall.findById(box.defaultWall_ID, function (err, wall) {
+		      if(err){
+			      console.log(err);
+			    }
+			    if(wall) {
+			      console.log("Trash - wall id: ", wall.id);
+			      wall.remove(); //remove old wall
+			      w.company_id = box.company_id;
+			      w.PIN = newPIN();
+			      w.name = box.name;
+			      box.defaultWall_ID = w.id;
+			      box.PIN = w.PIN 
+			      console.log('Trash - new wall PIN: ', box.PIN, w.PIN);
+			      w.save(function(err) {
 			        if (err) console.log(' Trash - New wall add failed');
-		           });
-		           box.save(function(err) {
+		        });
+		        box.save(function(err) {
 			        if (err) console.log(' Trash - box update failed');
-		           });
+		        });
 			     }	   
-		     });
-	       }
-	       res.redirect('/host/draw');	
-	       //res.local('layout', false); 
-		   //res.render('hostappliance',{ box: box   
-	       // });
-	    });		
-	} 
+	      	res.redirect('/host/draw');	
+		    });
+	    }
+	  });		
+	}//TODO else render error page?
 });
-app.get('/connect/:id', function(req,res){  
 
+app.get('/connect/:id', function(req,res){  
 	console.log('ID  ', req.params.id);
-//	console.log('ID  ', req.params.name);
-	
+  //console.log('ID  ', req.params.name);
 	console.log('User-Agent: ' + req.headers['user-agent']);
 	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
 	console.log('Box ID: ',bid);
 	Box.findOne({ id: bid}, function(err, rbox) {
-      if(err){
-	    console.log(err);
-	  }
-      Box.findOne({ id: req.params.id}, function(err, hbox) {
-	    if(err){
-	      console.log(err);
-	    }
-        res.local('layout', false); 
-	    res.render('clientappliance',{ hbox: hbox,rbox: rbox 
-        });
-      });		
+    if (err) console.log(err)
+    Box.findOne({ id: req.params.id}, function(err, hbox) {
+	    if (err) console.log(err)
+      res.local('layout', false); 
+	    res.render('clientappliance',{
+	    	 hbox: hbox
+	    	 , rbox: rbox 
+    	});
+    });		
 	});
 });
 
+app.get('/images/:file', function(req,res){
+
+})
+app.post('/images', function(req,res){
+
+})
 
 app.get('/sdestroy', function(req, res){
   if (req.session) {
@@ -579,6 +617,18 @@ var everyone = nowjs.initialize(app);
 uploadImage = function(){
 
 }
+
+//called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
+deletePath = function(pathId){
+  Path.findOne({_id:pathId}, function(err,doc){
+    if(err){
+      console.log(err);
+      this.now.tError('Could Not Delete');
+    }
+    doc.remove();
+  });
+}
+
 //Two Main types of now.js functions
 //1. DB functions to be called after all manipulations on a path/object has been completed
 //2. Inter-Client functions that offer realtime updates between clients. 
@@ -654,16 +704,7 @@ everyone.now.newPath = function(path,pcolor,pwidth,player,callback){
   });
   
 }
-//called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
-deletePath = function(pathId){
-  Path.findOne({_id:pathId}, function(err,doc){
-    if(err){
-      console.log(err);
-      this.now.tError('Could Not Delete');
-    }
-    doc.remove();
-  });
-}
+
 //called after a move has been completed
 everyone.now.updatePath = function(pathId,path){
   Path.update({
