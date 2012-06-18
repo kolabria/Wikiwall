@@ -115,6 +115,10 @@ app.get('/tindex', function(req,res){
     title: 'Kolabria'	
   });
 })
+app.get('/klayout', function(req,res){
+  res.local('layout', false);
+  res.render('klayout',{ company: new Company()});
+});
 
 app.get('/wall/:id', function(req, res){
   //id refers to either _id or name?
