@@ -10,14 +10,14 @@
         .control-group
           label.control-label(for="id_name") Name 
           .controls
-            input#id_name.input-xlarge(name='name', placeholder='Your Name', type='text')
+            input#id_name.input-xlarge(required, name='name', placeholder='Your Name', type='text')
         .control-group
           label.control-label(for="id_room") Room
           .controls
-            input#id_room.input-xlarge(name='room', placeholder='Case Insensitive', type='text')
+            input#id_room.input-xlarge(required, name='room', placeholder='Case Insensitive', type='text')
         .control-group
           label.control-label(for="id_code") Code
           .controls
-            input#id_code.input-xlarge(name='code', placeholder='4-digit secret code', type='text')
+            input#id_code.input-xlarge(required, name='code', placeholder='4-digit secret code', type='number')
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Enter')

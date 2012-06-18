@@ -61,11 +61,11 @@ body
               //TODO needs to be randomly generated and verified
               input(type='hidden', name='csrfmiddlewaretoken', value='e49fb64f716e93e7bd6ba16774c14a28') 
             label(for='id_name') Name
-            input#id_name.span3(name='name', maxlength='30', placeholder='Your Name', type='text')
+            input#id_name.span3(required, name='name', placeholder='Your Name', type='text')
             label(for='id_room') Room
-            input#id_room.span3(name='room', maxlength='30', placeholder='Room Name', type='text')
+            input#id_room.span3(required, name='room', placeholder='Room Name', type='text')
             label(for='id_code') Room Code
-            input#id_code.span3(name='code', maxlength='30', placeholder='4-digit secret code', type='text')
+            input#id_code.span3(required, name='code', placeholder='4-digit secret code', type='number')
             input.btn.btn-primary.pull-right(type='submit', value='Join')
       block login
         li.dropdown
@@ -80,9 +80,9 @@ body
                 //TODO needs to be randomly generated and verified
                 input(type='hidden', name='csrfmiddlewaretoken', value='') 
               label(for='id_email') Email
-              input#id_email.span3(name='company[adminEmail]', maxlength='30', placeholder='Email@email.com', type='text')
+              input#id_email.span3(required, name='company[adminEmail]', maxlength='30', placeholder='Email@email.com', type='email')
               label(for='id_password') Password
-              input#id_password.span3(name='company[password]', maxlength='30', placeholder='Password', type='password')
+              input#id_password.span3(required, name='company[password]', maxlength='30', placeholder='Password', type='password')
               a.pull-left(href='/register') Create a new account
               input.btn.btn-primary.pull-right(type='submit', value='Login')
     .navbar
