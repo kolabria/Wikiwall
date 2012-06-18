@@ -330,6 +330,7 @@ now.ready(function(){
         break;
       case 46:
         //delete for delete?
+        event.preventDefault();
         jQuery('.delete-object').click();
         break;
       case 67:
