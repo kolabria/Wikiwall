@@ -58,7 +58,7 @@ app.configure('production', function(){
 **/
 
 app.dynamicHelpers({
-  messages: require('express-messages') // allow for flash messages
+  messages: require('express-messages-bootstrap') // allow for flash messages
   , base: function(req,res){
   	return req.header('host')
   }
@@ -187,11 +187,32 @@ app.get('/register', function(req,res){
   });
 })
 
-app.get('/login', function(req, res){
-  res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - Login')
-  res.render('login', {
-    company: new Company() //needed?
+app.post('/register.:format?', function(req, res){
+  var company = new Company(req.body.company);
+
+  function companySaveFailed() {
+   // req.flash('warn', 'Account creation failed');
+    console.log('account creation failed');
+    res.render('register', {
+      locals: { title: 'Register', company: company }
+    });
+  }
+
+  company.save(function(err) {
+    if (err) return companySaveFailed();
+    // req.flash('info', 'Your account has been created');
+    console.log('Account Created');
+
+    switch (req.params.format) {
+      case 'json':
+        res.send(company.toObject());
+      	break;
+
+      default:
+        req.session.company_id = company.id;
+        res.redirect('/controllers');
+      	break;
+    }
   });
 });
 
@@ -220,6 +241,31 @@ app.post('/join', function(req,res){
   });
   res.redirect('/join')	
 })
+
+app.get('/login', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - Login')
+  res.render('login', {
+    company: {}
+  });
+});
+
+app.post('/login', function(req, res){
+	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
+	  if (company && company.authenticate(req.body.company.password,company.password)) {
+	    req.session.company_id = company.id;
+      	res.redirect('/controllers');
+	  } else {
+	  	company = {}
+	  	res.local('layout', 'sitelayout');
+  		res.local('title', 'Kolbria - Login')
+	  	req.flash('error',err || 'Invalid Username or Password');
+	    res.render('login',{
+	      company: {adminEmail : req.body.company.adminEmail}
+	    });
+	  }
+	});
+});
 
 app.get('/about', function(req,res){
 	res.local('layout', 'sitelayout')
@@ -257,72 +303,13 @@ app.get('/blog/:title.:format?',function(req,res){
 	res.local('title' , 'Kolabria - About')
 
 
-})
+});
 app.post('/blog', function(req,res){
 	res.local('layout', 'sitelayout')
 	res.local('title' , 'Kolabria - About')
 
 
-})
-
-/* TODO remove?
-app.post('/join', function(req,res){
- console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
-  	Box.find({ name: "dog"}, function(err, box) {
-		 if(err){
-		    console.log(err);
-		  }
-		  console.log('Join-- box.PIN', box.PIN);
-		  if (box.PIN == req.body.code) {
-			  res.render('clienuser', {
-		        title: 'Kolabria', box: box, userName: req.body.name
-	          });
-		  }
-     });	
-})*/
-
-app.post('/login', function(req, res){
-	Company.findOne({ adminEmail: req.body.company.adminEmail }, function(err, company) {
-	  if (company && company.authenticate(req.body.company.password,company.password)) {
-	    req.session.company_id = company.id;
-      res.redirect('/controllers');
-	  } else {
-		  console.log('Login failed');
-	    //req.flash('warn', 'Login Failed');
-	    res.redirect('/login');
-	  }
-	});
 });
-
-app.post('/register.:format?', function(req, res){
-  var company = new Company(req.body.company);
-
-  function companySaveFailed() {
-   // req.flash('warn', 'Account creation failed');
-    console.log('account creation failed');
-    res.render('register', {
-      locals: { title: 'Register', company: company }
-    });
-  }
-
-  company.save(function(err) {
-    if (err) return companySaveFailed();
-    // req.flash('info', 'Your account has been created');
-    console.log('Account Created');
-
-    switch (req.params.format) {
-      case 'json':
-        res.send(company.toObject());
-      	break;
-
-      default:
-        req.session.company_id = company.id;
-        res.redirect('/controllers');
-      	break;
-    }
-  });
-});
-
 /**
 * Admin Views
 **/
