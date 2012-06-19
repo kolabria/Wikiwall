@@ -1,48 +1,53 @@
-extends loginlayout
-
-block content
-  .container
-    .row-fluid
-        h1 WikiWall - Details
-          br
-          h2 Device Info
-          br
-          table.table
-            thead
-              tr
-                th Device ID
-                th Room Name
-                th Update Room Name
-                th
-            tbody
-              tr
-                form.form-horizontal(action='/controllers/#{box.id}/edit', method='post')
-                  td #{box.id}
-                  td #{box.name}
-                  td
-                    input#id_box_name(type='text', name='box_name', value='#{box.name}')
-                  td
-                    input.btn.btn-primary.btn-small(type='submit', value='Update')
-    .row-fluid
-        h2 Devices on Quick Share List
+.container
+  .page-header
+      h1 WikiWall - Details
+  .row-fluid
+        br
+        h2 Device Info
+        br
         table.table
           thead
             tr
-              th Box ID
+              th Device ID
               th Room Name
+              th Update Room Name
               th
           tbody
-            each sb in shareList
-              tr
-                td #{sb}
-                td 
-                td
-                  a.btn(href='/controllers/#{box.id}/unshare/#{sb}/') Remove
             tr
-              form.form-horizontal(action='/controllers/#{box.id}/share', method='post')
-                td(colspan='2')
-                  input#id_data(type='text', placeholder='BoxID or Box Name', name='data')
+              form.form-horizontal(action='/controllers/#{box.id}/', method='post')
+                input(type="hidden", name="_method", value="put")
+                td #{box.id}
+                td 
+                  label(for="boxName"+box.name) #{box.name}
                 td
-                  input.btn.btn-primary.btn-small(type='submit', value='Add')
-        a.btn(href='/controllers/') Back
-        br
+                  input(id="boxName"+box.name, type='text', name='box_name', value=box.name)
+                td
+                  input.btn.btn-primary(type='submit', value='Update')
+  .row-fluid
+      h2 Devices on Quick Share List
+      table.table
+        thead
+          tr
+            th Box ID
+            th Room Name
+            th
+        tbody
+          each sb in shareList
+            tr
+              td #{sb}
+              td 
+              td
+                form(method="post", action='/controllers/#{box.id}/unshare/#{sb}/')
+                  input(type="hidden", name="_method", value="delete")
+                  input.btn(type="submit", value='remove')
+          tr
+            form.form-horizontal(action='/controllers/#{box.id}/share', method='post')
+              input(type="hidden", name="_method", value="put")
+              td
+                label(for="id_data") Add Box to Quick Share List
+              td
+                input#id_data(type='text', placeholder='BoxID or Box Name', name='data')
+              td
+                input.btn.btn-primary(type='submit', value='Add')
+      a.btn(href='/controllers/') Back
+      br

@@ -1,24 +1,23 @@
-extends stdlayout
-
-block content
-  .hero
-  .container
-    .span6
-      .hero-unit.well
-        p Register your company
-        form.users(name='register', action='/register', method='POST')
-          div
-            label Email:
-            input(name='company[adminEmail]', value=company.adminEmail || '')
-          div
-            label Password:
-            input(name='company[password]', value=company.password || '', type='password')
-          div
-            label Company:
-            input(name='company[name]', value=company.name || '')
-          div
-              br
-              input.btn.btn-primary.pull-right(type='submit', value='Register')
-        br
-        a(href='Login') Login
-        br
+.container
+  .page-header
+    h1 Register
+  .span8.offset2
+    .hero-unit
+      p Register your company
+      form.form-horizontal.users(name='register', action='/register', method='POST')
+        .control-group
+          label.control-label(for="email") Email:
+          .controls
+            input.input-xlarge#email(required, type="email",name='company[adminEmail]', value=company.adminEmail || '', placeholder="Email@email.com")
+        .control-group
+          label.control-label(for="password") Password:
+          .controls
+            input.input-xlarge#password(required, name='company[password]', value=company.password || '', type='password', placeholder="Password")
+        .control-group
+          label.control-label(for="company") Company:
+          .controls
+            input.input-xlarge#company(required, type="text",name='company[name]', value=company.name || '', placeholder="Acme Co.")
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Register')
+        .control-group
+          a.pull-right(href='Login') Login

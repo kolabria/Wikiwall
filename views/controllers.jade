@@ -1,35 +1,35 @@
-extends loginlayout
 
-block content
-  .container
+.container
+  .page-header
     h1 Company:  #{company.name}
-    br
-    .row-fluid
-        br
-        h3 Controller List:
-        br
-        table.table
-          thead
+  .row-fluid
+      br
+      h3 Controller List:
+      br
+      table.table
+        thead
+          tr
+            th Controller ID
+            th Controller Name
+            th Edit
+            th Remove
+        tbody
+          each box in boxes
             tr
-              th Controller ID
-              th Controller Name
-              th Edit
-              th Remove
-          tbody
-            each box in boxes
-              tr
-                td #{box.id}
-                td #{box.name}
-                td
-                  a.btn(href='/controllers/#{box.id}/edit') edit
-                td
-                  a.btn(href='/controllers/#{box.id}/remove/') remove
-            tr
-              form.form-horizontal(action='/controllers', method='POST')
-                td
-                  input#id_box_id(type='text', name='box_id')
-                td
-                  input#id_box_name(type='text', name='box_name')
-                td
-                  input.btn.btn-primary.btn-small(type='submit', value='Add')
-                td
+              td #{box.id}
+              td #{box.name}
+              td
+                a.btn(href='/controllers/#{box.id}/edit') edit
+              td
+                form(method="post", action='/controllers/#{box.id}/')
+                  input(type="hidden", name="_method", value="delete")
+                  input.btn(type="submit", value='remove')
+          tr
+            form.form-horizontal(action='/controllers', method='POST')
+              td
+                input#id_box_id(type='text', name='box_id')
+              td
+                input#id_box_name(type='text', name='box_name')
+              td
+                input.btn.btn-primary(type='submit', value='Add')
+              td

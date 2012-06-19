@@ -82,6 +82,13 @@ now.ready(function(){
     });
   }
   
+  updateDelete = function(){
+    var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
+    var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+    jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+
+  }
+
   scrollNav = function(){
     c.addClass('nav');
     nw.show();
@@ -285,14 +292,14 @@ now.ready(function(){
   select.onMouseDown = function(event){
     if(select.target){
       select.target.item.selected = false
-      jQuery('.delete-object').remove();
+      jQuery('button').filter('.delete-object').remove();
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
       var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
       var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
       select.target.item.selected = true;
-      jQuery('canvas').after('<i onClick="" class="delete-object icon-remove" style="left:'+windowPosX+'px;top:'+windowPosY+'px;"></i>');
+      jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
   }
   select.onMouseDrag = function(event){
@@ -301,9 +308,7 @@ now.ready(function(){
       select.target.item.position.y += event.delta.y;
       now.sendMoveItem(paper.project.activeLayer.index,select.target.item.name,event.delta);
       paper.view.draw(); //refresh canvas
-      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
-      jQuery('i').css({left:windowPosX,top:windowPosY})
+      updateDelete();    
     }
   }
   select.onMouseUp = function(event){
@@ -337,18 +342,22 @@ now.ready(function(){
         jQuery('.tool[value=Select]').click();
         break;
       case 37: //left
+        updateDelete();
         paper.view.scrollBy({x:-10,y:0});
         paper.view.draw();
         break;
       case 38: //up
+        updateDelete();
         paper.view.scrollBy({x:0,y:-10});
         paper.view.draw();
         break;
       case 39: //right
+        updateDelete();
         paper.view.scrollBy({x:10,y:0});
         paper.view.draw();
         break;
       case 40: //down
+        updateDelete();
         paper.view.scrollBy({x:0,y:10});
         paper.view.draw();
         break;
@@ -359,7 +368,7 @@ now.ready(function(){
   //delete
   jQuery(document).on('click','.delete-object',function(){ 
     if(select.target.item.remove()){
-      jQuery('i').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').remove();
       paper.view.draw();
     }
     now.sendDeleteItem(paper.project.activeLayer.index,select.target.item.name);
@@ -393,10 +402,16 @@ now.ready(function(){
         case 'ZoomOut':
           scrollNav();
           paper.view.zoom = paper.view.zoom /2
+          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
+          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
           break;
         case 'ZoomIn':
           scrollNav();
           paper.view.zoom = paper.view.zoom * 2
+          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
+          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
           break;
         case 'Pen':
           c.addClass('crosshair');

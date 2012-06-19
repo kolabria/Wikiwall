@@ -1,110 +1,44 @@
-!!! 5
-html
-  head
-    meta(name="apple-mobile-web-app-capable", content="yes")
-    meta(name="apple-mobile-web-app-status-bar-style", content="black")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
-    title #{box.name}  
-    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
-    link(rel='stylesheet', href='/stylesheets/wall.css')
-  body.background
-    .canvas
-      header.navbar.navbar-fixed-bottom 
-        nav#toolbar.toolbar
-          ul.nav.pull-left
-            li.btn-group.dropup.pen
-              button.btn.tool(type='button', onclick='', value='Pen')
-                i.icon-pencil   
-              button.btn.dropdown-toggle(data-toggle="dropdown")       
-                span.caret
-              ul.dropdown-menu.pull-right
-                li
-                  button.btn.btn-inverse.color(type='button', onclick='', value='Black')
-                li
-                  button.btn.btn-danger.color(type='button', onclick='', value='Red')
-                li 
-                  button.btn.btn-success.color(type='button', onclick='', value='Green')
-                li
-                  button.btn.btn-primary.color(type='button', onclick='', value='Blue')
-            li  
-              button.btn.tool(type='button', onclick='', value='Nav')
-                i.icon-move
-            li  
-              button.btn.tool(type='button', onclick='', value='Select')
-                i.icon-hand-up
-            li.btn-group.dropup#shareTo
-                button.btn.dropdown-toggle(data-toggle="dropdown")
-                  i.icon-share
-                  span.caret
-                ul.dropdown-menu
-                  li
-                    h4 Share Wall {#{box.PIN}}
-                  li.divider
-                  for sb in box.shareList
-                    li.btn(data-value='#{sb}')
-                      span #{sb}
-                      i
-            li.btn-group.dropup#walls
-                button.btn.dropdown-toggle(data-toggle="dropdown")
-                  i.icon-inbox
-                  span.caret
-                ul.dropdown-menu
-                  li 
-                    h4 Available Walls
-                  li.divider
-            li.btn-group.dropup#users
-                button.btn.dropdown-toggle(data-toggle="dropdown")
-                  i.icon-user
-                  span.caret
-                ul.dropdown-menu
-                  li
-                    h4 Active Users
-                  li.divider            
-        .pull-right
-          a.brand(href="#") #{box.name} - Home Wall
-          nav#functions.nav.btn-group
-            a.settings.btn(href='/settings')
-              i.icon-wrench 
-            a.clear.btn(href='/trash/#{box.id}')
-              i.icon-trash
-      .whiteboard
-        canvas#myCanvas(resize)
-      #navWindow
-        #view
-        .btn-group                  
-          button.btn.tool(type='button', onclick='', value='ZoomIn')
-            i.icon-plus
-          button.btn.tool(type='button', onclick='', value='Center')
-            i.icon-asterisk
-          button.btn.tool(type='button', onclick='', value='ZoomOut')
-            i.icon-minus
-      #alerts
-  script(src='/javascripts/jquery-1.7.2.min.js')
-  script(src='/javascripts/ios.js')
-  script(src='/javascripts/bootstrap.min.js')
+extends drawlayout
+block toolbar
+  li.btn-group.dropup#shareTo
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-share
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Share Wall {#{box.PIN}}
+        li.divider
+        for sb in box.shareList
+          li.btn(data-value='#{sb}')
+            span #{sb}
+            i
+  li.btn-group.dropup#walls
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-inbox
+        span.caret
+      ul.dropdown-menu
+        li 
+          h4 Available Walls
+        li.divider
+  li.btn-group.dropup#users
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-user
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Active Users
+        li.divider
+block functions                     
+  .pull-right
+    a.brand(href="#") #{box.name} - Home Wall
+    nav#functions.nav.btn-group
+      a.settings.btn(href='/settings')
+        i.icon-wrench 
+      a.clear.btn(href='/trash/#{box.id}')
+        i.icon-trash
+block localjs
   script
-    iOS_disableZooming();
-    iOS_disableScrolling();
-    window.onorientationchange = function(){
-      if ( orientation == 0 || orientation == 180) {
-        window.scrollTo(0,1);
-      }  
-    }
-  script
-    var wallId = '#{box.defaultWall_ID}';  
+    var wallId = '#{box.defaultWall_ID}';
     var name = "#{box.name}";
     var companyId = '#{box.company_id}'; //from application 
     var boxID = '#{box.id}'; //if name is not unique
-  script(src='/javascripts/paper.js')
-  script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-
-  script(src='/javascripts/touch-punch.min.js') 
-
-  script(src='/nowjs/now.js') //this is what allows realtime communication, 
-  script(src='/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). //General All purpose JS
-  script
-    //Analytics  
-    var _gaq=[['_setAccount','UA-32675686-1'], ['_setDomainName', 'kolabria.com'], ['_trackPageview']];
-    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
