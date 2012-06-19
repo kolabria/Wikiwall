@@ -27,7 +27,7 @@ var boxes = {};
 var shares = {};
 var users = {};
 
-Mongoose.connect('mongodb://localhost/cdb4');
+Mongoose.connect('mongodb://localhost/cdb5');
 
 
 /**
@@ -334,49 +334,62 @@ app.get('/controllers', requiresLogin, function(req,res){
 
 // add new box
 app.post('/controllers.:format?', requiresLogin, function(req,res){
-		//console.log('Add new box');
-	var b = new Box();
-	var w = new Iwall();
-	w.company_id = req.session.company_id;
-	w.PIN = newPIN();
-	w.name = req.body.box_name;
-	b.name = req.body.box_name;
-  b.company_id = req.session.company_id;
-  b.id = req.body.box_id;
-  b.defaultWall_ID = w.id; 
-  b.PIN = w.PIN;
-  
-  console.log('default wall id: ',b.defaultWall_ID);
-	
-	function boxSaveFailed() {
-    console.log('New box add  failed');
-    res.redirect('/controllers');
-  }
-	
-	w.save(function(err) {
-	  if (err) console.log('New wall add failed');
-	});
-	b.save(function(err) {
-	  if (err) return boxSaveFailed();
-	});
-	
-	//console.log('Added Box name: ', req.body.box_name);
-	Company.findById(req.session.company_id, function(err, company) {
-	  if (company) {
-	    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
-			  if(err){
-			    console.log(err);
-			  }
-			  res.local('layout', 'loginlayout');
-		    res.render('controllers', {
-		      title: 'Kolabria'
-		      , company: company
-		      , boxes: boxes
-	      });
-	    });	
-	  }
+	Box.findOne({id: req.body.box_id}, function(err, box){
+	     if (box) {
+		     req.flash('error','Controller already registered');
+	     }
+	     else {
+			Box.findOne({name: req.body.box_name}, function(err, box) {
+				if (box) {
+                   req.flash('error',"Controller Name already used.  Chose a different name");
+				}
+				else {
+				 	var b = new Box();
+					var w = new Iwall();
+					w.company_id = req.session.company_id;
+					w.PIN = newPIN();
+					w.name = req.body.box_name;
+					b.name = req.body.box_name;
+				    b.company_id = req.session.company_id;
+				    b.id = req.body.box_id;
+				    b.defaultWall_ID = w.id; 
+				    b.PIN = w.PIN;
+
+				    console.log('default wall id: ',b.defaultWall_ID);
+
+					function boxSaveFailed() {
+				      console.log('New box add  failed');
+				      res.redirect('/controllers');
+				    }
+					w.save(function(err) {
+					  if (err) console.log('New wall add failed');
+					});
+					b.save(function(err) {
+					  if (err) return boxSaveFailed();
+					});	
+				}
+			});
+	    }
+		Company.findById(req.session.company_id, function(err, company) {
+		  if (company) {
+		    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+				  if(err){
+				    console.log(err);
+				  }
+				  res.local('layout', 'loginlayout');
+			      res.render('controllers', {
+			       title: 'Kolabria'
+			       , company: company
+			       , boxes: boxes
+		      });
+		    });	
+		  }
+	    });
 	});
 });
+
+
+
 
 // remove box
 app.delete('/controllers/:id.:format?', requiresLogin, function(req,res){
