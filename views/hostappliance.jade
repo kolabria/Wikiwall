@@ -9,8 +9,8 @@ block toolbar
           h4 Share Wall {#{box.PIN}}
         li.divider
         for sb in box.shareList
-          li.btn(data-value='#{sb}')
-            span #{sb}
+          li.btn(data-value='#{sb.boxID}')
+            span #{sb.boxName}
             i
   li.btn-group.dropup#walls
       button.btn.dropdown-toggle(data-toggle="dropdown")

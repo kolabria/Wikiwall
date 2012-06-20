@@ -34,10 +34,10 @@
         tbody
           each sb in shareList
             tr
-              td #{sb}
-              td 
+              td #{sb.boxID}
+              td #{sb.boxName}
               td
-                form(method="post", action='/controllers/#{box.id}/unshare/#{sb}/')
+                form(method="post", action='/controllers/#{box.id}/unshare/#{sb.boxID}/')
                   input(type="hidden", name="_method", value="delete")
                   input.btn(type="submit", value='remove')
           tr
@@ -46,7 +46,7 @@
               td
                 label(for="id_data") Add Box to Quick Share List
               td
-                input#id_data(type='text', placeholder='BoxID or Box Name', name='data')
+                input#id_data(type='text', placeholder='Controller Name', name='data')
               td
                 input.btn.btn-primary(type='submit', value='Add')
       a.btn(href='/controllers/') Back

@@ -30,7 +30,7 @@ var users = {};
 
 
 //need to assign this to a db variable?
-Mongoose.connect('mongodb://localhost/cdb5');
+Mongoose.connect('mongodb://localhost/cdb6');
 
 
 /**
@@ -439,7 +439,7 @@ app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
 	res.local('layout', 'loginlayout');
 	Company.findById(req.session.company_id, function(err, company){
 	  if (company) {
-	    console.log('Edit Box: ID -N  ', req.params.id);
+	    //console.log('Edit Box: ID -N  ', req.params.id);
 	    Box.findOne({id: req.params.id}, function(err, box){
 	      if (err) console.log(err);
 	      if (box){
@@ -481,29 +481,41 @@ app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 	});
 });
 
-// Edit box info - add box to share list 	
+// Edit box info - add box to share list 
+// need to determine if box name or ID
+
 app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
-	Company.findById(req.session.company_id, function(err, company) {
-	  if (company) {
-	    console.log('Edit Box share: ID -  ', req.params.id);
-	    console.log('Edit Box share: Box id to add: ', req.body.data);
-	    Box.findOne({id: req.params.id}, function(err, box) {
-	      if(err) console.log(err);
-	      if (box){
-		      box.shareList.push(req.body.data );
-		      box.save(function(err) {
-			    	if (err) console.log(' Box edit box update failed');
-		      });
-		      res.local('layout', 'loginlayout');
-			  	res.render('editbox', {
-		        title: 'Kolabria'
-		        , company: company
-		        , box: box
-		        , shareList: box.shareList
-		      });
-		    }
-		  });
-	  }
+	Company.findById(req.session.company_id, function(err, company){
+		if (company) {
+		   // console.log('Edit Box share: ID -  ', req.params.id);
+		   // console.log('Edit Box share: Box id to add: ', req.body.data);
+			Box.findOne({id: req.params.id}, function(err, box) {
+				if(err) console.log(err);
+				if (box){
+					Box.findOne({name: req.body.data}, function(err,sbox){
+						if(err)console.log(err);
+						if (!sbox){
+							req.flash('error',"Controller name not found");
+							console.log('Edit Box share:  need to find sbox by ID');
+						}
+						else {
+							box.shareList.push({boxID: sbox.id, boxName: sbox.name});
+							box.save(function(err){
+								if(err) console.log('Box edit box update failed',err);
+							});	
+						}
+						res.local('layout', 'loginlayout');
+						res.render('editbox', {
+					        title: 'Kolabria'
+					        , company: company
+					        , box: box
+					        , shareList: box.shareList
+					    });
+					});
+					
+				}
+			});
+		}
 	});
 });
 
@@ -511,12 +523,17 @@ app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res){
 	Company.findById(req.session.company_id, function(err, company) {
 	  if (company) {
-	    console.log('Edit Box share: ID -  ', req.params.id);
-	    console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
+	    //console.log('Edit Box share: ID -  ', req.params.id);
+	    //console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
 	    Box.findOne({id: req.params.id}, function(err, box) {
 	      if(err) console.log(err);
 	      if (box){
-		      box.shareList.splice(box.shareList.indexOf(req.params.sb),1 );
+			  for (i=0; i++ ; i<box.shareList.length){
+				 if (box.shareList[i].boxID == req.params.sb){
+					break;
+				}
+			  }
+			  box.shareList[i-1].remove();
 		      box.save(function(err) {
 			    	if (err) console.log(' Box edit box update failed');
 		      });
