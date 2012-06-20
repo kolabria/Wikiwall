@@ -222,25 +222,36 @@ app.get('/join', function(req,res){
   res.render('join',{
     company: new Company() //needed?
   });
-})
+});
+
 
 app.post('/join', function(req,res){
-	res.local('layout', 'sitelayout');
-  console.log('Join -- name: '+req.body.name + ' room: '+req.body.room+' code: '+req.body.code);
-	Box.findOne({ name: req.body.room}, function(err, box) {
-	 	if(err) console.log(err);
-		if (box) {
-		// console.log('Join-- box.PIN', box.PIN);
-		  if (box.PIN == req.body.code) {
-  			res.local('title', 'Kolabria - '+box.name)
-			  res.render('clientuser', {
+   // check if room (box) name is entered and valid
+   // check if PIN is valid for that wall
+   res.local('layout', 'clientuser');
+   Box.findOne({name: req.body.room}, function(err, box) {
+     if(err) console.log(err);
+     if(!box) {
+		req.flash('error',"Invalid Room Name");
+		res.redirect('/join');  
+     }
+	 else {
+	     //is a box	- check PIN
+	     //console.log('join: good room');
+		 if (box.PIN == req.body.code) {
+			//console.log('join: good PIN');
+			res.local('title', 'Kolabria - '+box.name)
+	        res.render('draw', {
 		      title: 'Kolabria', box: box, userName: req.body.name
-	      });
-		  }
-		}
-  });
-  res.redirect('/join')	
-})
+		    });
+		 }
+		 else {
+			req.flash('error',"Invalid PIN");
+		    res.redirect('/join');		
+		 }	
+	 }
+   });	
+});
 
 app.get('/login', function(req, res){
   res.local('layout', 'sitelayout');
@@ -354,9 +365,7 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 				    b.id = req.body.box_id;
 				    b.defaultWall_ID = w.id; 
 				    b.PIN = w.PIN;
-
-				    console.log('default wall id: ',b.defaultWall_ID);
-
+				    //console.log('default wall id: ',b.defaultWall_ID);
 					function boxSaveFailed() {
 				      console.log('New box add  failed');
 				      res.redirect('/controllers');

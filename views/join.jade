@@ -4,7 +4,7 @@
   .span8.offset2
     .hero-unit
       p Enter your Name, Room and Code to begin using WikiWall
-      form.form-horizontal(action='.', method='post')
+      form.form-horizontal(action='/join', method='post')
         div(style='display: none;')
           input(type='hidden', name='csrfmiddlewaretoken', value='45b16908914c89b01dcf288d3f52a6d4')
         .control-group
