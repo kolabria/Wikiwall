@@ -1,247 +1,59 @@
 !!! 5
 html
   head
+    title test
     meta(name="apple-mobile-web-app-capable", content="yes")
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=device-dpi")
-    link(rel='stylesheet', href='/stylesheets/wall.css')
-    script(src='/javascripts/paper.js')
-    script(src='/javascripts/ios.js')
-    script(src='//code.jquery.com/jquery-latest.min.js')
+    base(href='http://'+base+'/')
+    link(rel='stylesheet', href='http://'+base+'/stylesheets/bootstrap.css')
+    link(rel='stylesheet', href='http://'+base+'/stylesheets/wall.css')
+  body.background
+    .canvas
+      header.navbar.navbar-fixed-bottom 
+        nav#toolbar.toolbar
+            ul.nav.pull-left
+              li.btn-group.dropup.pen
+                button.btn.tool(type='button', onclick='', value='Pen')
+                  i.icon-pencil   
+                button.btn.dropdown-toggle(data-toggle="dropdown")       
+                  span.caret
+                ul.dropdown-menu.pull-right
+                  li
+                    button.btn.btn-inverse.color(type='button', onclick='', value='Black')
+                  li
+                    button.btn.btn-danger.color(type='button', onclick='', value='Red')
+                  li 
+                    button.btn.btn-success.color(type='button', onclick='', value='Green')
+                  li
+                    button.btn.btn-primary.color(type='button', onclick='', value='Blue')
+              li  
+                button.btn.tool(type='button', onclick='', value='Nav')
+                  i.icon-move
+              li  
+                button.btn.tool(type='button', onclick='', value='Select')
+                  i.icon-hand-up
+      canvas#myCanvas(resize)
+      #navWindow
+        #view
+        .btn-group                  
+          button.btn.tool(type='button', onclick='', value='ZoomIn')
+            i.icon-plus
+          button.btn.tool(type='button', onclick='', value='Center')
+            i.icon-asterisk
+          button.btn.tool(type='button', onclick='', value='ZoomOut')
+            i.icon-minus
+      #alerts
+    script
+      var wallId = '4f47be322f8b522d303f1fef'
+      var companyId = 1
+    script(src='http://'+base+'/javascripts/jquery-1.7.2.min.js')
+    script(src='http://'+base+'/javascripts/ios.js')
+    script(src='http://'+base+'/javascripts/bootstrap.min.js')
+    script(src='http://'+base+'/javascripts/paper.js')     
     script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
-    script(src='/javascripts/touch-punch.min.js')      
-    meta(charset='utf-8')
-    title UI Draggable Test
-    style
-      .navigation{
-        position:relative;
-      }
-      #navWindow { 
-        width: 200px; 
-        height: 150px; 
-        float: left; 
-        background:red;
-        display:none;
-        position:absolute;
-        bottom:0px;
-        left:0;
-      }
-      #view{
-        background:blue;
-        display:block
-      }
-    body.background
-     .canvas
-       .whiteboard
-         canvas#myCanvas(resize)
-       div#navWindow
-        div#view
-       header  
-         nav#toolbar.toolbar
-           ul.navigation
-             li
-               input.tool(type='button',value='ZoomIn')
-             li.navigation
-               input.tool(type='button',value='Nav');
-             li
-               input.tool(type='button',value='ZoomOut')
-             li
-               input.tool(type='button',value='Pen')
-         h1 {Wall Name} //from application
-         
-    script(src='/nowjs/now.js') //this is what allows realtime communication,
-    script(canvas='myCanvas', type="text/paperscript").
-      now.ready(function(){
-        var worker = new Worker('/javascripts/worker.js');
-        worker.addEventListener('message', function(e){
-          pen.path.add(e.data);
-        }, false);
-        var color = 'black';
-        var width = 2;
-        tool.distanceThreshhold = 10;
-        //Pen Tool
-         var pen = new Tool();
-         pen.onMouseDown = function(event){
-           pen.path = new Path();
-           pen.path.strokeColor = color;
-           pen.path.strokeWidth = 2;
-           pen.path.add(event.point);
-         }
-         pen.onMouseUp = function(event){
-           //pen.path.simplify(10);
-         }
-         pen.onMouseDrag = function(event){
-           worker.postMessage(event.point);
-         }
-        //Pan Tool
-        var pan = new Tool();
-        pan.onMouseDrag = function(event){
-          pan.v = new Point()
-          pan.v.x = -event.delta.x;
-          pan.v.y = -event.delta.y;
-          paper.view.scrollBy(pan.v);
-          paper.view.draw();
-        }
-        pan.onMouseUp = function(event){
-          paper.view.draw();
-        }
-        
-        //Event listeners
-        //keymap
-        jQuery(document).keydown(function(event){
-          switch (event.which) {
-            case 80:
-              //p for pen?
-              jQuery('.tool[value=Pen]').click();
-              break;
-            case 46:
-              //delete for delete?
-              jQuery('i').click();
-              break;
-            case 67:
-              //c for center?
-              jQuery('.tool[value=Center]').click();
-              console.log('center');
-              break;
-            case 83:
-              //s for select?
-              jQuery('.tool[value=Select]').click();
-              break;
-            case 37: //left
-              paper.view.scrollBy({x:-10,y:0});
-              paper.view.draw();
-              break;
-            case 38: //up
-              paper.view.scrollBy({x:0,y:-10});
-              paper.view.draw();
-              break;
-            case 39: //right
-              paper.view.scrollBy({x:10,y:0});
-              paper.view.draw();
-              break;
-            case 40: //down
-              paper.view.scrollBy({x:0,y:10});
-              paper.view.draw();
-              break;
-          }
-        });
-        //Change tool
-        jQuery('.tool').click(function(){
-          var t = jQuery(this).val();
-          c = jQuery('#myCanvas').removeClass();
-          nw = jQuery('#navWindow').hide('slow');
-          switch(t){
-            case 'Nav':
-              c.addClass('nav');
-              nw.show('slow').css('bottom',jQuery('header').height());
-              var windowTop = paper.view.bounds.top;
-              var windowRight = paper.view.bounds.right;
-              var windowBottom = paper.view.bounds.bottom;
-              var windowLeft = paper.view.bounds.left;
-              var paperTop = paper.project.activeLayer.bounds.top;
-              var paperRight = paper.project.activeLayer.bounds.right;
-              var paperBottom = paper.project.activeLayer.bounds.bottom;
-              var paperLeft = paper.project.activeLayer.bounds.left;
-
-              var navTop = Math.min(windowTop,paperTop);
-              var navRight = Math.max(windowRight, paperRight);
-              var navBottom = Math.max(windowBottom, paperBottom);
-              var navLeft = Math.min(windowLeft, paperLeft);
-              var windowLength = paper.view.bounds.width;
-              var windowHeight = paper.view.bounds.height;
-              var navLength = navRight - navLeft
-              var navHeight = navBottom - navTop
-
-              var rLength = navLength / 200;
-              var rHeight = navHeight / 150;           
-              var canvas
-              
-              var originalPosition = {
-                top  : false,
-                left : false
-              }
-
-              jQuery('#view')
-                .width(windowLength / rLength)
-                .height(windowHeight / rHeight)
-                .css({
-                  top : (windowTop-navTop)/rHeight,
-                  left : (windowLeft-navLeft)/rLength
-                });
-              
-              jQuery('#view').draggable({
-                containment:"parent",
-                drag: function(event, ui){
-                  if(originalPosition.left === false && originalPosition.top === false){
-                    originalPosition.left = ui.originalPosition.left
-                    originalPosition.top = ui.originalPosition.top
-                  }
-                  offsetLeft = ui.position.left - originalPosition .left
-                  offsetTop = ui.position.top - originalPosition.top
-                  originalPosition.left = ui.position.left 
-                  originalPosition.top = ui.position.top  
-                  console.log(offsetLeft)
-                  console.log(offsetTop)
-                  pan.v = new Point()
-                  pan.v.x = offsetLeft * rLength * paper.view.zoom;
-                  pan.v.y = offsetTop * rHeight * paper.view.zoom;
-                  console.log(pan)
-                  paper.view.scrollBy(pan.v)
-                  paper.view.draw();
-                },
-                stop: function(event, ui){
-                  originalPosition.left = false;
-                  originalPosition.top = false;
-                }
-
-              });
-              break;
-            case 'ZoomOut':
-              paper.view.zoom = paper.view.zoom /2
-              break;
-            case 'ZoomIn':
-              paper.view.zoom = paper.view.zoom * 2
-              break;
-            case 'Pan':
-              c.addClass('move');
-              pan.activate();
-              break;
-            case 'Pen':
-              c.addClass('crosshair');
-              pen.activate();
-              break;
-            case 'Select':
-              c.addClass('pointer');
-              select.activate();
-              break;
-            case 'Center':
-              var l = paper.project.activeLayer.bounds.center;
-              var v = paper.view.center;
-              var p = new Point(l.x - v.x,l.y - v.y);
-              view.scrollBy(p);
-              view.draw(); 
-              break;
-          }
-        });
-        iOS_disableZooming();
-        iOS_disableScrolling();
-        window.onorientationchange = function(){
-            if ( orientation == 0 ) {
-              window.scrollTo(0,1);
-            }  
-            else if ( orientation == 90 ) {  
-            }  
-            else if ( orientation == -90 ) {  
-            }  
-            else if ( orientation == 180 ) {  
-              window.scrollTo(0,1); 
-            }  
-         }
-      });
-
-
-    
-        jQuery(function() {
-          jQuery("#draggable5").draggable({containment:"parent"});
-        });
-        
+    script(src='http://'+base+'/javascripts/touch-punch.min.js')
+    //this is what allows realtime communication,
+    script(src='nowjs/now.js')  
+    //General All purpose JS
+    script(src='http://'+base+'/javascripts/walltest.js', canvas='myCanvas', type="text/paperscript"). 
