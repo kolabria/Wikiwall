@@ -27,6 +27,9 @@ var boxes = {};
 var shares = {};
 var users = {};
 
+
+
+//need to assign this to a db variable?
 Mongoose.connect('mongodb://localhost/cdb5');
 
 
@@ -121,6 +124,10 @@ function newPIN(){
 	return Math.floor(Math.random() * 9000) + 1000;
 }
 
+function uploadFile(){
+
+}
+
 /**
 * Tests Routes
 **/
@@ -132,7 +139,11 @@ app.get('/wall/:id', function(req, res){
   res.render('wall', {});
 });
 app.get('/test', function(req,res){
+  res.local('layout', false);
   res.render('test',{});
+});
+app.post('/test', function(req,res){
+
 });
 app.get('/clientuser', function(req,res){
   //render a Join room view
@@ -818,6 +829,16 @@ everyone.now.shareWall = function(target){
   nowjs.getClient(id, function(){
     this.now.share(boxID, name);
   });
+}
+
+everyone.now.sendFile = function(file){
+	boxID = this.now.boxID;
+  companyId = this.now.companyId;
+  wallId = this.now.wallId;
+  clientId = this.user.clientId;
+  //save to DB
+  //name the file
+  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(clientId).now.receiveFilesCanvas(file.src);
 }
 
 everyone.now.clear = function(callback){
