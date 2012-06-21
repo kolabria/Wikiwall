@@ -98,10 +98,10 @@ now.ready(function(){
     var windowBottom = paper.view.bounds.bottom;
     var windowLeft = paper.view.bounds.left;
     //Get Active Paper bounds (drawn objects)
-    var paperTop = paper.project.activeLayer.bounds.top;
-    var paperRight = paper.project.activeLayer.bounds.right;
-    var paperBottom = paper.project.activeLayer.bounds.bottom;
-    var paperLeft = paper.project.activeLayer.bounds.left;
+    var paperTop = Math.floor(paper.project.activeLayer.bounds.top)-20;
+    var paperRight = Math.ceil(paper.project.activeLayer.bounds.right)+20;
+    var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom)+20;
+    var paperLeft = Math.floor(paper.project.activeLayer.bounds.left)-20;
     //Calculate bounds of viewable area (viewport + paper)
     var navTop = Math.min(windowTop,paperTop);
     var navRight = Math.max(windowRight, paperRight);
@@ -124,6 +124,25 @@ now.ready(function(){
       top  : false,
       left : false
     }
+
+// debug stuff
+
+    console.log('windowTop: ', windowTop);
+    console.log('windowRight: ', windowRight);
+    console.log('windowBottom: ', windowBottom);
+    console.log('windowLeft: ', windowLeft);
+
+    console.log('View Size heigt: ',paper.view.size.height );
+    console.log('view size width: ', paper.view.size.width );
+
+    console.log('PaperTop: ', paperTop);
+    console.log('PaperRigh: ', paperRight);
+    console.log('PaperBottom: ', paperBottom);
+    console.log('PaperLeft: ', paperLeft);
+;
+   // console.log('windowBottom: ', windowBottom);
+  //  console.log('windowLeft: ', windowLeft);
+
 
     jQuery('#view')
       .width(windowLength / rLength)
