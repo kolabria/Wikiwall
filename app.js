@@ -30,6 +30,19 @@ var users = {};
 
 
 //need to assign this to a db variable?
+
+// need to have array of db variables with company id as index
+// this needs to be intitiallized when server started 
+// sombething like  
+//   for each company  
+//   db[companyID] = mongoose.createConnection('mongodb://localhost/companyID)
+
+//  When use db locally must use correct db
+//   for wall drawing within each function assign locally
+//    var Wall = db[companyID].model('Wall')
+
+// when create new company, must create new db for that company 
+
 Mongoose.connect('mongodb://localhost/cdb6');
 
 
@@ -554,7 +567,7 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 * Drawing Views
 **/
 
-// host appliance draw view test
+// host appliance draw view test  - old code to remove 
 app.get('/host/:id.:format?/draw', function(req,res){
   res.local('layout', 'hostappliance'); 
   res.local('title', 'Host Wall')
@@ -571,12 +584,12 @@ app.get('/host/:id.:format?/draw', function(req,res){
 app.get('/host/draw', function(req,res){
 	res.local('layout', 'hostappliance'); 
 	res.local('title', 'Host Wall')
-	console.log('User-Agent: ' + req.headers['user-agent']);
+//	console.log('User-Agent: ' + req.headers['user-agent']);
   //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
-		console.log('Box ID: ',bid);
+	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
-			console.log(box);
+		//	console.log(box);
 		  if(err) console.log(err);
 		  res.render('draw',{ 
 		  	box: box
@@ -590,22 +603,22 @@ app.get('/host/draw', function(req,res){
 app.get('/trash/:id.:format?', function(req,res){
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		var w = new Iwall();  // create a new wall
-		console.log('Trash - Box ID  ', req.params.id);
+		//console.log('Trash - Box ID  ', req.params.id);
 		Box.findOne({ id: req.params.id}, function(err, box) {
 		  if(err) console.log(err);
 		  if (box){
-		    console.log("Trash - Box dwall: ", box.defaultWall_ID);
+		  //  console.log("Trash - Box dwall: ", box.defaultWall_ID);
 		    Iwall.findById(box.defaultWall_ID, function (err, wall) {
 		      if(err) console.log(err);
 			    if(wall) {
-			      console.log("Trash - wall id: ", wall.id);
+			//      console.log("Trash - wall id: ", wall.id);
 			      wall.remove(); //remove old wall
 			      w.company_id = box.company_id;
 			      w.PIN = newPIN();
 			      w.name = box.name;
 			      box.defaultWall_ID = w.id;
 			      box.PIN = w.PIN 
-			      console.log('Trash - new wall PIN: ', box.PIN, w.PIN);
+			  //    console.log('Trash - new wall PIN: ', box.PIN, w.PIN);
 			      w.save(function(err) {
 			        if (err) console.log(' Trash - New wall add failed');
 		        });
@@ -623,11 +636,11 @@ app.get('/trash/:id.:format?', function(req,res){
 app.get('/connect/:id', function(req,res){  
   res.local('layout', 'clientappliance'); 
   res.local('title', 'Client Wall'); 
-	console.log('ID  ', req.params.id);
+//	console.log('ID  ', req.params.id);
   //console.log('ID  ', req.params.name);
-	console.log('User-Agent: ' + req.headers['user-agent']);
+//	console.log('User-Agent: ' + req.headers['user-agent']);
 	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
-	console.log('Box ID: ',bid);
+//	console.log('Box ID: ',bid);
 	Box.findOne({ id: bid}, function(err, rbox) {
     if (err) console.log(err)
     Box.findOne({ id: req.params.id}, function(err, hbox) {
@@ -776,7 +789,7 @@ everyone.now.updatePath = function(pathId,path){
 //initial load (data sent with page request)
 everyone.now.initWall = function(callback){
   //initialize connection
-  Mongoose.connect('mongodb://localhost/'+this.now.companyId);
+// Mongoose.connect('mongodb://localhost/'+this.now.companyId);
   var client = this.user.clientId;
   var name = this.now.name;
   var wallId = this.now.wallId;
