@@ -496,54 +496,7 @@
     var file = e.originalEvent.dataTransfer.files[0];
     processFiles(file);
   })
-
-    /*var image = document.createElement('img');
-    console.log(file)
-    var reader = new FileReader();
-    reader.onload = function(event){
-      image.onload = function (){
-        raster = new Raster(image);
-        raster.position = view.center;
-      }
-      image.src = event.target.result;
-    }
-    reader.readAsDataURL(file);
-    console.log(image.src)*/
-    //now.sendImage(img.src);
-   /*= function (e) {
-    alert('drop')
-    //this.className = '';
-    e.preventDefault();
-    var file = e.dataTransfer.files[0];
-    var reader = new FileReader();
-    reader.onload = function(event){
-      var image = document.createElement('img');
-      image.onload = function (){
-        raster = new Raster(image);
-        raster.position = view.center;
-        var x = raster.bounds.x;
-        var y = raster.bounds.y;
-        var width = raster.bounds.width;
-        var height = raster.bounds.height;
-        var rrect = new Rectangle(x,y,width,height);
-        var path = new Path.Rectangle(rrect);
-        path.strokeColor = 'red';
-        path.strokeWidth = 5;
-        path.fillColor = 'orange';
-        path.name = 'rr';
-        path.opacity = 0;           
-        paper.view.draw();
-        iFlag2 = true; 
-        //now.sendImageItem(wallId,image.src);
-      }
-      image.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-    return false;
-  };*/
-
   jQuery('.tool[value=Pen]').click();
-
 });
 
   
