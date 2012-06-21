@@ -92,26 +92,34 @@ now.ready(function(){
   scrollNav = function(){
     c.addClass('nav');
     nw.show();
+    //Get current Viewport bounds
     var windowTop = paper.view.bounds.top;
     var windowRight = paper.view.bounds.right;
     var windowBottom = paper.view.bounds.bottom;
     var windowLeft = paper.view.bounds.left;
+    //Get Active Paper bounds (drawn objects)
     var paperTop = paper.project.activeLayer.bounds.top;
     var paperRight = paper.project.activeLayer.bounds.right;
     var paperBottom = paper.project.activeLayer.bounds.bottom;
     var paperLeft = paper.project.activeLayer.bounds.left;
+    //Calculate bounds of viewable area (viewport + paper)
     var navTop = Math.min(windowTop,paperTop);
     var navRight = Math.max(windowRight, paperRight);
     var navBottom = Math.max(windowBottom, paperBottom);
     var navLeft = Math.min(windowLeft, paperLeft);
+    //Get current width and height of viewport
     var windowLength = paper.view.bounds.width;
-    var windowHeight = paper.view.bounds.height;
+    var windowHeight = paper.view.bounds.height
+    //Get the width and height of viewable area
     var navLength = navRight - navLeft
     var navHeight = navBottom - navTop
+    //Calculate ratios for view square and movement calculations
     var rLength = navLength / 200;
     var rHeight = navHeight / 150;           
     var canvas
               
+    //Set the original position of the drag event. 
+    //The Drag event doesn't record previous position, just original, this is need to keep track of last position.
     var originalPosition = {
       top  : false,
       left : false
@@ -127,14 +135,18 @@ now.ready(function(){
       .draggable({
         containment:"parent",
         drag: function(event, ui){
+          //if the original path isn't set, set it to original position
           if(originalPosition.left === false && originalPosition.top === false){
             originalPosition.left = ui.originalPosition.left
             originalPosition.top = ui.originalPosition.top
           }
+          //Calculate distance moved
           offsetLeft = ui.position.left - originalPosition .left
           offsetTop = ui.position.top - originalPosition.top
+          //Set original position to current position
           originalPosition.left = ui.position.left 
           originalPosition.top = ui.position.top  
+          //Move the view
           pan.v = new Point()
           pan.v.x = offsetLeft * rLength * paper.view.zoom;
           pan.v.y = offsetTop * rHeight * paper.view.zoom;
@@ -142,6 +154,7 @@ now.ready(function(){
           paper.view.draw();
         },
         stop: function(event, ui){
+          //Clear the original position
           originalPosition.left = false;
           originalPosition.top = false;
         }
@@ -403,18 +416,18 @@ now.ready(function(){
           scrollNav();       
           break;
         case 'ZoomOut':
-          scrollNav();
           paper.view.zoom = paper.view.zoom /2
           var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
           var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
           jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+          scrollNav();
           break;
         case 'ZoomIn':
-          scrollNav();
           paper.view.zoom = paper.view.zoom * 2
           var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
           var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
           jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+          scrollNav();
           break;
         case 'Pen':
           c.addClass('crosshair');
@@ -425,12 +438,12 @@ now.ready(function(){
           select.activate();
           break;
         case 'Center':
-          scrollNav();
           var l = paper.project.activeLayer.bounds.center;
           var v = paper.view.center;
           var p = new Point(l.x - v.x,l.y - v.y);
           view.scrollBy(p);
           view.draw(); 
+          scrollNav();
           break;
         case 'Export':
           exportCanvas();
