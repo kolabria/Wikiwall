@@ -296,8 +296,8 @@
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
-      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+      var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
+      var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
       select.target.item.selected = true;
       jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
@@ -397,6 +397,10 @@
     if(e.currentTarget.id != 'navWindow'){
       nw = jQuery('#navWindow').hide();
     }
+    if(select.target){
+      select.target.item.selected = false
+      jQuery('button').filter('.delete-object').remove();
+    }
     if(/.*tool.*/.test(cl)){
       switch(t){
         case 'Nav':
@@ -405,16 +409,10 @@
         case 'ZoomOut':
           scrollNav();
           paper.view.zoom = paper.view.zoom /2
-          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
-          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
           break;
         case 'ZoomIn':
           scrollNav();
           paper.view.zoom = paper.view.zoom * 2
-          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
-          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
           break;
         case 'Pen':
           c.addClass('crosshair');
