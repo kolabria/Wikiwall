@@ -43,7 +43,7 @@ var users = {};
 
 // when create new company, must create new db for that company 
 
-Mongoose.connect('mongodb://localhost/cdb6');
+Mongoose.connect('mongodb://localhost/cdb7');
 
 
 /**

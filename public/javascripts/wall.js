@@ -90,6 +90,7 @@ now.ready(function(){
   }
 
   scrollNav = function(){
+	console.log('scrollNav');
     c.addClass('nav');
     nw.show();
     //Get current Viewport bounds
@@ -328,8 +329,8 @@ now.ready(function(){
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
-      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
+      var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width;
+      var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y;
       select.target.item.selected = true;
       jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
@@ -435,17 +436,17 @@ now.ready(function(){
           scrollNav();       
           break;
         case 'ZoomOut':
-          paper.view.zoom = paper.view.zoom /2
-          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
-          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+          paper.view.zoom = paper.view.zoom /2;
+          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width;
+          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y;
+          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
           scrollNav();
           break;
         case 'ZoomIn':
-          paper.view.zoom = paper.view.zoom * 2
-          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width
-          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y
-          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+          paper.view.zoom = paper.view.zoom * 2;
+          var windowPosX = select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width;
+          var windowPosY = select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y;
+          jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
           scrollNav();
           break;
         case 'Pen':
