@@ -898,7 +898,40 @@ everyone.now.clear = function(callback){
     callback();
   });
 }
+everyone.now.sendFile = function(file,player, position, callback){
+  boxID = this.now.boxID;
+  companyId = this.now.companyId;
+  wallId = this.now.wallId;
+  clientId = this.user.clientId;
+   Path.create({
+    layer: player
+    , opacity: 1 //For now, make variable later
+    , description: {file: file.src, position: position}
+  },function(err,doc){
+    if(err){
+      console.log(err)
+      nowjs.getClient(client, function(){
+        this.now.tError('Could Not Save');
+      });
+    }
 
+    //update wall
+    Wall.update({
+      _id: wallId //hard coded for now
+    },{
+      $push:{paths:doc._id}
+    },{upsert:true},function(err,w){
+      if(err){
+        console.log(err)
+        nowjs.getClient(clientId, function(){
+          this.now.tError('Could Not Save');
+        });
+      }
+  	  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(clientId).now.receiveFilesCanvas(player, file.src, position, doc._id);
+      callback(doc._id);
+    });
+  });
+}
 
 nowjs.on('disconnect', function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
