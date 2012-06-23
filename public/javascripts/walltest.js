@@ -86,36 +86,61 @@
     var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
     var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
     jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
-
   }
-
+  
   scrollNav = function(){
     c.addClass('nav');
     nw.show();
+    //Get current Viewport bounds
     var windowTop = paper.view.bounds.top;
     var windowRight = paper.view.bounds.right;
     var windowBottom = paper.view.bounds.bottom;
     var windowLeft = paper.view.bounds.left;
-    var paperTop = paper.project.activeLayer.bounds.top;
-    var paperRight = paper.project.activeLayer.bounds.right;
-    var paperBottom = paper.project.activeLayer.bounds.bottom;
-    var paperLeft = paper.project.activeLayer.bounds.left;
+    //Get Active Paper bounds (drawn objects)
+    var paperTop = Math.floor(paper.project.activeLayer.bounds.top)-20;
+    var paperRight = Math.ceil(paper.project.activeLayer.bounds.right)+20;
+    var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom)+20;
+    var paperLeft = Math.floor(paper.project.activeLayer.bounds.left)-20;
+    //Calculate bounds of viewable area (viewport + paper)
     var navTop = Math.min(windowTop,paperTop);
     var navRight = Math.max(windowRight, paperRight);
     var navBottom = Math.max(windowBottom, paperBottom);
     var navLeft = Math.min(windowLeft, paperLeft);
+    //Get current width and height of viewport
     var windowLength = paper.view.bounds.width;
-    var windowHeight = paper.view.bounds.height;
+    var windowHeight = paper.view.bounds.height
+    //Get the width and height of viewable area
     var navLength = navRight - navLeft
     var navHeight = navBottom - navTop
+    //Calculate ratios for view square and movement calculations
     var rLength = navLength / 200;
     var rHeight = navHeight / 150;           
     var canvas
               
+    //Set the original position of the drag event. 
+    //The Drag event doesn't record previous position, just original, this is need to keep track of last position.
     var originalPosition = {
       top  : false,
       left : false
     }
+
+// debug stuff
+
+    console.log('windowTop: ', windowTop);
+    console.log('windowRight: ', windowRight);
+    console.log('windowBottom: ', windowBottom);
+    console.log('windowLeft: ', windowLeft);
+
+    console.log('View Size heigt: ',paper.view.size.height );
+    console.log('view size width: ', paper.view.size.width );
+
+    console.log('PaperTop: ', paperTop);
+    console.log('PaperRigh: ', paperRight);
+    console.log('PaperBottom: ', paperBottom);
+    console.log('PaperLeft: ', paperLeft);
+;
+   // console.log('windowBottom: ', windowBottom);
+  //  console.log('windowLeft: ', windowLeft);
 
     jQuery('#view')
       .width(windowLength / rLength)
@@ -127,14 +152,18 @@
       .draggable({
         containment:"parent",
         drag: function(event, ui){
+          //if the original path isn't set, set it to original position
           if(originalPosition.left === false && originalPosition.top === false){
             originalPosition.left = ui.originalPosition.left
             originalPosition.top = ui.originalPosition.top
           }
+          //Calculate distance moved
           offsetLeft = ui.position.left - originalPosition .left
           offsetTop = ui.position.top - originalPosition.top
+          //Set original position to current position
           originalPosition.left = ui.position.left 
           originalPosition.top = ui.position.top  
+          //Move the view
           pan.v = new Point()
           pan.v.x = offsetLeft * rLength * paper.view.zoom;
           pan.v.y = offsetTop * rHeight * paper.view.zoom;
@@ -142,11 +171,13 @@
           paper.view.draw();
         },
         stop: function(event, ui){
+          //Clear the original position
           originalPosition.left = false;
           originalPosition.top = false;
         }
       });
   }
+
 
   /******** NOW functions *******/
 
