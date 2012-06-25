@@ -269,6 +269,10 @@ now.ready(function(){
   
   //move an object
   now.updateMove = function(layer,pathname,delta){
+    //if the item is selected, move the delete button with it
+    if(paper.project.layers[layer].children[pathname].selected){
+      updateDelete();
+    }
     paper.project.layers[layer].children[pathname].position.x += delta.x;
     paper.project.layers[layer].children[pathname].position.y += delta.y;
     paper.view.draw(); //refresh canvas
@@ -324,7 +328,7 @@ now.ready(function(){
   select.onMouseDown = function(event){
     if(select.target){
       select.target.item.selected = false
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
@@ -403,7 +407,7 @@ now.ready(function(){
   //delete
   jQuery(document).on('click','.delete-object',function(){ 
     if(select.target.item.remove()){
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
       paper.view.draw();
     }
     now.sendDeleteItem(paper.project.activeLayer.index,select.target.item.name);
@@ -431,7 +435,7 @@ now.ready(function(){
     }
     if(select.target){
       select.target.item.selected = false
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
       paper.view.draw();
     }
     if(/.*tool.*/.test(cl)){
