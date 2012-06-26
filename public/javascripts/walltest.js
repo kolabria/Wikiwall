@@ -87,7 +87,7 @@
     var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
     jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
   }
-  
+
   scrollNav = function(){
     c.addClass('nav');
     nw.show();
@@ -267,6 +267,10 @@
   
   //move an object
   now.updateMove = function(layer,pathname,delta){
+    //if the item is selected, move the delete button with it
+    if(paper.project.layers[layer].children[pathname].selected){
+      updateDelete();
+    }
     paper.project.layers[layer].children[pathname].position.x += delta.x;
     paper.project.layers[layer].children[pathname].position.y += delta.y;
     paper.view.draw(); //refresh canvas
@@ -322,7 +326,7 @@
   select.onMouseDown = function(event){
     if(select.target){
       select.target.item.selected = false
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
@@ -401,7 +405,7 @@
   //delete
   jQuery(document).on('click','.delete-object',function(){ 
     if(select.target.item.remove()){
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
       paper.view.draw();
     }
     now.sendDeleteItem(paper.project.activeLayer.index,select.target.item.name);
@@ -429,7 +433,7 @@
     }
     if(select.target){
       select.target.item.selected = false
-      jQuery('button').filter('.delete-object').remove();
+      jQuery('button').filter('.delete-object').detach();
       paper.view.draw();
     }
     if(/.*tool.*/.test(cl)){
@@ -495,27 +499,30 @@
       if((/image/i).test(file.type)){
         var reader = new FileReader();
         reader.onload = function(e){
+          var raster;
           var image = document.createElement('img');
           image.onload = function(){
             raster = new Raster(image);
             raster.position = view.center;
-            //set name
             paper.view.draw();
           }
           file.src = image.src = e.target.result;
           console.log(file);
-          //add naming callback
-          now.sendFile(file);
+          now.sendFile(file, paper.project.activeLayer.index, view.center, function(name){
+            raster.name = name;
+          });
         }
         reader.readAsDataURL(file);
       }
     }
   }
-  now.receiveFilesCanvas = function(file){
+  now.receiveFilesCanvas = function(layer, file, position, name){
     var image = document.createElement('img');
     image.src = file
+    paper.project.layers[layer].activate();
     raster = new Raster(image);
-    raster.position = view.center
+    raster.name = name
+    raster.position = position
     paper.view.draw();
   }
   //File Testing
