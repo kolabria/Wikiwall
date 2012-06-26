@@ -1,4 +1,4 @@
-    now.ready(function(){
+now.ready(function(){
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
@@ -89,6 +89,7 @@
   }
 
   scrollNav = function(){
+  console.log('scrollNav');
     c.addClass('nav');
     nw.show();
     //Get current Viewport bounds
@@ -126,21 +127,22 @@
 
 // debug stuff
 
-    console.log('windowTop: ', windowTop);
-    console.log('windowRight: ', windowRight);
-    console.log('windowBottom: ', windowBottom);
-    console.log('windowLeft: ', windowLeft);
+//    console.log('windowTop: ', windowTop);
+//    console.log('windowRight: ', windowRight);
+//    console.log('windowBottom: ', windowBottom);
+//    console.log('windowLeft: ', windowLeft);
 
-    console.log('View Size heigt: ',paper.view.size.height );
-    console.log('view size width: ', paper.view.size.width );
+//    console.log('View Size heigt: ',paper.view.size.height );
+//    console.log('view size width: ', paper.view.size.width );
 
-    console.log('PaperTop: ', paperTop);
-    console.log('PaperRigh: ', paperRight);
-    console.log('PaperBottom: ', paperBottom);
-    console.log('PaperLeft: ', paperLeft);
-;
+//    console.log('PaperTop: ', paperTop);
+//    console.log('PaperRigh: ', paperRight);
+//    console.log('PaperBottom: ', paperBottom);
+//    console.log('PaperLeft: ', paperLeft);
+
    // console.log('windowBottom: ', windowBottom);
   //  console.log('windowLeft: ', windowLeft);
+
 
     jQuery('#view')
       .width(windowLength / rLength)
@@ -192,15 +194,23 @@
           new Layer();
         }
         paper.project.layers[p.layer].activate();
-        points = new Array();
-        for (n in p.description){
-          points.push(JSON.parse(p.description[n]));
+        if(p.description.file){
+          var image = document.createElement('img');
+          image.src = p.description.file
+          raster = new Raster(image);
+          raster.name = p._id
+          raster.position = p.description.position
+        }else{
+          points = new Array();
+          for (n in p.description){
+            points.push(JSON.parse(p.description[n]));
+          }
+          var path = new Path(points);
+          path.strokeColor = p.color;
+          path.strokeWidth = p.width;
+          path.opacity = p.opacity;
+          path.name = p._id;
         }
-        var path = new Path(points);
-        path.strokeColor = p.color;
-        path.strokeWidth = p.width;
-        path.opacity = p.opacity;
-        path.name = p._id;
       }
     }
     for(i = 0; i < users.length;i++){
@@ -442,11 +452,11 @@
           scrollNav();       
           break;
         case 'ZoomOut':
-          paper.view.zoom = paper.view.zoom /2
+          paper.view.zoom = paper.view.zoom /2;
           scrollNav();
           break;
         case 'ZoomIn':
-          paper.view.zoom = paper.view.zoom * 2
+          paper.view.zoom = paper.view.zoom * 2;
           scrollNav();
           break;
         case 'Pen':
@@ -536,4 +546,3 @@
 });
 
   
-
