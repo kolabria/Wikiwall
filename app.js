@@ -772,19 +772,30 @@ everyone.now.newPath = function(path,pcolor,pwidth,player,callback){
 }
 
 //called after a move has been completed
-everyone.now.updatePath = function(pathId,path){
-  Path.update({
-    _id:pathId
-  },
-  {
-    description:path
-  },{},function(err,doc){
-    if(err){
-      console.log(err);
-      this.now.tError('Could Not Save');
-    }
-  });
-  //update path in db
+everyone.now.updatePath = function(pathId,type,path){
+	if(type){
+		Path.findOne({_id:pathId}, function (err, doc){
+			doc.description.position=path;
+			doc.markModified('description.position')
+			doc.save();
+	    if(err){
+	      console.log(err);
+	      this.now.tError('Could Not Save');
+	    }
+		});
+	}else{
+		Path.update({
+	    _id:pathId
+	  },
+	  {
+	    description:path
+	  },{},function(err,doc){
+	    if(err){
+	      console.log(err);
+	      this.now.tError('Could Not Save');
+	    }
+	  });
+	}
 }
 //initial load (data sent with page request)
 everyone.now.initWall = function(callback){
@@ -906,7 +917,7 @@ everyone.now.sendFile = function(file,player, position, callback){
    Path.create({
     layer: player
     , opacity: 1 //For now, make variable later
-    , description: {file: file.src, position: position}
+    , description: {file: file.src, position:{x:position._x, y:position._y}}
   },function(err,doc){
     if(err){
       console.log(err)

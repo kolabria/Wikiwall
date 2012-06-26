@@ -358,8 +358,16 @@ now.ready(function(){
   select.onMouseUp = function(event){
     if(select.target){
       x = select.target.item.segments;
-      var segs = serializePath(x);
-      now.updatePath(select.target.item.name,segs);
+      var raster = false;
+      //test if it's a path or a raster
+      if(x === "undefined"){
+        var data = serializePath(x);
+      }else{
+        raster = true;
+        var data = {x: select.target.item.position._x, y: select.target.item.position._y};
+      }
+      //need to test if image, before sending to node. 
+      now.updatePath(select.target.item.name,raster,data);
     }
   }
 
@@ -517,7 +525,6 @@ now.ready(function(){
             paper.view.draw();
           }
           file.src = image.src = e.target.result;
-          console.log(file);
           now.sendFile(file, paper.project.activeLayer.index, view.center, function(name){
             raster.name = name;
           });
@@ -532,7 +539,8 @@ now.ready(function(){
     paper.project.layers[layer].activate();
     raster = new Raster(image);
     raster.name = name
-    raster.position = position
+    raster.position.x = position._x
+    raster.position.y = position._y
     paper.view.draw();
   }
   //File Testing
