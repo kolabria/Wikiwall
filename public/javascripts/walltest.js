@@ -196,8 +196,8 @@ now.ready(function(){
         paper.project.layers[p.layer].activate();
         if(p.description.file){
           var image = document.createElement('img');
+          image.src = p.description.file
           image.onload = function(){
-            image.src = p.description.file
             raster = new Raster(image);
             raster.name = p._id
             raster.position = p.description.position
