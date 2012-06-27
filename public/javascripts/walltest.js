@@ -89,7 +89,6 @@ now.ready(function(){
   }
 
   scrollNav = function(){
-  console.log('scrollNav');
     c.addClass('nav');
     nw.show();
     //Get current Viewport bounds
@@ -211,7 +210,6 @@ now.ready(function(){
   now.initWall(function(d, users){
     //convert database info into paperjs object
     //go through all elements and rebuild
-    console.log(d)
     if(d){
       var plen = d.paths.length
       var execute = function(c){
@@ -264,7 +262,6 @@ now.ready(function(){
   }
   now.unshare = function(host){
     //find box in shares with that id and remove it.
-    console.log(host)
     jQuery('#walls').find('.'+host).detach();
   }
   now.sharedTo = function(box){
@@ -414,7 +411,6 @@ now.ready(function(){
       case 67:
         //c for center?
         jQuery('.tool[value=Center]').click();
-        console.log('center');
         break;
       case 83:
         //s for select?
@@ -553,7 +549,6 @@ now.ready(function(){
   now.receiveFilesCanvas = function(layer, file, position, name){
     var image = document.createElement('img');
     image.src = file
-    console.log(position)
     nposition = {x:position._x, y:position._y}
     paper.project.layers[layer].activate();
     loadImage(name, nposition, file, function(){});

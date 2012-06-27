@@ -180,6 +180,32 @@ now.ready(function(){
       });
   }
 
+  //image loading
+  loadImage = function(id, position, src, callback){
+    var image = document.createElement('img');
+    image.src = src
+    image.onload = function(){
+      raster = new Raster(image);
+      raster.name = id
+      raster.position = position
+      paper.view.draw();
+      callback();
+    }
+  }
+
+  //path loading
+  loadPoints = function(p,callback){
+    points = new Array();
+    for (n in p.description){
+      points.push(JSON.parse(p.description[n]));
+    }
+    var path = new Path(points);
+    path.strokeColor = p.color;
+    path.strokeWidth = p.width;
+    path.opacity = p.opacity;
+    path.name = p._id;
+    callback();
+  }
 
   /******** NOW functions *******/
 
@@ -188,22 +214,29 @@ now.ready(function(){
     //convert database info into paperjs object
     //go through all elements and rebuild
     if(d){
-      for(x in d.paths){
-        var p = d.paths[x];
-        if(!paper.project.layers[p.layer]){
-          new Layer();
-        }
-        paper.project.layers[p.layer].activate();
-        points = new Array();
-        for (n in p.description){
-          points.push(JSON.parse(p.description[n]));
-        }
-        var path = new Path(points);
-        path.strokeColor = p.color;
-        path.strokeWidth = p.width;
-        path.opacity = p.opacity;
-        path.name = p._id;
+      var plen = d.paths.length
+      var execute = function(c){
+        if(c < plen){
+          var p = d.paths[c];
+          //needs to go into image and points function to be more reliable
+          if(!paper.project.layers[p.layer]){
+            new Layer();
+          }
+          paper.project.layers[p.layer].activate();
+          if(p.description.file){
+            loadImage(p._id, p.description.position, p.description.file, function(){
+              paper.view.draw();
+              execute(++c);
+            })
+          }else{
+            loadPoints(p, function(){
+              paper.view.draw();
+              execute(++c);
+            })
+          }
+        }    
       }
+      execute(0)
     }
     for(i = 0; i < users.length;i++){
       jQuery('#users').find('ul').append('<li class="'+users[i].id+'">'+users[i].name+'</li>');
@@ -494,6 +527,36 @@ now.ready(function(){
       }
     }
   });
+  //functional with hit testing and everything
+  //progress meter of some sort required
+  function processFiles(file){
+    if(file && typeof FileReader !== "undefined"){
+      if((/image/i).test(file.type)){
+        var reader = new FileReader();
+        reader.onload = function(e){          
+          file.src = e.target.result;
+          now.sendFile(file, paper.project.activeLayer.index, view.center, function(name){
+            loadImage(name, view.center, file.src, function(){})
+          });
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+  now.receiveFilesCanvas = function(layer, file, position, name){
+    var image = document.createElement('img');
+    image.src = file
+    nposition = {x:position._x, y:position._y}
+    paper.project.layers[layer].activate();
+    loadImage(name, nposition, file, function(){});
+  }
+  //File Testing
+  jQuery('#myCanvas').on('drop', function(e){
+    e.stopPropagation();
+    e.preventDefault();
+    var file = e.originalEvent.dataTransfer.files[0];
+    processFiles(file);
+  })
   jQuery('.tool[value=Pen]').click();
 });
 
