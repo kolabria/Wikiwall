@@ -215,10 +215,7 @@ now.ready(function(){
     if(d){
       var plen = d.paths.length
       var execute = function(c){
-        console.log('excute')
         if(c < plen){
-          console.log(c)
-          console.log('in loop '+c)
           var p = d.paths[c];
           //needs to go into image and points function to be more reliable
           if(!paper.project.layers[p.layer]){
@@ -543,17 +540,10 @@ now.ready(function(){
     if(file && typeof FileReader !== "undefined"){
       if((/image/i).test(file.type)){
         var reader = new FileReader();
-        reader.onload = function(e){
-          var raster;
-          var image = document.createElement('img');
-          image.onload = function(){
-            raster = new Raster(image);
-            raster.position = view.center;
-            paper.view.draw();
-          }
-          file.src = image.src = e.target.result;
+        reader.onload = function(e){          
+          file.src = e.target.result;
           now.sendFile(file, paper.project.activeLayer.index, view.center, function(name){
-            imageLoad(name, view.center, file.src, function(){})
+            loadImage(name, view.center, file.src, function(){})
           });
         }
         reader.readAsDataURL(file);
@@ -563,8 +553,10 @@ now.ready(function(){
   now.receiveFilesCanvas = function(layer, file, position, name){
     var image = document.createElement('img');
     image.src = file
+    console.log(position)
+    nposition = {x:position._x, y:position._y}
     paper.project.layers[layer].activate();
-    imageLoad(name, position, file, function(){});
+    loadImage(name, nposition, file, function(){});
   }
   //File Testing
   jQuery('#myCanvas').on('drop', function(e){
