@@ -180,6 +180,16 @@ now.ready(function(){
       });
   }
 
+  loadImage = function(id, position, src){
+    var image = document.createElement('img');
+    image.src = src
+    image.onload = function(){
+      raster = new Raster(image);
+      raster.name = id
+      raster.position = position
+      paper.view.draw();
+    }
+  }
 
   /******** NOW functions *******/
 
@@ -195,13 +205,7 @@ now.ready(function(){
         }
         paper.project.layers[p.layer].activate();
         if(p.description.file){
-          var image = document.createElement('img');
-          image.src = p.description.file
-          image.onload = function(){
-            raster = new Raster(image);
-            raster.name = p._id
-            raster.position = p.description.position
-          }
+          loadImage(p._id, p.description.position, p.description.file)
         }else{
           points = new Array();
           for (n in p.description){
@@ -519,6 +523,7 @@ now.ready(function(){
       if((/image/i).test(file.type)){
         var reader = new FileReader();
         reader.onload = function(e){
+          imageLoad()
           var raster;
           var image = document.createElement('img');
           image.onload = function(){
@@ -539,13 +544,7 @@ now.ready(function(){
     var image = document.createElement('img');
     image.src = file
     paper.project.layers[layer].activate();
-    image.onload = function(){
-      raster = new Raster(image);
-      raster.name = name
-      raster.position.x = position._x
-      raster.position.y = position._y
-      paper.view.draw();
-    }
+    imageLoad(name, position, file);
   }
   //File Testing
   jQuery('#myCanvas').on('drop', function(e){

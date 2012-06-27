@@ -872,16 +872,6 @@ everyone.now.shareWall = function(target){
   });
 }
 
-everyone.now.sendFile = function(file){
-	boxID = this.now.boxID;
-  companyId = this.now.companyId;
-  wallId = this.now.wallId;
-  clientId = this.user.clientId;
-  //save to DB
-  //name the file
-  nowjs.getGroup('c'+companyId+'u'+wallId).exclude(clientId).now.receiveFilesCanvas(file.src);
-}
-
 everyone.now.clear = function(callback){
   boxID = this.now.boxID;
   companyId = this.now.companyId;
