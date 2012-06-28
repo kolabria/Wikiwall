@@ -383,8 +383,16 @@ now.ready(function(){
   select.onMouseUp = function(event){
     if(select.target){
       x = select.target.item.segments;
-      var segs = serializePath(x);
-      now.updatePath(select.target.item.name,segs);
+      var raster = false;
+      //test if it's a path or a raster
+      if(x === "undefined"){
+        var data = serializePath(x);
+      }else{
+        raster = true;
+        var data = {x: select.target.item.position._x, y: select.target.item.position._y};
+      }
+      //need to test if image, before sending to node. 
+      now.updatePath(select.target.item.name,raster,data);
     }
   }
 
