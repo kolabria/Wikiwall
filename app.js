@@ -14,7 +14,9 @@ var express = require('express')
   , Images = require('./models/images')
   , Company = require('./models/company')
   , Box = require('./models/box')
-  , Iwall = require('./models/iwall.js')
+  , Iwall = require('./models/iwall.js');
+
+var MongoStore = require('connect-mongo')(express);
 
 /**
 * Initialize Variables and Global Database
@@ -43,7 +45,7 @@ var users = {};
 
 // when create new company, must create new db for that company 
 
-Mongoose.connect('mongodb://localhost/cdb7');
+Mongoose.connect('mongodb://localhost/cdb8');
 
 
 /**
@@ -56,7 +58,12 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser());
-  app.use(express.session({ secret: 'your secret here' }));
+  app.use(express.session({ 
+      secret: 'galaxy quest'
+    , store: new MongoStore({
+	    db: 'myDb'
+      }) 
+  }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
