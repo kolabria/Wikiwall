@@ -482,7 +482,8 @@ now.ready(function(){
     if(/.*tool.*/.test(cl)){
       switch(t){
         case 'Nav':
-          scrollNav();       
+          scrollNav();  
+          _gaq.push(['_trackEvent', 'Nav', 'clicked']);     
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2;
@@ -495,10 +496,12 @@ now.ready(function(){
         case 'Pen':
           c.addClass('crosshair');
           pen.activate();
+          _gaq.push(['_trackEvent', 'Pen', 'clicked']);
           break;
         case 'Select':
           c.addClass('pointer');
           select.activate();
+          _gaq.push(['_trackEvent', 'Select', 'clicked']);
           break;
         case 'Center':
           var l = paper.project.activeLayer.bounds.center;
@@ -510,6 +513,7 @@ now.ready(function(){
           break;
         case 'Export':
           exportCanvas();
+          _gaq.push(['_trackEvent', 'Export', 'clicked']);
           break;
       }
     }else if(/.*color.*/.test(cl)){
