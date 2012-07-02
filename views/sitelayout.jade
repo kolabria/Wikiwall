@@ -46,10 +46,6 @@ body
             a(href='#')
               i.flag.flag-ca
               | English
-          li
-            a(href='#')
-              i.flag.flag-fr
-              | French
       li.dropdown
         a.dropdown-toggle(href='#', data-toggle='dropdown')
           i.icon-edit
@@ -97,11 +93,10 @@ body
       .nav-collapse
         nav.mainnav.nav.btn-group.pull-right
           block navbuttons
-            a.btn.btn-large(href='#') Home
-            a.btn.btn-large(href='#') Product
-            a.btn.btn-large(href='#') About
-            a.btn.btn-large(href='#') Blog
-            a.btn.btn-large(href='#') Contact
+            a.btn.btn-large(href='/') Home
+            a.btn.btn-large(href='/product') Overview
+            a.btn.btn-large(href='about') About
+            a.btn.btn-large(href='/contact') Contact
   !=body
   footer.navbar.navbar-fixed-bottom
     block footer
@@ -130,7 +125,12 @@ body
   script
     stLight.options({publisher: "614ee07c-bb32-4c04-8b2a-52d217ebdbd8"});
     //Analytics
-    var _gaq=[['_setAccount','UA-32675686-1'], ['_setDomainName', 'kolabria.com'], ['_trackPageview']];
-    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32675686-2']);
+    _gaq.push(['_setDomainName', 'wikiwall.com']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();

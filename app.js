@@ -202,6 +202,7 @@ app.get('/', function(req,res){
   res.render('index',{});
 });
 
+
 //Todo Remove?
 app.get('/tindex', function(req,res){
   //res.local('layout', false);
@@ -309,27 +310,28 @@ app.post('/login', function(req, res){
 	});
 });
 
+
 app.get('/about', function(req,res){
 	res.local('layout', 'sitelayout')
 	res.local('title' , 'Kolabria - About')
-
+    res.render('about',{});
 })
 app.get('/contact', function(req, res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - About')
-
+	res.local('title' , 'Kolabria - Contact')
+    res.render('contact',{});
 
 })
 app.post('/contact', function(req,res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - About')
+	res.local('title' , 'Kolabria - Contact')
 
 
 })
 app.get('/product', function(req,res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - About')
-
+	res.local('title' , 'Kolabria - Product')
+    res.render('product',{});
 
 })
 
