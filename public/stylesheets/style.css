@@ -377,6 +377,9 @@ footer.navbar .nav > li > a:hover{
 }
 footer small{float:left;}
 .sm{float:right;}
+@media (min-width: 1200px){
+  .main .block{width:380px;}
+}
 @media (max-width: 979px){
   .hero{background:transparent;}
   .hero .container{width:100%;}
