@@ -470,6 +470,7 @@ now.ready(function(){
   //Change tool or color
   jQuery('#toolbar').add('#navWindow').add('#functions').click(function(e){
     var obj = jQuery(e.target);
+    jQuery('.btn-info').removeClass('btn-info');
     var t = obj.attr('value');
     var cl = obj.attr('class');
     c = jQuery('#myCanvas').removeClass();
@@ -496,11 +497,13 @@ now.ready(function(){
           scrollNav();
           break;
         case 'Pen':
+          obj.addClass('btn-info');
           c.addClass('crosshair');
           pen.activate();
           _gaq.push(['_trackEvent', 'Pen', 'clicked']);
           break;
         case 'Select':
+          obj.addClass('btn-info');
           c.addClass('pointer');
           select.activate();
           _gaq.push(['_trackEvent', 'Select', 'clicked']);
