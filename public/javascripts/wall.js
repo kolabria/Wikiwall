@@ -20,7 +20,7 @@ now.ready(function(){
 
   var events = 0;
   var color = 'black';
-  var width = 3
+  var width = 3;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -328,7 +328,7 @@ now.ready(function(){
   pen.onMouseDown = function(event){
     pen.path = new Path();
     pen.path.strokeColor = color;
-    pen.path.strokewidth = 3
+    pen.path.strokeWidth = 3;
     pen.path.add(event.point);
     now.shareStartDraw(color,width,event.point,paper.project.activeLayer.index);
   }
