@@ -1,4 +1,5 @@
 
+
 /**
  * Module dependencies.
  **/
@@ -45,7 +46,7 @@ var users = {};
 
 // when create new company, must create new db for that company 
 
-Mongoose.connect('mongodb://localhost/cdb8');
+Mongoose.connect('mongodb://localhost/cdb13');
 
 
 /**
