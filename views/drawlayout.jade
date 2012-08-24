@@ -8,6 +8,20 @@ html
     base(href='http://'+base+'/')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/wall.css')
+    script(type='text/javascript')
+      var _kmq = _kmq || [];
+      var _kmk = _kmk || 'd56d8b2d2a87875ffc72780708cc6434f20255ae';
+      function _kms(u){
+        setTimeout(function(){
+          var d = document, f = d.getElementsByTagName('script')[0],
+          s = d.createElement('script');
+          s.type = 'text/javascript'; s.async = true; s.src = u;
+          f.parentNode.insertBefore(s, f);
+        }, 1);
+      }
+      _kms('//i.kissmetrics.com/i.js');
+      _kms('//doug1izaerwt3.cloudfront.net/' + _kmk + '.1.js');
+
   body.background
     .canvas
       header.navbar.navbar-fixed-bottom 
@@ -68,6 +82,8 @@ html
          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
        })();
+       // KissMetrics
+       _kmq.push(['record', 'Conversion']);
       //IOS and mobile adjustments
       iOS_disableZooming();
       iOS_disableScrolling();
