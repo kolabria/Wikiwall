@@ -25,5 +25,6 @@ block localjs
     var name = "#{userName}"
     _kmq.push(['identify', '#{userName}']);  // kiss metrics
     _kmq.push(['set', {'Wall ID':'#{box.defaultWall_ID}'}]);  // kiss metrics
+    _kmq.push(['set', {'UserType':'Person'}]);  // kiss metrics
   script(src='http://'+base+'/javascripts/canvas-toBlob.min.js')
   script(src='http://'+base+'/javascripts/FileSaver.min.js')
