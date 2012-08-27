@@ -486,27 +486,32 @@ now.ready(function(){
       switch(t){
         case 'Nav':
           scrollNav();  
-          _gaq.push(['_trackEvent', 'Nav', 'clicked']);     
+          _gaq.push(['_trackEvent', 'Nav', 'clicked']);    
+          _kmq.push(['record', 'Nav']);  // kiss metrics
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2;
           scrollNav();
+          _kmq.push(['record', 'ZoomOut']);  // kiss metrics
           break;
         case 'ZoomIn':
           paper.view.zoom = paper.view.zoom * 2;
           scrollNav();
+          _kmq.push(['record', 'ZoomIn']);  // kiss metrics
           break;
         case 'Pen':
           obj.addClass('btn-info');
           c.addClass('crosshair');
           pen.activate();
           _gaq.push(['_trackEvent', 'Pen', 'clicked']);
+          _kmq.push(['record', 'Pen']);  // kiss metrics
           break;
         case 'Select':
           obj.addClass('btn-info');
           c.addClass('pointer');
           select.activate();
           _gaq.push(['_trackEvent', 'Select', 'clicked']);
+          _kmq.push(['record', 'Select']);  // kiss metrics
           break;
         case 'Center':
           var l = paper.project.activeLayer.bounds.center;
@@ -515,10 +520,12 @@ now.ready(function(){
           view.scrollBy(p);
           view.draw(); 
           scrollNav();
+          _kmq.push(['record', 'Center']);  // kiss metrics
           break;
         case 'Export':
           exportCanvas();
           _gaq.push(['_trackEvent', 'Export', 'clicked']);
+          _kmq.push(['record', 'Export']);  // kiss metrics
           break;
       }
     }else if(/.*color.*/.test(cl)){

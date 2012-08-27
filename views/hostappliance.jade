@@ -42,3 +42,8 @@ block localjs
     var name = "#{box.name}";
     var companyId = '#{box.company_id}'; //from application 
     var boxID = '#{box.id}'; //if name is not unique
+    _kmq.push(['identify', '#{box.id}']);  // kiss metrics
+    _kmq.push(['set', {'Wall ID':'#{box.defaultWall_ID}'}]);  // kiss metrics
+    _kmq.push(['set', {'Box Name':'#{box.name}'}]);  // kiss metrics
+    
+    

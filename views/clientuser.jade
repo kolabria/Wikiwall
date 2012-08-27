@@ -23,5 +23,7 @@ block localjs
     var wallId = '#{box.defaultWall_ID}';
     var companyId = '#{box.company_id}'; //from application 
     var name = "#{userName}"
+    _kmq.push(['identify', '#{userName}']);  // kiss metrics
+    _kmq.push(['set', {'Wall ID':'#{box.defaultWall_ID}'}]);  // kiss metrics
   script(src='http://'+base+'/javascripts/canvas-toBlob.min.js')
   script(src='http://'+base+'/javascripts/FileSaver.min.js')
