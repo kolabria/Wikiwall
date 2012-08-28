@@ -32,7 +32,3 @@ block localjs
     var name = "#{rbox.name}";
     var companyId = '#{hbox.company_id}'; //from application 
     var boxID = '#{rbox.id}'; //if name is not unique
-    _kmq.push(['identify', '#{rbox.id}']);  // kiss metrics
-    _kmq.push(['set', {'Wall ID':'#{hbox.defaultWall_ID}'}]);  // kiss metrics
-    _kmq.push(['set', {'Box Name':'#{rbox.name}'}]);  // kiss metrics
-    _kmq.push(['set', {'UserType':'ClientAppliance'}]);  // kiss metrics
