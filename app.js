@@ -592,18 +592,25 @@ app.get('/host/:id.:format?/draw', function(req,res){
 });
 // host appliance draw view test using user agent
 app.get('/host/draw', function(req,res){
-	res.local('layout', 'hostappliance'); 
-	res.local('title', 'Host Wall')
+
 //	console.log('User-Agent: ' + req.headers['user-agent']);
   //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
-		  if(err) console.log(err);
-		  res.render('draw',{ 
-		  	box: box
-	    });
+		  if(err){
+			console.log(err);
+			res.local('layout', false); 
+			res.render('apperror',{ bid: bid});
+		  } 
+		  else {
+			res.local('layout', 'hostappliance'); 
+			res.local('title', 'Host Wall')
+			res.render('draw',{ 
+			  	box: box
+		    });
+		  }
 	  });	
 	}
 });
