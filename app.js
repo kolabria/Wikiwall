@@ -192,6 +192,12 @@ app.get('/hostappliance', function(req,res){
 	res.local('layout', 'hostappliance');
   res.render('draw',{});
 })
+app.get('/clientuser', function(req,res){
+	var bid = WWAblahblah; 
+	res.local('layout', false); 
+	res.render('apperror',{ bid: bid});
+});
+
 
 /**
 * Site Routes
