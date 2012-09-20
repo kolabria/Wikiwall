@@ -33,7 +33,7 @@
 
 script
     document.addEventListener("DOMContentLoaded", init, false);
-     function init(){
+     function init(){git 
        var video = document.getElementById("intro-video");
        video.addEventListener("play", videoPlay, false);
        video.addEventListener("pause", videoPause, false);
@@ -44,7 +44,7 @@ script
        trackEvent('Play', 'Intro Video');
      }
      function videoPause(event) {
-       trackEvent('Pause', 'Indro Video');
+       trackEvent('Pause', 'Intro Video');
      }
      function videoEnd(event) {
        trackEvent('Ended', 'Intro Video');
