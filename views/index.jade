@@ -8,7 +8,7 @@
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
-      form#form3(name='form3', autocomplete='off', enctype='multipart/form-data', method='post', novalidate='novalidate', action='https://kolabria.wufoo.com/forms/q7x3z9/#public')
+      form#form3(name='form3', autocomplete='off', enctype='multipart/form-data', method='post', novalidate='novalidate', action='https://kolabria.wufoo.com/forms/q7x3z9/#public', onSubmit="_gaq.push(['_trackEvent', 'SignUp', 'Submit']);")
         label.control-label(for='appendedInputButton') Leave your email and we will let you know when WikiWall will be available
         .input-append
           input#appendedInputButton(name='Field1', type='email', spellcheck='false', placeholder='your-email@email.com', maxlength='255')
@@ -29,7 +29,7 @@
       p
         | Create multiple WikiWalls and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your WikiWalls are always accessible and secure.
   .learn
-    a#learn-more.btn.btn-primary.btn-large(href='product') Learn More!
+    a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
 
 script
     document.addEventListener("DOMContentLoaded", init, false);
