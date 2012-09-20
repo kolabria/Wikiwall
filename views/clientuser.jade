@@ -23,5 +23,6 @@ block localjs
     var wallId = '#{box.defaultWall_ID}';
     var companyId = '#{box.company_id}'; //from application 
     var name = "#{userName}"
+    _gaq.push(['_trackEvent', 'Wall', 'Join Load',"#{box.name}"]);
   script(src='http://'+base+'/javascripts/canvas-toBlob.min.js')
   script(src='http://'+base+'/javascripts/FileSaver.min.js')

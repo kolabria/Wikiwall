@@ -32,3 +32,4 @@ block localjs
     var name = "#{rbox.name}";
     var companyId = '#{hbox.company_id}'; //from application 
     var boxID = '#{rbox.id}'; //if name is not unique
+    _gaq.push(['_trackEvent', 'Wall', 'Client Load',name]);
