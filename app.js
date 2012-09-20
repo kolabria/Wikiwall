@@ -192,10 +192,11 @@ app.get('/hostappliance', function(req,res){
 	res.local('layout', 'hostappliance');
   res.render('draw',{});
 })
-app.get('/clientuser', function(req,res){
-	var bid = WWAblahblah; 
+app.get('/apperror', function(req,res){
+	var bid = "WWAblahblah"; 
 	res.local('layout', false); 
-	res.render('apperror',{ bid: bid});
+	res.render('apperror',{bid: bid});
+   // res.render('test',{});    
 });
 
 
@@ -607,6 +608,8 @@ app.get('/host/draw', function(req,res){
 		//	console.log(box);
 		  if(err){
 			console.log(err);
+              // this doesn't work  - need to fix at some point 
+                        console.log("Bad BID: ", bid);
 			res.local('layout', false); 
 			res.render('apperror',{ bid: bid});
 		  } 

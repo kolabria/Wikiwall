@@ -19,8 +19,9 @@ now.ready(function(){
   }
 
   var events = 0;
+// default values for pen
   var color = 'black';
-  var width = 3;
+  var width = 6;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -295,8 +296,8 @@ now.ready(function(){
   }
 
   now.endDraw = function(layer,pathname,newname){
-    // paper.project.layers[layer].children[pathname].simplify(10)
-    paper.project.layers[layer].children[pathname].smooth();
+    paper.project.layers[layer].children[pathname].simplify(10)
+    //paper.project.layers[layer].children[pathname].smooth();
     paper.project.layers[layer].children[pathname].name = newname;
     paper.view.draw(); //refresh canvas
   }
@@ -328,13 +329,13 @@ now.ready(function(){
   pen.onMouseDown = function(event){
     pen.path = new Path();
     pen.path.strokeColor = color;
-    pen.path.strokeWidth = 3;
+    pen.path.strokeWidth = width;
     pen.path.add(event.point);
     now.shareStartDraw(color,width,event.point,paper.project.activeLayer.index);
   }
   pen.onMouseUp = function(event){
-    //pen.path.simplify(10);
-    pen.path.smooth();
+    pen.path.simplify(10);
+    //pen.path.smooth();
     x = pen.path.segments;
     var segs = serializePath(x);
     now.newPath(segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
