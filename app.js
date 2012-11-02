@@ -629,24 +629,27 @@ deleteWall = function(wallId){
 	// remove all paths from wall path list 
    // console.log('wallId: '+wallId);
   	Wall.findOne({_id:wallId}, function (err, w){
-      var i = w.paths.length;
-     // console.log('paths count: '+w.paths.length);
-      for (i=0; i< w.paths.length; i++){
-	     // remove assoicated path from path db
-	   //   console.log('path to delete: '+w.paths[i]);
-		  Path.findOne({_id:w.paths[i]}, function(err,doc){
-		    if(err){
-		      console.log(err);
-		      this.now.tError('Could Not Delete');
-		    }
-		    doc.remove(); 
-          });
-      } 
-      w.remove();
-      if(err){
-        console.log(err);
-        this.now.tError('Could not remove Path');
-      }
+	 // console.log('wall to delete'+wallId);
+	  if (w){
+		var i = w.paths.length;
+	     // console.log('paths count: '+w.paths.length);
+	      for (i=0; i< w.paths.length; i++){
+		     // remove assoicated path from path db
+		   //   console.log('path to delete: '+w.paths[i]);
+			  Path.findOne({_id:w.paths[i]}, function(err,doc){
+			    if(err){
+			      console.log(err);
+			      this.now.tError('Could Not Delete Path');
+			    }
+			    doc.remove(); 
+	          });
+	      } 
+	      w.remove();
+	      if(err){
+	        console.log(err);
+	        this.now.tError('Could not remove Wall');
+	      }	
+	  }
     });	
 }
 
