@@ -624,6 +624,32 @@ app.get('/host/draw', function(req,res){
 	}
 });
 
+// called to delete drawing walls and associated paths
+deleteWall = function(wallId){
+	// remove all paths from wall path list 
+   // console.log('wallId: '+wallId);
+  	Wall.findOne({_id:wallId}, function (err, w){
+      var i = w.paths.length;
+     // console.log('paths count: '+w.paths.length);
+      for (i=0; i< w.paths.length; i++){
+	     // remove assoicated path from path db
+	   //   console.log('path to delete: '+w.paths[i]);
+		  Path.findOne({_id:w.paths[i]}, function(err,doc){
+		    if(err){
+		      console.log(err);
+		      this.now.tError('Could Not Delete');
+		    }
+		    doc.remove(); 
+          });
+      } 
+      w.remove();
+      if(err){
+        console.log(err);
+        this.now.tError('Could not remove Path');
+      }
+    });	
+}
+
 
 //TODO move some of the functions to the now Clear function? or redirect host to this page?
 app.get('/trash/:id.:format?', function(req,res){
@@ -634,6 +660,8 @@ app.get('/trash/:id.:format?', function(req,res){
 		  if(err) console.log(err);
 		  if (box){
 		  //  console.log("Trash - Box dwall: ", box.defaultWall_ID);
+		    // remove drawing walls
+		    deleteWall(box.defaultWall_ID);
 		    Iwall.findById(box.defaultWall_ID, function (err, wall) {
 		      if(err) console.log(err);
 			    if(wall) {
@@ -711,7 +739,7 @@ uploadImage = function(){
 deletePath = function(pathId, wallId){
 	// remove path from wall path list 
 //   console.log('wallId: '+wallId+' pathId: '+pathId);
-  	Wall.findOne({_id:wallId}, function (err, w){
+  Wall.findOne({_id:wallId}, function (err, w){
       var i = w.paths.indexOf(pathId);
   //    console.log('Path index: ',i);
       w.paths.splice(i,1);
