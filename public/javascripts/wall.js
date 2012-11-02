@@ -247,13 +247,13 @@ now.ready(function(){
 
   now.pushUser = function(username, clientId){
     jQuery('#users').find('ul').append('<li class="'+clientId+'">'+username+'</li>');
-    gAlert(username+' has joined')
+    gAlert(username+' Has Joined')
   }
   now.pullUser = function(username, clientId){
     users = jQuery('#users').find('.'+clientId);
     if (users.length){
       jQuery(users).detach()
-      gAlert(username + 'Has Left the chat');
+      gAlert(username + ' Has Left');
     }
   }
   now.quit = function(){
@@ -386,13 +386,16 @@ now.ready(function(){
   select.onMouseUp = function(event){
     if(select.target){
       x = select.target.item.segments;
+       console.log("X: ",x);
       var raster = false;
       //test if it's a path or a raster
-      if(x === "undefined"){
-        var data = serializePath(x);
+      if(x === undefined){
+		console.log('raster');
+	        raster = true;
+	        var data = {x: select.target.item.position._x, y: select.target.item.position._y};
       }else{
-        raster = true;
-        var data = {x: select.target.item.position._x, y: select.target.item.position._y};
+	    console.log('path');
+	     var data = serializePath(x);
       }
       //need to test if image, before sending to node. 
       now.updatePath(select.target.item.name,raster,data);

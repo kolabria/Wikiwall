@@ -708,7 +708,23 @@ uploadImage = function(){
 }
 
 //called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
-deletePath = function(pathId){
+deletePath = function(pathId, wallId){
+	// remove path from wall path list 
+//   console.log('wallId: '+wallId+' pathId: '+pathId);
+  	Wall.findOne({_id:wallId}, function (err, w){
+      var i = w.paths.indexOf(pathId);
+  //    console.log('Path index: ',i);
+      w.paths.splice(i,1);
+      w.save(function(err) {
+	        if (err) console.log(' deletePath - failed to delete path');
+      });
+      if(err){
+        console.log(err);
+        this.now.tError('Could not remove Path');
+      }
+  });	
+	
+	// remove path from db
   Path.findOne({_id:pathId}, function(err,doc){
     if(err){
       console.log(err);
@@ -751,7 +767,10 @@ everyone.now.sendMoveItem = function(layer, pathId, delta){
 //delete path
 everyone.now.sendDeleteItem = function(layer, pathId){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.removePath(layer,pathId);
-  deletePath(pathId);
+  var wallId = this.now.wallId;
+  //console.log('sendDelete: wallId: ', wallId);
+
+  deletePath(pathId, wallId);
 }
 
 //DB functions
@@ -799,6 +818,7 @@ everyone.now.newPath = function(path,pcolor,pwidth,player,callback){
 
 //called after a move has been completed
 everyone.now.updatePath = function(pathId,type,path){
+//	console.log('pathId: '+pathId+' type: '+type);
 	if(type){
 		Path.findOne({_id:pathId}, function (err, doc){
 			doc.description.position=path;
