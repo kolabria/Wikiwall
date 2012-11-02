@@ -882,6 +882,7 @@ everyone.now.initWall = function(callback){
   var name = this.now.name;
   var wallId = this.now.wallId;
   var usernames = [];
+  console.log('client: '+client+' name: '+name+' wallId: '+wallId);
     //add this user to a group      
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).addUser(client);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client);
@@ -895,6 +896,7 @@ everyone.now.initWall = function(callback){
         callback();
       })
     }, function(err){
+	console.log('initWall: find wall');
       Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
         if(err){
           console.log(err);
