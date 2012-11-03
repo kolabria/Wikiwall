@@ -882,9 +882,15 @@ everyone.now.initWall = function(callback){
   var name = this.now.name;
   var wallId = this.now.wallId;
   var usernames = [];
-  console.log('client: '+client+' name: '+name+' wallId: '+wallId);
+  console.log('initWall:  client: '+client+' name: '+name+' wallId: '+wallId);
     //add this user to a group      
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).addUser(client);
+
+  
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).count(function (ct) {
+    console.log('initWall: group count: '+ct);
+  });
+
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).getUsers(function(users){
     async.forEach(users, function(item, callback){
