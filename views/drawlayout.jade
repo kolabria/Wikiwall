@@ -56,6 +56,12 @@ html
     //this is what allows realtime communication,
     script(src='nowjs/now.js')  
     //General All purpose JS
+    script
+      var wallInit;
+
+      $(document).ready(function(){
+        wallInit = true; 
+      });
     script(src='http://'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript"). 
     script
       //Analytics  

@@ -1,4 +1,15 @@
 now.ready(function(){
+  if (!wallInit){	
+	// remove objects from project 
+	for (i=0; i< paper.project.layers.length; i++){
+		paper.project.layers[i].removeChildren();
+	}
+	// remove list of active users 
+	jQuery('#users').find('ul').empty();
+  }
+  else {
+    wallInit = false;
+  }
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
@@ -210,7 +221,9 @@ now.ready(function(){
 
   /******** NOW functions *******/
 
-  //populate the canvas
+  //populate the canvas  by calling server. 
+
+
   now.initWall(function(d, users){
     //convert database info into paperjs object
     //go through all elements and rebuild
@@ -243,7 +256,9 @@ now.ready(function(){
       jQuery('#users').find('ul').append('<li class="'+users[i].id+'">'+users[i].name+'</li>');
     }
     paper.view.draw();//refresh canvas
-  });
+  });	
+ 
+
 
   now.pushUser = function(username, clientId){
     jQuery('#users').find('ul').append('<li class="'+clientId+'">'+username+'</li>');
