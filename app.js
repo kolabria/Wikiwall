@@ -882,14 +882,18 @@ everyone.now.initWall = function(callback){
   var name = this.now.name;
   var wallId = this.now.wallId;
   var usernames = [];
-  console.log('initWall:  client: '+client+' name: '+name+' wallId: '+wallId);
+  
     //add this user to a group      
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).addUser(client);
 
-  
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).count(function (ct) {
-    console.log('initWall: group count: '+ct);
-  });
+// debug code - log if pushUser is missing 
+  if (!this.now.pushUser){
+	console.log("initWall:  pushUser does not exists");
+	console.log('initWall:  client: '+client+' name: '+name+' wallId: '+wallId);
+	nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).count(function (ct) {
+	    console.log('initWall: group count: '+ct);
+	  });
+  }
 
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).getUsers(function(users){
@@ -902,7 +906,7 @@ everyone.now.initWall = function(callback){
         callback();
       })
     }, function(err){
-	console.log('initWall: find wall');
+//	console.log('initWall: find wall');
       Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
         if(err){
           console.log(err);
