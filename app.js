@@ -907,7 +907,7 @@ everyone.now.initWall = function(callback){
       })
     }, function(err){
 //	console.log('initWall: find wall');
-      Wall.findOne({_id:wallId}).populate('paths').run(function(err,doc){
+      Wall.findOne({_id:wallId}).populate('paths').exec(function(err,doc){
         if(err){
           console.log(err);
           nowjs.getClient(client, function(){
