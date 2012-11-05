@@ -349,6 +349,11 @@ now.ready(function(){
     pen.path.simplify(10);
     //pen.path.smooth();
     x = pen.path.segments;
+    if (x.length == 1){
+	  // if only one segment then really a point and won't see
+	// what really need to do is draw a circle at this point so have dot 
+	 // console.log("onMouseUp:  0 length path ",x.length);
+    }
     var segs = serializePath(x);
     now.newPath(segs,color,pen.path.strokeWidth,paper.project.activeLayer.index,function(name){
       pen.path.name = name;
@@ -465,11 +470,12 @@ now.ready(function(){
   
   //delete
   jQuery(document).on('click','.delete-object',function(){ 
+	name = select.target.item.name;
     if(select.target.item.remove()){
       jQuery('button').filter('.delete-object').detach();
       paper.view.draw();
     }
-    now.sendDeleteItem(paper.project.activeLayer.index,select.target.item.name);
+    now.sendDeleteItem(paper.project.activeLayer.index,name);
   });
 
   //Share To

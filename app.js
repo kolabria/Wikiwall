@@ -741,28 +741,33 @@ uploadImage = function(){
 //called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
 deletePath = function(pathId, wallId){
 	// remove path from wall path list 
-  console.log('wallId: '+wallId+' pathId: '+pathId);
-  Wall.findOne({_id:wallId}, function (err, w){
-      var i = w.paths.indexOf(pathId);
-      console.log('Path index: ',i);
-      w.paths.splice(i,1);
-      w.save(function(err) {
-	        if (err) console.log(' deletePath - failed to delete path');
-      });
-      if(err){
-        console.log(err);
-        this.now.tError('Could not remove Path');
-      }
-  });	
-	
-	// remove path from db
-  Path.findOne({_id:pathId}, function(err,doc){
-    if(err){
-      console.log(err);
-      this.now.tError('Could Not Delete');
-    }
-    doc.remove();
-  });
+
+  if (pathId){
+  	  Wall.findOne({_id:wallId}, function (err, w){
+	      var i = w.paths.indexOf(pathId);
+	     // console.log('Path index: ',i);
+	      w.paths.splice(i,1);
+	      w.save(function(err) {
+		        if (err) console.log(' deletePath - failed to delete path');
+	      });
+	      if(err){
+	        console.log(err);
+	        this.now.tError('Could not remove Path');
+	      }
+	  });	
+
+		// remove path from db
+	  Path.findOne({_id:pathId}, function(err,doc){
+	    if(err){
+	      console.log(err);
+	      this.now.tError('Could Not Delete');
+	    }
+	    doc.remove();
+	  });	
+  }
+  else {
+     console.log('ERROR - deletePath:  wallId: '+wallId+' pathId: '+pathId);	
+  }
 }
 
 
