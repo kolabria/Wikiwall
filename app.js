@@ -741,10 +741,10 @@ uploadImage = function(){
 //called when path is deleted, not exposed, as it gets called from the exposed sendDeleteItem
 deletePath = function(pathId, wallId){
 	// remove path from wall path list 
-//   console.log('wallId: '+wallId+' pathId: '+pathId);
+  console.log('wallId: '+wallId+' pathId: '+pathId);
   Wall.findOne({_id:wallId}, function (err, w){
       var i = w.paths.indexOf(pathId);
-  //    console.log('Path index: ',i);
+      console.log('Path index: ',i);
       w.paths.splice(i,1);
       w.save(function(err) {
 	        if (err) console.log(' deletePath - failed to delete path');
