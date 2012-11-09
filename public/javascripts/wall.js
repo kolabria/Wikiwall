@@ -308,7 +308,26 @@ now.ready(function(){
   }
 
   now.endDraw = function(layer,pathname,newname){
-    paper.project.layers[layer].children[pathname].simplify()  // default 2.5
+//    paper.project.layers[layer].children[pathname].simplify()  // default 2.5
+	var testRect = new Rectangle(paper.project.layers[layer].children[pathname].bounds);
+	testRect.point.x = testRect.point.x - 10;
+	testRect.point.y = testRect.point.y - 10;
+	testRect.width = testRect.width + 20;
+	testRect.height = testRect.height + 20;
+    var sLoop = true;
+    while (sLoop){
+	    var cPath = paper.project.layers[layer].children[pathname].clone();      // make working copy 
+	    cPath.simplify();  // default 2.5
+	  if ((testRect.contains(paper.project.layers[layer].children[pathname].bounds))){
+		sLoop = false;  // don't need to do any more 
+		paper.project.layers[layer].children[pathname].remove();
+	    paper.project.layers[layer].children[pathname] = cPath.clone();   // copy simplified path back to original 
+	    cPath.remove();
+      }
+      else {
+	    now.serverLog("endDraw: Simplified path exceeds bounds");
+      }
+    }
     //paper.project.layers[layer].children[pathname].smooth();
     paper.project.layers[layer].children[pathname].name = newname;
     paper.view.draw(); //refresh canvas
@@ -352,14 +371,10 @@ now.ready(function(){
 	testRect.point.y = testRect.point.y - 10;
 	testRect.width = testRect.width + 20;
 	testRect.height = testRect.height + 20;
-	
-   // pen.path.simplify();  // default 2.5
-    //pen.path.smooth();
-
     var sLoop = true;
     while (sLoop){
 	    var cPath = pen.path.clone();      // make working copy 
-	    cPath.simplify();
+	    cPath.simplify();  // default 2.5
 	  if ((testRect.contains(pen.path.bounds))){
 		sLoop = false;  // don't need to do any more 
 		pen.path.remove();
@@ -367,7 +382,7 @@ now.ready(function(){
 	    cPath.remove();
       }
       else {
-	    now.serverLog("Simplified path exceeds bounds");
+	    now.serverLog("onMouseUp: Simplified path exceeds bounds");
       }
     }
     x = pen.path.segments;
