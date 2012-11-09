@@ -346,8 +346,21 @@ now.ready(function(){
     now.shareStartDraw(color,width,event.point,paper.project.activeLayer.index);
   }
   pen.onMouseUp = function(event){
+	// check if simplify method creates wild path 
+	var testRect = new Rectangle(pen.path.bounds);
+	testRect.point.x = testRect.point.x - 10;
+	testRect.point.y = testRect.point.y - 10;
+	testRect.width = testRect.width + 10;
+	testRect.height = testRect.height + 10;
+	
     pen.path.simplify();
     //pen.path.smooth();
+    now.serverLog("Smooth Error Test ");
+
+    if (!(testRect.contains(pen.path.bounds))){
+	  now.serverLog("Simplified path exceeds bounds");
+    }
+    
     x = pen.path.segments;
     if (x.length == 1){
 	  // if only one segment then really a point and won't see

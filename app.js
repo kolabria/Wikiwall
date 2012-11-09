@@ -1032,3 +1032,9 @@ nowjs.on('disconnect', function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
   delete boxes[this.now.boxID];
 });
+
+everyone.now.serverLog = function(msg){
+	var name = this.now.name;
+	console.log("Remote Log from: "+name+" msg: "+msg);
+	
+}
