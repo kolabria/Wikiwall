@@ -355,7 +355,7 @@ now.ready(function(){
 	
     pen.path.simplify();
     //pen.path.smooth();
-    now.serverLog("Smooth Error Test ");
+    now.serverLog("Smooth Error Test testRect: "+testRect.size+"path: "+pen.path.bounds);
 
     if (!(testRect.contains(pen.path.bounds))){
 	  now.serverLog("Simplified path exceeds bounds");
