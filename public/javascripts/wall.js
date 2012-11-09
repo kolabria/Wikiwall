@@ -346,7 +346,7 @@ now.ready(function(){
     now.shareStartDraw(color,width,event.point,paper.project.activeLayer.index);
   }
   pen.onMouseUp = function(event){
-    pen.path.simplify(10);
+    pen.path.simplify();
     //pen.path.smooth();
     x = pen.path.segments;
     if (x.length == 1){
