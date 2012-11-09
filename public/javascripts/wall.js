@@ -362,7 +362,9 @@ now.ready(function(){
 	    cPath.simplify();
 	  if ((testRect.contains(pen.path.bounds))){
 		sLoop = false;  // don't need to do any more 
+		pen.path.remove();
 	    pen.path = cPath.clone();   // copy simplified path back to original 
+	    cPath.remove();
       }
       else {
 	    now.serverLog("Simplified path exceeds bounds");
