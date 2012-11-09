@@ -375,7 +375,7 @@ now.ready(function(){
     while (sLoop){
 	    var cPath = pen.path.clone();      // make working copy 
 	    cPath.simplify();  // default 2.5
-	  if ((testRect.contains(pen.path.bounds))){
+	  if ((testRect.contains(cPath.bounds))){
 		sLoop = false;  // don't need to do any more 
 		pen.path.remove();
 	    pen.path = cPath.clone();   // copy simplified path back to original 
