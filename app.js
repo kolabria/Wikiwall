@@ -1035,6 +1035,7 @@ nowjs.on('disconnect', function(){
 
 everyone.now.serverLog = function(msg){
 	var name = this.now.name;
-	console.log("Remote Log from: "+name+" msg: "+msg);
+        var d = new Date();
+	console.log(d+"  Remote Log from: "+name+" msg: "+msg);
 	
 }

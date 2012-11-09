@@ -308,7 +308,7 @@ now.ready(function(){
   }
 
   now.endDraw = function(layer,pathname,newname){
-    paper.project.layers[layer].children[pathname].simplify(10)
+    paper.project.layers[layer].children[pathname].simplify()  // default 2.5
     //paper.project.layers[layer].children[pathname].smooth();
     paper.project.layers[layer].children[pathname].name = newname;
     paper.view.draw(); //refresh canvas
@@ -350,12 +350,12 @@ now.ready(function(){
 	var testRect = new Rectangle(pen.path.bounds);
 	testRect.point.x = testRect.point.x - 10;
 	testRect.point.y = testRect.point.y - 10;
-	testRect.width = testRect.width + 10;
-	testRect.height = testRect.height + 10;
+	testRect.width = testRect.width + 20;
+	testRect.height = testRect.height + 20;
 	
-    pen.path.simplify();
+    pen.path.simplify();  // default 2.5
     //pen.path.smooth();
-    now.serverLog("Smooth Error Test testRect: "+testRect.size+"path: "+pen.path.bounds);
+   // now.serverLog("Smooth Error Test testRect: "+testRect.point+" "+testRect.size+"path: "+pen.path.bounds);
 
     if (!(testRect.contains(pen.path.bounds))){
 	  now.serverLog("Simplified path exceeds bounds");
