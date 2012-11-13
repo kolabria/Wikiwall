@@ -8,6 +8,7 @@ html
     base(href='http://'+base+'/')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/wall.css')
+    link(rel='stylesheet', href='http://'+base+'/stylesheets/fileuploader.css')    
   body.background
     .canvas
       header.navbar.navbar-fixed-bottom 
@@ -33,6 +34,9 @@ html
               li  
                 button.btn.tool(type='button', onclick='', value='Select')
                   i.icon-hand-up
+              li  
+                button.btn.tool(type='button', onclick='', value='Show')
+                  i.icon-play-circle                  
               block toolbar
           block functions
       .whiteboard!= body
@@ -46,6 +50,40 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
       #alerts
+    #pptLoad.modal.hide.fade
+      .modal-body
+         h3  Loading Presentation
+    #pptList.modal.hide.fade
+      .modal-header
+        h3 PowerPoint Viewer
+      .modal-body 
+        table.table
+          tbody
+            tr
+              td Other Stuff
+              td
+                a.btn.btn-primary(onclick='javascript:viewerOpen(95456595)') View
+            tr
+              td Important Stuff 
+              td
+                a.btn.btn-primary(onclick='javascript:viewerOpen(82238489)') View
+        #fine-uploader  
+                
+      .modal-footer
+        a.btn(onclick='javascript:pptListClose();') Close
+        a
+    #pptShow.modal.hide.fade
+      .modal-header
+        h3 
+      .modal-body
+        #embedded_doc         
+      .modal-footer
+        a.btn.btn-primary( onclick='javascript:viewerBegin();') Slide 1
+        a.btn.btn-primary( onclick='javascript:viewerPrev();') Prev
+        a.btn.btn-primary( onclick='javascript:viewerNext();') Next
+        a.btn(onclick='javascript:viewerClose();')
+          | Close
+          a
     block localjs
     script(src='http://'+base+'/javascripts/jquery-1.7.2.min.js')
     script(src='http://'+base+'/javascripts/ios.js')
@@ -53,12 +91,22 @@ html
     script(src='http://'+base+'/javascripts/paper.js')     
     script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js')
     script(src='http://'+base+'/javascripts/touch-punch.min.js')
+    script(src='http://'+base+'/javascripts/fileuploader.min.js')
+    script(src='http://www.scribd.com/javascripts/scribd_api.js')
+        
     //this is what allows realtime communication,
-    script(src='nowjs/now.js')  
+    script(src='nowjs/now.js') 
     //General All purpose JS
     script
       var wallInit;
-
+      function createUploader() {
+        var uploader = new qq.FileUploader({
+          element: document.getElementById('fine-uploader'),
+          // Use the relevant server script url here
+          action: '/fileUpload'
+        });
+      }
+      window.onload = createUploader;
       $(document).ready(function(){
         wallInit = true; 
       });

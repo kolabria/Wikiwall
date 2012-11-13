@@ -9,6 +9,7 @@ var express = require('express')
   , Mongoose = require('mongoose') //db interface
   , nowjs = require('now') // Websockets library
   , async = require('async') // Library to reduce callbacks
+  , fs = require('fs')  // file system library
   //db definitions
   , Path = require('./models/path')
   , Wall = require('./models/wall')
@@ -710,12 +711,48 @@ app.get('/connect/:id', function(req,res){
 	});
 });
 
+app.post('/fileUpload', function(req,res){
+	    var uploadDir = __dirname + '/public/uploads/';
+	    uploadFile(req, uploadDir, function(data) {
+        if(data.success)
+            res.send(JSON.stringify(data), {'Content-Type': 'text/plain'}, 200);
+        else
+            res.send(JSON.stringify(data), {'Content-Type': 'text/plain'}, 404);
+    });	
+});
+
+var uploadFile = function(req, targetdir, callback) {
+    // Direct async xhr stream data upload, yeah baby.
+    if(req.xhr) {
+        var fName = req.header('x-file-name');
+            fSize = req.header('x-file-size'),
+            fType = req.header('x-file-type'),
+            ws    = fs.createWriteStream(targetdir + fName);
+
+        ws.on('error', function(err) {
+            console.log("uploadFile() - req.xhr - could not open writestream.");
+            callback({success: false, error: "Sorry, could not open writestream."});
+        });
+        // Writing filedata into writestream
+        req.on('data', function(data) {
+            ws.write(data);
+        });
+        req.on('end', function() {
+            ws.end();
+            callback({success: true});
+        });
+    }
+};
+
+
+
+
 app.get('/images/:file', function(req,res){
 
-})
+});
 app.post('/images', function(req,res){
 
-})
+});
 
 app.get('/sdestroy', function(req, res){
   if (req.session) {
@@ -1039,3 +1076,24 @@ everyone.now.serverLog = function(msg){
 	console.log(d+"  Remote Log from: "+name+" msg: "+msg);
 	
 }
+
+// power point viewer
+everyone.now.sendViewerOpen = function(doc){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerOpen(doc);
+}
+
+everyone.now.sendViewerNext = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerNext();
+}
+everyone.now.sendViewerPrev = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerPrev();
+}
+everyone.now.sendViewerClose = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerClose();
+}
+
+everyone.now.sendViewerBegin = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerBegin();
+}
+
+

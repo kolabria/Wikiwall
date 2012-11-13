@@ -33,6 +33,7 @@ now.ready(function(){
 // default values for pen
   var color = 'black';
   var width = 6;
+  var scribd_doc;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -217,6 +218,120 @@ now.ready(function(){
     path.opacity = p.opacity;
     path.name = p._id;
     callback();
+  }
+  /************ PPT viewer functions ********/
+
+  pptListClose = function(){
+	$('#pptList').modal('hide');
+  }
+
+  viewerOpen = function(doc){
+     $('#pptList').modal('hide');
+     $('#pptLoad').modal();
+
+
+	  scribd_doc = scribd.Document.getDoc(doc, 'key-1jljom1phmteudu4hh1g');  // 82238489  82219960 95456595
+      var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
+      var pub_id = 'pub-75073526984173724111';
+     // scribd_doc = scribd.Document.getDocFromUrl(url, pub_id);
+      var onDocReady = function(e){
+	    $('#pptLoad').modal('hide');
+	    $('#pptShow').modal();
+	    console.log("DocReady - Pages:"+scribd_doc.api.getPageCount());
+      // scribd_doc.api.setPage(3);
+      }
+      scribd_doc.addParam('jsapi_version', 2);
+      scribd_doc.addEventListener('docReady', onDocReady);
+      scribd_doc.addParam('height', 470);
+      scribd_doc.addParam('width', 560);
+      scribd_doc.addParam('mode','slide');
+      scribd_doc.write('embedded_doc');
+
+	// need to send msg to other clients
+	 now.sendViewerOpen(doc);
+  }
+
+  viewerClose = function(){
+	 $('#pptShow').modal('hide');
+	// need to send msg to other clients
+	 now.sendViewerClose();
+  }
+
+  viewerNext = function(){
+    //console.log("Next");
+     // advance slide
+    var total = scribd_doc.api.getPageCount()
+    var page = parseInt(scribd_doc.api.getPage());
+   // console.log('total: '+ total+' page: '+page);
+    if (page < total) {
+      scribd_doc.api.setPage(page+1); 
+    }
+    // send msg to other clients
+    now.sendViewerNext();	
+  }
+
+  viewerPrev = function(){
+	 // console.log("Prev");
+     // go back one slide
+	var page = parseInt(scribd_doc.api.getPage());
+	if (page > 1) {
+		scribd_doc.api.setPage(page-1); 
+    }
+     //  send message to other clients	
+    now.sendViewerPrev();
+  }
+
+  viewerBegin = function(){
+     // go to first slide
+	scribd_doc.api.setPage(1); 
+     //  send message to other clients	
+    now.sendViewerBegin();
+  }
+
+  now.viewerOpen = function(doc){
+ 	
+      $('#pptLoad').modal();
+	  scribd_doc = scribd.Document.getDoc(doc, 'key-1jljom1phmteudu4hh1g');  // 82238489  82219960
+      var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
+      var pub_id = 'pub-75073526984173724111';
+      
+      //scribd_doc = scribd.Document.getDocFromUrl(url, pub_id);
+      var onDocReady = function(e){
+	    $('#pptLoad').modal('hide');
+	    $('#pptShow').modal();
+	    console.log("DocReady");
+      // scribd_doc.api.setPage(3);
+      }
+      scribd_doc.addParam('jsapi_version', 2);
+      scribd_doc.addEventListener('docReady', onDocReady);
+      scribd_doc.addParam('height', 470);
+      scribd_doc.addParam('width', 560);
+      scribd_doc.addParam('mode','slide');
+      scribd_doc.write('embedded_doc');
+  }
+
+  now.viewerClose = function(){
+	$('#pptShow').modal('hide');
+  }
+  now.viewerNext = function(){
+	var total = scribd_doc.api.getPageCount()
+    var page = parseInt(scribd_doc.api.getPage());
+    //console.log('total: '+ total+' page: '+page);
+    if (page < total) {
+      scribd_doc.api.setPage(page+1); 
+    }
+  }
+  now.viewerPrev = function(){
+	var page = parseInt(scribd_doc.api.getPage());
+	if (page > 1) {
+		scribd_doc.api.setPage(page-1); 
+    }
+  }
+
+  now.viewerBegin = function(){
+   // go to first slide
+	scribd_doc.api.setPage(1); 
+   //  send message to other clients	
   }
 
   /******** NOW functions *******/
@@ -592,6 +707,11 @@ now.ready(function(){
           exportCanvas();
           _gaq.push(['_trackEvent', 'Export', 'clicked',name]);
           break;
+        case 'Show':
+          // show powerpoint list
+          $('#pptList').modal();
+          //console.log("show PowerPoint")
+          break;
       }
     }else if(/.*color.*/.test(cl)){
       color = t
@@ -649,4 +769,4 @@ now.ready(function(){
   jQuery('.tool[value=Pen]').click();
 });
 
-  
+
