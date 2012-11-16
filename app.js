@@ -826,8 +826,10 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 				         break; 
 			          }
 			        }
-			        else
-			           console.log('scribdDocStatus - Failed', body);
+			        else{
+                       console.log('scribdDocStatus - Failed', body);
+			           clearInterval(tId);
+			        }
 			    });
 			}
 	    });
