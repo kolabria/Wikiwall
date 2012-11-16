@@ -803,35 +803,40 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 				parser.parseString(body, function(err,result){
 				    if (!err){
 			          extractedData = result.rsp;
-			          var status = extractedData['conversion_status'];
-			          switch (status){
-				      case "fail":
-				          console.log("scribdDocStatus: fail",body)
-				      case "ERROR":
-				         // send some sort of error message
-				         console.log("scribdDocStatus: Error",body);
-				         clearInterval(tId);
-				         break;
-				      case "PROCESSING":
-				        console.log("scribdDocStatus: Processing ..");
-				         break;
-				         // keep going 
-				      case "DISPLAYABLE":
-				      case "DONE":
-				         // stop timer and send tell client can display 
-				         console.log("scribdDocStatus: Done");
-				         clearInterval(tId);
-				         removeFile(uploadDir,fileName);   // remove local copy of file
-				         setTimeout(function(){
-					       nowjs.getGroup('c'+cId+'u'+wId).now.enableView(fileName,docId, key);
-				         },15000);
-				         break; 
+			          if (result.rsp['stat']== "ok"){
+				          var status = extractedData['conversion_status'];
+				          switch (status){
+					      case "ERROR":
+					         // send some sort of error message
+					         console.log("scribdDocStatus: Error",body);
+					         clearInterval(tId);
+					         break;
+					      case "PROCESSING":
+					        console.log("scribdDocStatus: Processing ..");
+					         break;
+					         // keep going 
+					      case "DISPLAYABLE":
+					      case "DONE":
+					         // stop timer and send tell client can display 
+					         console.log("scribdDocStatus: Done");
+					         clearInterval(tId);
+					         removeFile(uploadDir,fileName);   // remove local copy of file
+					         setTimeout(function(){
+						       nowjs.getGroup('c'+cId+'u'+wId).now.enableView(fileName,docId, key);
+					         },15000);
+					         break; 
+				          }
 			          }
+			          else if (result.rsp['stat']== "fail"){
+				           console.log("scribdDocStatus: fail",body);
+				           clearInterval(tId);
+				      }
 			        }
-			        else{
-                       console.log('scribdDocStatus - parsing error', body);
-			           clearInterval(tId);
+					else{
+                         console.log('scribdDocStatus - parsing error', body);
+			             clearInterval(tId);
 			        }
+			      }
 			    });
 			}
 			else{
