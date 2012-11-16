@@ -803,6 +803,7 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 				parser.parseString(body, function(err,result){
 				    if (!err){
 			          extractedData = result.rsp;
+			          console.log("scribdDosStatus - extractedData");
 			          if (result.rsp['stat']== "ok"){
 				          var status = extractedData['conversion_status'];
 				          switch (status){
