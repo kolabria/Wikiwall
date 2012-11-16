@@ -799,7 +799,7 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 		var parser = new xml2js.Parser({explicitArray: false});		
 		request( urla+docId+urlb, function (error, response, body) {
 		    if (!error && response.statusCode == 200) {
-			   // console.log(body)
+			    console.log(body)
 				parser.parseString(body, function(err,result){
 				    if (!err){
 			          extractedData = result.rsp;
