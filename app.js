@@ -772,7 +772,7 @@ var uploadFile = function(req, targetdir, callback) {
             fType = req.header('x-file-type'),
             ws    = fs.createWriteStream(targetdir + fName);
 
-       console.log('uploadFile - fType: '+fType);
+       //console.log('uploadFile - fType: '+fType);
 
         ws.on('error', function(err) {
             console.log("uploadFile() - req.xhr - could not open writestream.");
@@ -827,10 +827,14 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 			          }
 			        }
 			        else{
-                       console.log('scribdDocStatus - Failed', body);
+                       console.log('scribdDocStatus - parsing error', body);
 			           clearInterval(tId);
 			        }
 			    });
+			}
+			else{
+				console.log('scribdDocStatus - Error or non OK resp', body);
+		        clearInterval(tId);
 			}
 	    });
 	},10000);       
