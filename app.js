@@ -805,9 +805,11 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 			          extractedData = result.rsp;
 			          var status = extractedData['conversion_status'];
 			          switch (status){
+				      case "fail":
+				          console.log("scribdDocStatus: fail",body)
 				      case "ERROR":
 				         // send some sort of error message
-				         console.log("scribdDocStatus: Error");
+				         console.log("scribdDocStatus: Error",body);
 				         clearInterval(tId);
 				         break;
 				      case "PROCESSING":
