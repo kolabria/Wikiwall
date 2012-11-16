@@ -794,6 +794,7 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 	var urla = 'http://api.scribd.com/api?method=docs.getConversionStatus&doc_id='
 	var urlb = '&api_key=piz0wdlic7ofzxpd2ewg'
 	var tId;
+	console.log('scribdDocStatus - fileName: '+fileName+' docId: '+docId);
 	tId = setInterval(function() {
 		var extractedData = "";
 		var parser = new xml2js.Parser({explicitArray: false});		
