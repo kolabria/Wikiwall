@@ -744,8 +744,8 @@ app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
 				      console.log('key: '+key);
 				      console.log('doc_id: ',extractedData['doc_id']);
 				      nowjs.getGroup('c'+req.params.cId+'u'+req.params.wallId).now.addFiles(fileName,docId,key);
-                      scibdDocStatus(fileName, docId,key, req.params.cId,req.params.wallId );
-                      removeFile(uploadDir,fileName);
+                      scibdDocStatus(uploadDir,fileName, docId,key, req.params.cId,req.params.wallId );
+                      
 			        }
 				  });
 			    }
@@ -819,9 +819,9 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 				         // stop timer and send tell client can display 
 				         console.log("scribdDocStatus: Done");
 				         clearInterval(tId);
+				         removeFile(uploadDir,fileName);   // remove local copy of file
 				         setTimeout(function(){
 					       nowjs.getGroup('c'+cId+'u'+wId).now.enableView(fileName,docId, key);
-					       // need to remove local copy of file too 
 				         },15000);
 				         break; 
 			          }
