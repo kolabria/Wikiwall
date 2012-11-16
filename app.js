@@ -829,19 +829,18 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 			          }
 			          else if (result.rsp['stat']== "fail"){
 				           console.log("scribdDocStatus: fail",body);
-				           clearInterval(tId);
-				      }
+				           clearInterval(tId);     
+			          }
 			        }
 					else{
                          console.log('scribdDocStatus - parsing error', body);
 			             clearInterval(tId);
 			        }
-			      }
-			    });
-			}
+	    		});
+	        }
 			else{
 				console.log('scribdDocStatus - Error or non OK resp', body);
-		        clearInterval(tId);
+			       clearInterval(tId);
 			}
 	    });
 	},10000);       
