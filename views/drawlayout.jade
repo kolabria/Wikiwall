@@ -55,23 +55,14 @@ html
          h3  Loading Presentation
     #pptList.modal.hide.fade
       .modal-header
-        h3 PowerPoint Viewer
+        h3 Presentation Viewer
       .modal-body 
         table.table
-          tbody
-            tr
-              td Other Stuff
-              td
-                a.btn.btn-primary(onclick='javascript:viewerOpen(95456595)') View
-            tr
-              td Important Stuff 
-              td
-                a.btn.btn-primary(onclick='javascript:viewerOpen(82238489)') View
-        #fine-uploader  
-                
+          tbody#presList
       .modal-footer
         a.btn(onclick='javascript:pptListClose();') Close
         a
+    block upmodal
     #pptShow.modal.hide.fade
       .modal-header
         h3 
@@ -97,16 +88,9 @@ html
     //this is what allows realtime communication,
     script(src='nowjs/now.js') 
     //General All purpose JS
+    block clientjs
     script
       var wallInit;
-      function createUploader() {
-        var uploader = new qq.FileUploader({
-          element: document.getElementById('fine-uploader'),
-          // Use the relevant server script url here
-          action: '/fileUpload'
-        });
-      }
-      window.onload = createUploader;
       $(document).ready(function(){
         wallInit = true; 
       });

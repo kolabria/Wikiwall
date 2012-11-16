@@ -16,7 +16,9 @@ var express = require('express')
   , Images = require('./models/images')
   , Company = require('./models/company')
   , Box = require('./models/box')
-  , Iwall = require('./models/iwall.js');
+  , Iwall = require('./models/iwall.js')
+  , xml2js = require('xml2js')
+  , request = require('request');  //http request library
 
 var MongoStore = require('connect-mongo')(express);
 
@@ -603,6 +605,7 @@ app.get('/host/draw', function(req,res){
 
 //	console.log('User-Agent: ' + req.headers['user-agent']);
   //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+    // console.log('Box Id: ',getBoxFromUA(req.headers['user-agent']));
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
@@ -615,6 +618,7 @@ app.get('/host/draw', function(req,res){
 			res.render('apperror',{ bid: bid});
 		  } 
 		  else {
+		//	console.log('Box: ',box); 
 			res.local('layout', 'hostappliance'); 
 			res.local('title', 'Host Wall')
 			res.render('draw',{ 
@@ -711,16 +715,55 @@ app.get('/connect/:id', function(req,res){
 	});
 });
 
-app.post('/fileUpload', function(req,res){
+
+app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
+	   // console.log("companyId: "+req.params.cId+" wallId: "+req.params.wallId);
+	var extractedData = "";
+	var parser = new xml2js.Parser({explicitArray: false});
+	var urla = 'http://api.scribd.com/api?method=docs.uploadFromUrl&url=http%3A%2F%2Fpoints.kolabria.com%2Fuploads%2F';
+	var urlb = '&doc_type=';
+	var urlc = '&access=private&api_key=piz0wdlic7ofzxpd2ewg';
+	var fileName = req.header('x-file-name');
+	var fileType = fileName.substr(fileName.lastIndexOf(".")+1,3);
+	
+	console.log('fileUpload - filename: '+fileName+' fileType: '+fileType);
 	    var uploadDir = __dirname + '/public/uploads/';
 	    uploadFile(req, uploadDir, function(data) {
-        if(data.success)
+        if(data.success) {
             res.send(JSON.stringify(data), {'Content-Type': 'text/plain'}, 200);
+            if (fileType == 'ppt' || fileType == 'pdf'){
+			  request( urla+fileName+urlb+fileType+urlc, function (error, response, body) {
+			    if (!error && response.statusCode == 200) {
+			      console.log(body) 
+				  parser.parseString(body, function(err,result){
+				    if (!err){
+			          extractedData = result.rsp;
+			          var docId = extractedData['doc_id'];
+			          var key = extractedData['access_key'];
+				      //console.log('extractedData: ',extractedData );
+				      console.log('key: '+key);
+				      console.log('doc_id: ',extractedData['doc_id']);
+				      nowjs.getGroup('c'+req.params.cId+'u'+req.params.wallId).now.addFiles(fileName,docId,key);
+                      scibdDocStatus(fileName, docId,key, req.params.cId,req.params.wallId );
+                      removeFile(uploadDir,fileName);
+			        }
+				  });
+			    }
+			  })
+		    }
+            
+        }
         else
             res.send(JSON.stringify(data), {'Content-Type': 'text/plain'}, 404);
     });	
 });
 
+var removeFile = function(uploadDir,fileName){
+	fs.unlink(uploadDir+fileName, function (err) {
+	  if (err) throw err;
+	  console.log('successfully deleted fileName');
+	});
+};
 var uploadFile = function(req, targetdir, callback) {
     // Direct async xhr stream data upload, yeah baby.
     if(req.xhr) {
@@ -728,6 +771,8 @@ var uploadFile = function(req, targetdir, callback) {
             fSize = req.header('x-file-size'),
             fType = req.header('x-file-type'),
             ws    = fs.createWriteStream(targetdir + fName);
+
+       //console.log('uploadFile - fType: '+fType);
 
         ws.on('error', function(err) {
             console.log("uploadFile() - req.xhr - could not open writestream.");
@@ -744,7 +789,48 @@ var uploadFile = function(req, targetdir, callback) {
     }
 };
 
-
+var scibdDocStatus = function(fileName,docId,key, cId, wId){
+	// check on status of uploaded document and signal to client it is ready to view
+	var urla = 'http://api.scribd.com/api?method=docs.getConversionStatus&doc_id='
+	var urlb = '&api_key=piz0wdlic7ofzxpd2ewg'
+	var tId;
+	tId = setInterval(function() {
+		var extractedData = "";
+		var parser = new xml2js.Parser({explicitArray: false});		
+		request( urla+docId+urlb, function (error, response, body) {
+		    if (!error && response.statusCode == 200) {
+			   // console.log(body)
+				parser.parseString(body, function(err,result){
+				    if (!err){
+			          extractedData = result.rsp;
+			          var status = extractedData['conversion_status'];
+			          switch (status){
+				      case "ERROR":
+				         // send some sort of error message
+				         console.log("scribdDocStatus: Error");
+				         clearInterval(tId);
+				         break;
+				      case "PROCESSING":
+				        console.log("scribdDocStatus: Processing ..");
+				         break;
+				         // keep going 
+				      case "DISPLAYABLE":
+				      case "DONE":
+				         // stop timer and send tell client can display 
+				         console.log("scribdDocStatus: Done");
+				         clearInterval(tId);
+				         setTimeout(function(){
+					       nowjs.getGroup('c'+cId+'u'+wId).now.enableView(fileName,docId, key);
+					       // need to remove local copy of file too 
+				         },15000);
+				         break; 
+			          }
+			        }
+			    });
+			}
+	    });
+	},10000);       
+}
 
 
 app.get('/images/:file', function(req,res){
@@ -1066,6 +1152,8 @@ everyone.now.sendFile = function(file,player, position, callback){
 }
 
 nowjs.on('disconnect', function(){
+	console.log('now disconnect');
+	
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
   delete boxes[this.now.boxID];
 });
@@ -1078,8 +1166,8 @@ everyone.now.serverLog = function(msg){
 }
 
 // power point viewer
-everyone.now.sendViewerOpen = function(doc){
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerOpen(doc);
+everyone.now.sendViewerOpen = function(doc,key){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerOpen(doc,key);
 }
 
 everyone.now.sendViewerNext = function(){

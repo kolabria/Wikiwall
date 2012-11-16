@@ -8,7 +8,9 @@ block toolbar
         li
           h4 Active Users
         li.divider
-
+  li  
+     button.btn.tool(type='button', onclick='', value='Upload')
+       i.icon-upload
 block functions                        
   .pull-right
     a.brand(href="#") #{box.name}
@@ -17,7 +19,15 @@ block functions
         i.icon-download-alt
       a.quit.btn.pull-right(href='/join')
         i.icon-off
-
+block upmodal
+  #pptUpload.modal.hide.fade
+    .modal-header
+      h3 Upload Presentation
+    .modal-body 
+      #fine-uploader  
+    .modal-footer
+      a.btn(onclick='javascript:pptUploadClose();') Close
+      a
 block localjs
   script
     var wallId = '#{box.defaultWall_ID}';
@@ -26,7 +36,20 @@ block localjs
 
   script(src='http://'+base+'/javascripts/canvas-toBlob.min.js')
   script(src='http://'+base+'/javascripts/FileSaver.min.js')
-  
+
+block clientjs
+  script
+   // var  uurl = '/fileUpload/'+companyId+'/'+wallId;
+   // console.log('uurl: '+uurl);
+    function createUploader() {
+      var uploader = new qq.FileUploader({
+        element: document.getElementById('fine-uploader'),
+        // Use the relevant server script url here
+        action: '/fileUpload/'+companyId+'/'+wallId
+      });
+    }
+    //console.log('company: '+companyId+' wall: '+wallId);
+    window.onload = createUploader;
 block localAnalytics
   script
     _gaq.push(['_trackEvent', 'Wall', 'Join Load',"#{box.name}"]);

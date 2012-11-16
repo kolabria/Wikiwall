@@ -224,15 +224,19 @@ now.ready(function(){
   pptListClose = function(){
 	$('#pptList').modal('hide');
   }
+  pptUploadClose = function(){
+	$('#pptUpload').modal('hide');
+  }
 
-  viewerOpen = function(doc){
+  viewerOpen = function(doc,key){
      $('#pptList').modal('hide');
      $('#pptLoad').modal();
 
+     console.log("ViewerOpen - doc: "+doc+" key: "+key);
 
-	  scribd_doc = scribd.Document.getDoc(doc, 'key-1jljom1phmteudu4hh1g');  // 82238489  82219960 95456595
-      var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
-      var pub_id = 'pub-75073526984173724111';
+	  scribd_doc = scribd.Document.getDoc(doc, key);  // 82238489  82219960 95456595
+     // var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
+     // var pub_id = 'pub-75073526984173724111';
      // scribd_doc = scribd.Document.getDocFromUrl(url, pub_id);
       var onDocReady = function(e){
 	    $('#pptLoad').modal('hide');
@@ -248,7 +252,7 @@ now.ready(function(){
       scribd_doc.write('embedded_doc');
 
 	// need to send msg to other clients
-	 now.sendViewerOpen(doc);
+	 now.sendViewerOpen(doc,key);
   }
 
   viewerClose = function(){
@@ -288,12 +292,12 @@ now.ready(function(){
     now.sendViewerBegin();
   }
 
-  now.viewerOpen = function(doc){
+  now.viewerOpen = function(doc,key){
  	
       $('#pptLoad').modal();
-	  scribd_doc = scribd.Document.getDoc(doc, 'key-1jljom1phmteudu4hh1g');  // 82238489  82219960
-      var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
-      var pub_id = 'pub-75073526984173724111';
+	  scribd_doc = scribd.Document.getDoc(doc, key);  // 82238489  82219960
+     // var url = 'http://my.wikiwall.com/static/docs/important_stuff.ppt';
+     // var pub_id = 'pub-75073526984173724111';
       
       //scribd_doc = scribd.Document.getDocFromUrl(url, pub_id);
       var onDocReady = function(e){
@@ -334,6 +338,20 @@ now.ready(function(){
    //  send message to other clients	
   }
 
+  now.addFiles = function(fName,fId,key){
+	console.log('fName: '+fName+' fId: '+fId+' key: '+key);
+   // jQuery('#presList').append('<tr class="'+fId+'"><td>'+fName+'</td><td><a onclick="javascript:viewerOpen('+fId+',\''+key+'\')" class="btn btn-primary">View</a></td> </tr>');
+    jQuery('#presList').append('<tr class="'+fId+'"><td>'+fName+'</td><td>Processing ...</td> </tr>');  
+  }
+
+  now.enableView = function(fName,fId,key){
+	console.log('enableView-fName: '+fName+' fId: '+fId+' key: '+key);
+	sClass = '.'+fId;
+	jQuery(sClass).remove();
+	// put back on list with button 
+	jQuery('#presList').append('<tr class="'+fId+'"><td>'+fName+'</td><td><a onclick="javascript:viewerOpen('+fId+',\''+key+'\')" class="btn btn-primary">View</a></td> </tr>');
+	
+  }
   /******** NOW functions *******/
   now.pushUser = function(username, clientId){
     jQuery('#users').find('ul').append('<li class="'+clientId+'">'+username+'</li>');
@@ -711,6 +729,10 @@ now.ready(function(){
           // show powerpoint list
           $('#pptList').modal();
           //console.log("show PowerPoint")
+          break;
+        case 'Upload':
+          // show powerpoint upload modal
+          $('#pptUpload').modal();
           break;
       }
     }else if(/.*color.*/.test(cl)){
