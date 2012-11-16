@@ -828,8 +828,8 @@ var scibdDocStatus = function(fileName,docId,key, cId, wId){
 					         break; 
 				          }
 			          }
-			          else if (result.rsp['stat']== "fail"){
-				           console.log("scribdDocStatus: fail",body);
+			          else {  
+				           console.log("scribdDocStatus: fail or something else",body);
 				           clearInterval(tId);     
 			          }
 			        }
