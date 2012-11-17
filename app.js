@@ -740,7 +740,7 @@ app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
 			          extractedData = result.rsp;
 			          var docId = extractedData['doc_id'];
 			          var key = extractedData['access_key'];
-				      //console.log('extractedData: ',extractedData );
+				      console.log('extractedData: ',extractedData );
 				      console.log('key: '+key);
 				      console.log('doc_id: ',extractedData['doc_id']);
 				      nowjs.getGroup('c'+req.params.cId+'u'+req.params.wallId).now.addFiles(fileName,docId,key);
