@@ -789,7 +789,7 @@ var uploadFile = function(req, targetdir, callback) {
     }
 };
 
-var scibdDocStatus = function(fileName,docId,key, cId, wId){
+var scibdDocStatus = function(uploadDir,fileName,docId,key, cId, wId){
 	// check on status of uploaded document and signal to client it is ready to view
 	var urla = 'http://api.scribd.com/api?method=docs.getConversionStatus&doc_id='
 	var urlb = '&api_key=piz0wdlic7ofzxpd2ewg'
