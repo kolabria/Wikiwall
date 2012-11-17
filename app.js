@@ -807,7 +807,10 @@ var scibdDocStatus = function(uploadDir,fileName,docId,key, cId, wId){
 			          console.log('scribdDocStatus - result: ',result);
 			
 			          console.log("scribdDosStatus - extractedData",extractedData);
-			          if (result.rsp['stat']== "ok"){
+			          var tstatus = result.rsp.'$';
+			          console.log('scribddocStatus - tstatus: '+tstatus+' stat: '+tstatus['stat']);
+			          
+			          if (tstatus['stat']== "ok"){
 				          var status = extractedData['conversion_status'];
 				          switch (status){
 					      case "ERROR":
