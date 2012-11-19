@@ -441,12 +441,12 @@ now.ready(function(){
   }
 
   now.endDraw = function(layer,pathname,newname){
-//    paper.project.layers[layer].children[pathname].simplify()  // default 2.5
-	var testRect = new Rectangle(paper.project.layers[layer].children[pathname].bounds);
-	testRect.point.x = testRect.point.x - 10;
-	testRect.point.y = testRect.point.y - 10;
-	testRect.width = testRect.width + 20;
-	testRect.height = testRect.height + 20;
+   paper.project.layers[layer].children[pathname].simplify(); // default 2.5
+//	var testRect = new Rectangle(paper.project.layers[layer].children[pathname].bounds);
+//	testRect.point.x = testRect.point.x - 10;
+//	testRect.point.y = testRect.point.y - 10;
+//	testRect.width = testRect.width + 20;
+//	testRect.height = testRect.height + 20;
 	
 //    var sLoop = true;
 //    while (sLoop){
@@ -463,10 +463,10 @@ now.ready(function(){
 //      }
 //    }
 
-    paper.project.layers[layer].children[pathname].simplify()  // default 2.5
-    if (!(testRect.contains(paper.project.layers[layer].childeren[pathname].bounds))){
-	   now.serverLog("endDraw: Simplified path exceeds bounds");
-    }    
+ //   paper.project.layers[layer].children[pathname].simplify()  // default 2.5
+ //   if (!(testRect.contains(paper.project.layers[layer].childeren[pathname].bounds))){
+//	   now.serverLog("endDraw: Simplified path exceeds bounds");
+//    }    
     //paper.project.layers[layer].children[pathname].smooth();
     paper.project.layers[layer].children[pathname].name = newname;
     paper.view.draw(); //refresh canvas
