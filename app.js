@@ -734,13 +734,13 @@ app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
             if (fileType == 'ppt' || fileType == 'pdf'){
 			  request( urla+fileName+urlb+fileType+urlc, function (error, response, body) {
 			    if (!error && response.statusCode == 200) {
-			      console.log(body) 
+			      //console.log(body) 
 				  parser.parseString(body, function(err,result){
 				    if (!err){
 			          extractedData = result.rsp;
 			          var docId = extractedData['doc_id'];
 			          var key = extractedData['access_key'];
-				      console.log('extractedData: ',extractedData );
+				    //  console.log('extractedData: ',extractedData );
 				      console.log('key: '+key);
 				      console.log('doc_id: ',extractedData['doc_id']);
 				      nowjs.getGroup('c'+req.params.cId+'u'+req.params.wallId).now.addFiles(fileName,docId,key);
@@ -804,9 +804,9 @@ var scibdDocStatus = function(uploadDir,fileName,docId,key, cId, wId){
 				parser.parseString(body, function(err,result){
 				    if (!err){
 			          extractedData = result.rsp;
-			          console.log('scribdDocStatus - result: ',result);
+			        //  console.log('scribdDocStatus - result: ',result);
 			
-			          console.log("scribdDosStatus - extractedData",extractedData);
+			        //  console.log("scribdDosStatus - extractedData",extractedData);
 			          var tstatus = extractedData['$'];
 			          console.log('scribddocStatus - tstatus: '+tstatus+' stat: '+tstatus['stat']);
 			          
