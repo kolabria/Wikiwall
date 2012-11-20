@@ -625,7 +625,7 @@ app.get('/host/draw', function(req,res){
 			res.local('layout', 'hostappliance'); 
 			res.local('title', 'Host Wall')
 			res.render('draw',{ 
-			  	box: box
+			  	box: box, ie: false
 		    });
 		  }
 	  });	
@@ -712,7 +712,7 @@ app.get('/connect/:id', function(req,res){
 	    if (err) console.log(err)
 	    res.render('draw',{
 	    	 hbox: hbox
-	    	 , rbox: rbox 
+	    	 , rbox: rbox , ie: false
     	});
     });		
 	});
