@@ -18,7 +18,8 @@ var express = require('express')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
   , xml2js = require('xml2js')
-  , request = require('request');  //http request library
+  , request = require('request')  //http request library
+  , useragent = require('useragent'); 
 
 var MongoStore = require('connect-mongo')(express);
 
@@ -271,6 +272,8 @@ app.get('/join', function(req,res){
 app.post('/join', function(req,res){
    // check if room (box) name is entered and valid
    // check if PIN is valid for that wall
+   // check browser type
+   var ie = useragent.is(req.headers['user-agent']).ie;
    res.local('layout', 'clientuser');
    Box.findOne({name: req.body.room}, function(err, box) {
      if(err) console.log(err);
@@ -285,7 +288,7 @@ app.post('/join', function(req,res){
 			//console.log('join: good PIN');
 			res.local('title', 'Kolabria - '+box.name)
 	        res.render('draw', {
-		      title: 'Kolabria', box: box, userName: req.body.name
+		      title: 'Kolabria', box: box, userName: req.body.name, ie: ie
 		    });
 		 }
 		 else {
