@@ -94,10 +94,10 @@ html
       $(document).ready(function(){
         wallInit = true; 
       });
-    if ie
-      script(src='http://'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");
-    else
-      script(src='http://'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");    
+    - if (ie)
+      script(src='http://'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");
+    - else
+      script(src='http://'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");    
     script
       //Analytics  
        var _gaq = _gaq || [];

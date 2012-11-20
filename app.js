@@ -274,6 +274,8 @@ app.post('/join', function(req,res){
    // check if PIN is valid for that wall
    // check browser type
    var ie = useragent.is(req.headers['user-agent']).ie;
+  //  console.log('/join - user agent: ', req.headers['user-agent']);
+  //  console.log('/join - ie: '+ie+' version: '+useragent.is(req.headers['user-agent']).version);
    res.local('layout', 'clientuser');
    Box.findOne({name: req.body.room}, function(err, box) {
      if(err) console.log(err);
