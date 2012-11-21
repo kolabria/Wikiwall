@@ -568,7 +568,11 @@ now.ready(function(){
 	    }
 	if (event.event.button == 2) {
 		console.log('right click',event,event.button);
-		event.event.preventDefault();  
+		//event.event.preventDefault();  
+		if (event.event.stopPropagation)
+		            event.event.stopPropagation();
+
+		event.event.cancelBubble = true;
 	}
 	
     if(select.target){
