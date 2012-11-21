@@ -725,7 +725,8 @@ app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
 	   // console.log("companyId: "+req.params.cId+" wallId: "+req.params.wallId);
 	var extractedData = "";
 	var parser = new xml2js.Parser({explicitArray: false});
-	var urla = 'http://api.scribd.com/api?method=docs.uploadFromUrl&url=http%3A%2F%2Fpoints.kolabria.com%2Fuploads%2F';
+//	var urla = 'http://api.scribd.com/api?method=docs.uploadFromUrl&url=http%3A%2F%2Fpoints.kolabria.com%2Fuploads%2F';
+	var urla = 'http://api.scribd.com/api?method=docs.uploadFromUrl&url=http%3A%2F%2Fwww.kolabria.com%2Fuploads%2F';
 	var urlb = '&doc_type=';
 	var urlc = '&access=private&api_key=piz0wdlic7ofzxpd2ewg';
 	var fileName = req.header('x-file-name');
