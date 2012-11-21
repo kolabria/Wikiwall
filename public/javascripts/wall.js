@@ -568,6 +568,7 @@ now.ready(function(){
 	    }
 	if (event.event.button == 2) {
 		console.log('right click',event,event.button);
+		event.event.preventDefault();  
 	}
 	
     if(select.target){
