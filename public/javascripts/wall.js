@@ -568,7 +568,7 @@ now.ready(function(){
 	    }
 	if (event.event.button == 2) {
 		console.log('right click',event,event.button);
-	}  to check for right click
+	}
 	
     if(select.target){
       select.target.item.selected = false
