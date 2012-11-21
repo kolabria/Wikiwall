@@ -559,6 +559,12 @@ now.ready(function(){
     paper.view.draw();
   }
 
+window.oncontextmenu = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+};
+
   //Select Tool
   var select = new Tool();
   select.onMouseDown = function(event){
