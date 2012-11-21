@@ -497,6 +497,8 @@ now.ready(function(){
   //Pen Tool
   var pen = new Tool();
   pen.onMouseDown = function(event){
+
+	//event.event.button == 2  to check for right click
     pen.path = new Path();
     pen.path.strokeColor = color;
     pen.path.strokeWidth = width;
@@ -562,6 +564,10 @@ now.ready(function(){
   //Select Tool
   var select = new Tool();
   select.onMouseDown = function(event){
+	 if (event.event.detail > 1) {
+	        console.log('dblclick', event.event.detail);
+	        // perform your double click...
+	    }
     if(select.target){
       select.target.item.selected = false
       jQuery('button').filter('.delete-object').detach();
