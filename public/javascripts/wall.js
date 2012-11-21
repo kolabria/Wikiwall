@@ -568,7 +568,7 @@ window.oncontextmenu = function(event) {
   //Select Tool
   var select = new Tool();
   select.onMouseDown = function(event){
-	 if (event.event.detail > 1) {
+/*	 if (event.event.detail > 1) {
 	        console.log('dblclick', event.event.detail);
 	        // perform your double click...
 	    }
@@ -579,8 +579,8 @@ window.oncontextmenu = function(event) {
 		            event.event.stopPropagation();
 
 		event.event.cancelBubble = true;
-	}
-	
+	}  // test code for double click and right mouse button. 
+*/	
     if(select.target){
       select.target.item.selected = false
       jQuery('button').filter('.delete-object').detach();
