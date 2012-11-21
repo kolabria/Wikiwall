@@ -1178,7 +1178,7 @@ everyone.now.sendFile = function(file,player, position, callback){
 }
 
 nowjs.on('disconnect', function(){
-	console.log('now disconnect');
+//	console.log('now disconnect');
 	
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
   delete boxes[this.now.boxID];
