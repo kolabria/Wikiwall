@@ -1,10 +1,8 @@
 .hero
   .container
     .herocontent
-      video#intro-video(controls='controls')
-        source(src='/img/wikiwall.m4v', type='video/mp4')
-        source(src='/img/wikiwall.ogg', type='video/ogg')
-        | Your browser does not support the video tag.
+      .flowplayer
+        video(src='/img/wikiwall.m4v')
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
