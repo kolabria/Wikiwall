@@ -223,6 +223,15 @@ app.get('/tindex', function(req,res){
   });
 })
 
+app.get('/tvindex', function(req,res){
+  // res.local('layout', 'tvindex');
+  res.local('layout', false);
+  res.render('tvindex',{
+    title: 'Kolabria'	
+  });
+})
+
+
 app.get('/register', function(req,res){
   res.local('layout', 'sitelayout');
   res.local('title', 'Kolbria - Register')
