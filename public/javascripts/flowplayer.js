@@ -1,6 +1,6 @@
 /*!
 
-   Flowplayer v5.2.2-dev | flowplayer.org/license
+   Flowplayer Commercial v5.2.2-dev | flowplayer.org/license
 
 */
 !function($) { 
@@ -55,14 +55,11 @@ $.extend(flowplayer, {
       // default aspect ratio
       ratio: 9 / 16,
 
-      // scale flash object to video's aspect ratio in normal mode?
-      flashfit: false,
-
       rtmp: 0,
 
       splash: false,
 
-      swf: "http://releases.flowplayer.org/5.2.1/flowplayer.swf",
+      swf: "http://releases.flowplayer.org/5.2.1/commercial/flowplayer.swf",
 
       speeds: [0.25, 0.5, 1, 1.5, 2],
 
@@ -2153,4 +2150,4 @@ $.fn.fptip = function(trigger, active) {
 };
 
 }(jQuery);
-flowplayer(function(a,b){function j(a){var b=c("<a/>")[0];return b.href=a,b.hostname}var c=jQuery,d=a.conf,e=d.swf.indexOf("flowplayer.org")&&d.e&&d.origin,f=e?j(e):location.hostname,g=d.key;location.protocol=="file:"&&(f="localhost"),a.load.ed=1,d.hostname=f,d.origin=e||location.href,e&&b.addClass("is-embedded"),typeof g=="string"&&(g=g.split(/,\s*/));if(g&&typeof key_check=="function"&&key_check(g,f))d.logo&&b.append(c("<a>",{"class":"fp-logo",href:e,target:"_top"}).append(c("<img/>",{src:d.logo})));else{var h=c("<a/>",{href:"http://flowplayer.org",target:"_top"}).appendTo(b),i=c(".fp-controls",b);a.bind("pause resume finish unload",function(b){/pause|resume/.test(b.type)&&a.engine!="flash"?(h.show().css({position:"absolute",left:16,bottom:36,zIndex:99999,width:100,height:20,backgroundImage:"url("+[".png","logo","/",".org",".flowplayer","stream","//"].reverse().join("")+")"}),a.load.ed=h.is(":visible")):h.hide()})}});
+flowplayer(function(e,t){function f(e){var t=n("<a/>")[0];return t.href=e,t.hostname}function l(e){var t="co.uk,org.uk,ltd.uk,plc.uk,me.uk,br.com,cn.com,eu.com,hu.com,no.com,qc.com,sa.com,se.com,se.net,us.com,uy.com,co.ac,gv.ac,or.ac,ac.ac,ac.at,co.at,gv.at,or.at,asn.au,com.au,edu.au,org.au,net.au,id.au,ac.be,adm.br,adv.br,am.br,arq.br,art.br,bio.br,cng.br,cnt.br,com.br,ecn.br,eng.br,esp.br,etc.br,eti.br,fm.br,fot.br,fst.br,g12.br,gov.br,ind.br,inf.br,jor.br,lel.br,med.br,mil.br,net.br,nom.br,ntr.br,odo.br,org.br,ppg.br,pro.br,psc.br,psi.br,rec.br,slg.br,tmp.br,tur.br,tv.br,vet.br,zlg.br,ab.ca,bc.ca,mb.ca,nb.ca,nf.ca,ns.ca,nt.ca,on.ca,pe.ca,qc.ca,sk.ca,yk.ca,ac.cn,com.cn,edu.cn,gov.cn,org.cn,bj.cn,sh.cn,tj.cn,cq.cn,he.cn,nm.cn,ln.cn,jl.cn,hl.cn,js.cn,zj.cn,ah.cn,gd.cn,gx.cn,hi.cn,sc.cn,gz.cn,yn.cn,xz.cn,sn.cn,gs.cn,qh.cn,nx.cn,xj.cn,tw.cn,hk.cn,mo.cn,com.ec,tm.fr,com.fr,asso.fr,presse.fr,co.il,net.il,ac.il,k12.il,gov.il,muni.il,ac.in,co.in,org.in,ernet.in,gov.in,net.in,res.in,ac.jp,co.jp,go.jp,or.jp,ne.jp,ac.kr,co.kr,go.kr,ne.kr,nm.kr,or.kr,asso.mc,tm.mc,com.mm,org.mm,net.mm,edu.mm,gov.mm,org.ro,store.ro,tm.ro,firm.ro,www.ro,arts.ro,rec.ro,info.ro,nom.ro,nt.ro,com.sg,org.sg,net.sg,gov.sg,ac.th,co.th,go.th,mi.th,net.th,or.th,com.tr,edu.tr,gov.tr,k12.tr,net.tr,org.tr,com.tw,org.tw,net.tw,ac.uk,uk.com,uk.net,gb.com,gb.net,com.hk,org.hk,net.hk,edu.hk,eu.lv,co.nz,org.nz,net.nz,maori.nz,iwi.nz,com.pt,edu.pt,com.ve,net.ve,org.ve,web.ve,info.ve,co.ve,net.ru,org.ru,com.hr,tv.tr,com.qa,edu.qa,gov.qa,gov.au,com.my,edu.my,gov.my".split(",");e=e.toLowerCase();var r=e.split("."),i=r.length;if(i<2)return e;var s=r.slice(-2).join(".");return i>=3&&n.inArray(s,t)>=0?r.slice(-3).join("."):s}function c(e,t){t!="localhost"&&!parseInt(t.split(".").slice(-1))&&(t=l(t));var n=0;for(var r=t.length-1;r>=0;r--)n+=t.charCodeAt(r)*2983723987;n=(""+n).substring(0,7);for(r=0;r<e.length;r++)if(n===e[r].substring(1,8))return 1}var n=jQuery,r=e.conf,i=r.swf.indexOf("flowplayer.org")&&r.e&&t.data("origin"),s=i?f(i):location.hostname,o=r.key;location.protocol=="file:"&&(s="localhost"),e.load.ed=1,r.hostname=s,r.origin=i||location.href,i&&t.addClass("is-embedded"),typeof o=="string"&&(o=o.split(/,\s*/));if(o&&typeof c=="function"&&c(o,s))r.logo&&t.append(n("<a>",{"class":"fp-logo",href:i}).append(n("<img/>",{src:r.logo})));else{var u=n("<a/>").attr("href","http://flowplayer.org").appendTo(t),a=n(".fp-controls",t);e.bind("pause resume finish unload",function(t){/pause|resume/.test(t.type)&&e.engine!="flash"?(u.show().css({position:"absolute",left:16,bottom:36,zIndex:99999,width:100,height:20,backgroundImage:"url("+[".png","logo","/",".org",".flowplayer","stream","//"].reverse().join("")+")"}),e.load.ed=u.is(":visible")):u.hide()})}});
