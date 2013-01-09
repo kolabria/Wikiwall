@@ -2,7 +2,9 @@
   .container
     .herocontent
       .flowplayer
-        video(src='/img/wikiwall.m4v' , type='video/mp4')
+        video
+          source(src='/img/wikiwall.m4v', type='video/mp4')
+          source(src='/img/wikiwall.ogg', type='video/ogg')
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
