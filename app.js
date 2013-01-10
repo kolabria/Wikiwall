@@ -218,6 +218,7 @@ app.get('/', function(req,res){
 //Todo Remove?
 app.get('/tindex', function(req,res){
   //res.local('layout', false);
+  res.local('layout', 'sitelayout');
   res.render('tindex',{
     title: 'Kolabria'	
   });
