@@ -28,4 +28,5 @@
   .learn
     a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
 block localjs
- $(window).resize(function(){$('.vidyard_iframe').width(NEW_WIDTH);$('.videyard_iframe').height(NEW_HIEGHT);});
+ script
+   $(window).resize(function(){$('.vidyard_iframe').width(NEW_WIDTH);$('.videyard_iframe').height(NEW_HIEGHT);});
