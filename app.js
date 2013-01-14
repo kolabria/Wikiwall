@@ -224,10 +224,10 @@ app.get('/tindex', function(req,res){
   });
 })
 
-app.get('/tvindex', function(req,res){
+app.get('/t2index', function(req,res){
   // res.local('layout', 'tvindex');
-  res.local('layout', false);
-  res.render('tvindex',{
+  res.local('layout', 'sitelayout');
+  res.render('t2index',{
     title: 'Kolabria'	
   });
 })
