@@ -1,15 +1,7 @@
 .hero
   .container
     .herocontent
-      video#intro-video(controls='controls')
-        source(src='/img/wikiwall.m4v', type='video/mp4')
-        source(src='/img/wikiwall.webm', type='video/webm')
-        source(src='/img/wikiwall.ogg', type='video/ogg')
-        object(width='640', height='360')
-          param(name='movie', value='http://www.youtube.com/v/oWeTruvXpb4?version=3&hl=en_US&rel=0')
-          param(name='allowFullScreen', value='true')
-          param(name='allowscriptaccess', value='always')
-          embed(src='http://www.youtube.com/v/oWeTruvXpb4?version=3&hl=en_US&rel=0', type='application/x-shockwave-flash', width='640', height='360', allowscriptaccess='always', allowfullscreen='true')
+      script#vidyard_embed_code_dSxDMByq9umtQ9DDNfe1wg(type='text/javascript', src='//embed.vidyard.com/embed/dSxDMByq9umtQ9DDNfe1wg/inline?v=2.2')
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
