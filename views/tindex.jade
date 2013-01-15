@@ -2,10 +2,14 @@
   .container
     .herocontent
       video#intro-video(controls='controls')
-        source(src='/img/wikiwall.m4v', type='video/mp4')
-        source(src='/img/wikiwall.webm', type='video/webm')
-        source(src='/img/wikiwall.ogg', type='video/ogg')
-        | Your browser does not support the video tag.
+          source(src='/img/wikiwall.m4v', type='video/mp4')
+          source(src='/img/wikiwall.webm', type='video/webm')
+          source(src='/img/wikiwall.ogg', type='video/ogg')
+          object(width='640', height='360')
+            param(name='movie', value='http://www.youtube.com/v/oWeTruvXpb4?version=3&hl=en_US&rel=0')
+            param(name='allowFullScreen', value='true')
+            param(name='allowscriptaccess', value='always')
+            embed(src='http://www.youtube.com/v/oWeTruvXpb4?version=3&hl=en_US&rel=0', type='application/x-shockwave-flash', width='640', height='360', allowscriptaccess='always', allowfullscreen='true')
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
@@ -33,7 +37,7 @@
     a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
 script
     document.addEventListener("DOMContentLoaded", init, false);
-     function init(){git 
+     function init(){ 
        var video = document.getElementById("intro-video");
        video.addEventListener("play", videoPlay, false);
        video.addEventListener("pause", videoPause, false);

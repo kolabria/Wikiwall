@@ -218,9 +218,13 @@ app.get('/', function(req,res){
 //Todo Remove?
 app.get('/tindex', function(req,res){
   //res.local('layout', false);
+  var ie = useragent.is(req.headers['user-agent']).ie;
+  var version = useragent.is(req.headers['user-agent']).version;
+//  console.log(' user agent: ', req.headers['user-agent']);
+//  console.log('ie: '+ie+' version: '+useragent.is(req.headers['user-agent']).version);
   res.local('layout', 'sitelayout');
   res.render('tindex',{
-    title: 'Kolabria'	
+    title: 'Kolabria', ie: ie, version: version	
   });
 })
 

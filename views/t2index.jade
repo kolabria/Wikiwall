@@ -2,6 +2,8 @@
   .container
     .herocontent
       script#vidyard_embed_code_dSxDMByq9umtQ9DDNfe1wg(type='text/javascript', src='//embed.vidyard.com/embed/dSxDMByq9umtQ9DDNfe1wg/inline?v=2.2')
+      script
+        $('.vidyard_iframe').width($('.vid').width());
     aside
       p
         | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
@@ -27,6 +29,3 @@
         | Create multiple WikiWalls and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your WikiWalls are always accessible and secure.
   .learn
     a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
-block localjs
- script
-   $(window).resize(function(){$('.vidyard_iframe').width(NEW_WIDTH);$('.videyard_iframe').height(NEW_HIEGHT);});
