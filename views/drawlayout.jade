@@ -115,9 +115,9 @@ html
       var room = 'bob';
       webrtc.on('readyToCall', function (){webrtc.joinRoom(room)});
       var shuffle = getFluidGridFunction('#remotes');
-      $(window).on('resize', shuffle);
-      webrtc.on('videoAdded', shuffle);
-      webrtc.on('videoRemoved', shuffle);
+      //$(window).on('resize', shuffle);
+      //webrtc.on('videoAdded', shuffle);
+      //webrtc.on('videoRemoved', shuffle);
       //webrtc.on('readyToCall');
     script
       //Analytics  

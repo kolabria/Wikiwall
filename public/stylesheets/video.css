@@ -15,12 +15,12 @@ video {
 #remotes {
   width: 100%;
   height: 150px;
-  position: absolute;
+ 
   -webkit-perspective: 2000px;
   -moz-perspective: 2000px;
 }
 #remotes video {
-  position:absolute;
+ 
   left:25px;
   top:0px;
   height: 150px;
