@@ -260,7 +260,7 @@ body{
   font-family:verdana;
   font-size:12px;
   line-height:21px;
-  padding-bottom:50px;
+  padding-bottom:50px; 
 }
 h2{font-size:14px;color:rgb(51,51,51);}
 .center{width:100%;}

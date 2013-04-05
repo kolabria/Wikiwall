@@ -463,6 +463,8 @@ Conversation.prototype.start = function () {
     }, null, this.mediaConstraints);
 };
 
+
+
 Conversation.prototype.end = function () {
     this.pc.close();
     this.handleStreamRemoved();
