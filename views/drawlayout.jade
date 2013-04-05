@@ -8,8 +8,11 @@ html
     base(href='http://'+base+'/')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='http://'+base+'/stylesheets/wall.css')
-    link(rel='stylesheet', href='http://'+base+'/stylesheets/fileuploader.css')    
+    link(rel='stylesheet', href='http://'+base+'/stylesheets/fileuploader.css')
+    link(rel='stylesheet', href='http://'+base+'/stylesheets/video.css')   
   body.background
+    video#localVideo
+    #remotes
     .canvas
       header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
@@ -84,6 +87,10 @@ html
     script(src='http://'+base+'/javascripts/touch-punch.min.js')
     script(src='http://'+base+'/javascripts/fileuploader.min.js')
     script(src='http://www.scribd.com/javascripts/scribd_api.js')
+    
+    script(src='http://signaling.simplewebrtc.com:8888/socket.io/socket.io.js')
+    script(src='http://'+base+'/javascripts/simplewebrtc.js')
+    script(src='http://'+base+'/javascripts/fluidgrid.js')
         
     //this is what allows realtime communication,
     script(src='nowjs/now.js') 
@@ -97,7 +104,21 @@ html
     - if (ie)
       script(src='http://'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");
     - else
-      script(src='http://'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");    
+      script(src='http://'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");  
+    script
+      var webrtc = new WebRTC({
+          localVideoEl: 'localVideo',   
+          remoteVideosEl: 'remotes',  
+          autoRequestMedia: true,    
+          log: true,
+          url: 'http://localhost:8888'});
+      var room = 'bob';
+      webrtc.on('readyToCall', function (){webrtc.joinRoom(room)});
+      var shuffle = getFluidGridFunction('#remotes');
+      $(window).on('resize', shuffle);
+      webrtc.on('videoAdded', shuffle);
+      webrtc.on('videoRemoved', shuffle);
+      //webrtc.on('readyToCall');
     script
       //Analytics  
        var _gaq = _gaq || [];

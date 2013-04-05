@@ -23,7 +23,8 @@ h4{
   text-align:center;
 }
 canvas{
-  position:relative;
+  position:absolute;
+  top:160px;
   background-image: url(../img/grid_noise.png);
 }
 

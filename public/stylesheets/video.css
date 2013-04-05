@@ -1,0 +1,31 @@
+video {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+
+#localVideo {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  border: 5px solid #777;
+  outline: 0px;
+  height: 70px;
+}
+#remotes {
+  width: 100%;
+  height: 150px;
+  position: absolute;
+  -webkit-perspective: 2000px;
+  -moz-perspective: 2000px;
+}
+#remotes video {
+  position:absolute;
+  left:25px;
+  top:0px;
+  height: 150px;
+  -moz-transition: all 1s;
+  -moz-box-sizing: border-box;
+  -webkit-transition: all 1s;
+  -webkit-box-sizing: border-box;
+}
