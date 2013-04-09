@@ -21,6 +21,9 @@ var express = require('express')
   , request = require('request')  //http request library
   , useragent = require('useragent'); 
 
+var https = require('https');
+var http = require('http');
+
 var MongoStore = require('connect-mongo')(express);
 
 /**
@@ -28,13 +31,18 @@ var MongoStore = require('connect-mongo')(express);
 **/
 
 var port = process.env.VCAP_APP_PORT || 8000;
-var app = module.exports = express.createServer();
+
 var db;
 var boxes = {};
 var shares = {};
 var users = {};
 
+var options = {
+  key: fs.readFileSync('privatekey.pem'),
+  cert: fs.readFileSync('certificate.pem')
+};
 
+var app = module.exports = express.createServer(options);
 
 //need to assign this to a db variable?
 
@@ -80,6 +88,10 @@ app.configure('development', function(){
 app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
+
+
+app.listen(port);
+console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 
 /**
 * Middleware
@@ -888,8 +900,7 @@ app.get('/sdestroy', function(req, res){
   res.redirect('/login');
 });
 
-app.listen(port);
-console.log("Express server listening on port %d in %s mode", port, app.settings.env);
+
 
 //Now.JS initialization
 
@@ -1225,4 +1236,10 @@ everyone.now.sendViewerBegin = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerBegin();
 }
 
+everyone.now.sendScreenShare = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.screenShare();
+}
+everyone.now.sendVideoConf = function(){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.videoConf();
+}
 

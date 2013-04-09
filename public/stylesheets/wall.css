@@ -24,7 +24,7 @@ h4{
 }
 canvas{
   position:absolute;
-  top:160px;
+  top:0px;
   background-image: url(../img/grid_noise.png);
 }
 
@@ -68,3 +68,11 @@ canvas{
 }
 #toolbar i, #navWindow i, #functions i{pointer-events:none}
 #alerts{position:absolute;top:0;right:0;width:200px;height:auto;}
+
+#remote-media-streams video {
+    width: 10em;
+}
+
+#local-media-stream video {
+    width: 34em;
+}

@@ -219,6 +219,9 @@ now.ready(function(){
     path.name = p._id;
     callback();
   }
+
+
+
   /************ PPT viewer functions ********/
 
   pptListClose = function(){
@@ -747,8 +750,22 @@ window.oncontextmenu = function(event) {
         case 'Show':
           // show powerpoint list
           $('#pptList').modal();
-          //console.log("show PowerPoint")
+          //console.log("show PowerPoint");
           break;
+        case 'Vconf':
+          // start video conference
+          startVC();
+          now.sendVideoConf();
+          break;    
+        case 'ShareScreen':
+          // start screen sharing
+           // jQuery('canvas').css({top:160});
+           // jQuery('#videoconf').append('<video id="localVideo"></video><div id="remotes"></div>');
+          //$('#ssdisplay').modal();
+          jQuery('canvas').css({top:500});
+          jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
+          startSS();         
+          break;    
         case 'Upload':
           // show powerpoint upload modal
           $('#pptUpload').modal();
