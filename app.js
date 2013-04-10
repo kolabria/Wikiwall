@@ -37,9 +37,11 @@ var boxes = {};
 var shares = {};
 var users = {};
 
+var sslPath = process.env.APP_PATH || '';
+
 var options = {
-  key: fs.readFileSync(process.env.APP_PATH+'privatekey.pem'),
-  cert: fs.readFileSync(process.env.APP_PATH+'certificate.pem')
+  key: fs.readFileSync(sslPath+'privatekey.pem'),
+  cert: fs.readFileSync(sslPath+'certificate.pem')
 };
 
 var app = module.exports = express.createServer(options);
