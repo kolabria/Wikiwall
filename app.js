@@ -38,8 +38,8 @@ var shares = {};
 var users = {};
 
 var options = {
-  key: fs.readFileSync('privatekey.pem'),
-  cert: fs.readFileSync('certificate.pem')
+  key: fs.readFileSync(process.env.APP_PATH+'privatekey.pem'),
+  cert: fs.readFileSync(process.env.APP_PATH+'certificate.pem')
 };
 
 var app = module.exports = express.createServer(options);
