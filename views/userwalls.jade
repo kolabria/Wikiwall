@@ -15,9 +15,9 @@
             th Remove
         tbody
           each wall in walls
-            tr
+            tr 
               td #{wall.name}
-              td https://localhost:8000/suw/#{wall.shareURL}
+              td https://points.kolabria.com:80/suw/#{wall.shareURL}
               td
                 a.btn(href='/user/#{wall.defaultWall_ID}/draw') Draw
               td
