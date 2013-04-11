@@ -1,0 +1,55 @@
+extends drawlayout
+block toolbar
+  li.btn-group.dropup#users
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-user
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Active Users
+        li.divider
+  li  
+     button.btn.tool(type='button', onclick='', value='Upload')
+       i.icon-upload
+block functions                        
+  .pull-right
+    a.brand(href="#") #{wall.name}
+    nav#functions.nav.btn-group
+      button.tool.btn(type='button', onclick='', value='Export')
+        i.icon-download-alt
+      a.quit.btn.pull-right(href='/userwalls')
+        i.icon-off
+block upmodal
+  #pptUpload.modal.hide.fade
+    .modal-header
+      h3 Upload Presentation
+    .modal-body 
+      #fine-uploader  
+    .modal-footer
+      a.btn(onclick='javascript:pptUploadClose();') Close
+      a
+block localjs
+  script
+    var wallId = '#{wall.defaultWall_ID}';
+    var companyId = '#{wall.user_id}'; //from application 
+    var name = "#{userName}"
+
+  script(src='//'+base+'/javascripts/canvas-toBlob.min.js')
+  script(src='//'+base+'/javascripts/FileSaver.min.js')
+
+block clientjs
+  script
+   // var  uurl = '/fileUpload/'+companyId+'/'+wallId;
+   // console.log('uurl: '+uurl);
+    function createUploader() {
+      var uploader = new qq.FileUploader({
+        element: document.getElementById('fine-uploader'),
+        // Use the relevant server script url here
+        action: '/fileUpload/'+companyId+'/'+wallId
+      });
+    }
+    //console.log('company: '+companyId+' wall: '+wallId);
+    window.onload = createUploader;
+block localAnalytics
+  script
+    _gaq.push(['_trackEvent', 'Wall', 'User Load',"#{wall.name}"]);

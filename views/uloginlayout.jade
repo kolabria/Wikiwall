@@ -1,0 +1,30 @@
+extends sitelayout
+
+block login
+  li.dropdown
+    a.dropdown-toggle(href='#', data-toggle='dropdown')
+      i.icon-user
+      |  logged in as #{user.Email}
+      b.caret
+    ul.dropdown-menu.pull-right
+     li
+       a(href='/sdestroy')
+         | Logout
+
+block navbuttons
+  a.btn.btn-large(href='/') Home
+  a.btn.btn-large(href='/uaccount') Account
+  a.btn.btn-large(href='/userwalls') WikiWalls
+  a.btn.btn-large(href='#') Support
+block footer
+  .container
+    ul.nav.pull-right
+      li
+        a(href='/') Home
+      li
+        a(href='/product') Overview
+      li
+        a(href='/about') About
+      li
+        a(href='/contact') Contact
+    small Copyright 2013 by Kolabria. All Rights Reserved

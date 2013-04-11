@@ -1,0 +1,35 @@
+.container
+  .page-header
+    h1 User:  #{user.name}
+  .row-fluid
+      br
+      h3 WikiWalls:
+      br
+      table.table
+        thead
+          tr
+            th WikiWall Name
+            th  ID
+            th
+            th Edit
+            th Remove
+        tbody
+          each wall in walls
+            tr
+              td #{wall.name}
+              td https://localhost:8000/suw/#{wall.shareURL}
+              td
+                a.btn(href='/user/#{wall.defaultWall_ID}/draw') Draw
+              td
+                a.btn(href='/userwalls/wallid/edit') edit
+              td
+                form(method="post", action='/userwalls/#{wall.defaultWall_ID}/')
+                  input(type="hidden", name="_method", value="delete")
+                  input.btn(type="submit", value='remove')
+          tr
+            form.form-horizontal(action='/userwalls', method='POST')
+              td
+                input#id_wall_name(type='text', name='wall_name')
+              td
+                input.btn.btn-primary(type='submit', value='Add')
+              td

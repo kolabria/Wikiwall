@@ -1,0 +1,16 @@
+.container
+  .page-header
+    h1 Join a WikiWall Meeting
+  .span8.offset2
+    .hero-unit
+      p Enter your Name to begin using WikiWall
+      form.form-horizontal(action='/suw', method='post')
+        div(style='display: none;')
+          input(type='hidden', name='csrfmiddlewaretoken', value='45b16908914c89b01dcf288d3f52a6d4')
+        .control-group
+          label.control-label(for="id_name") Name 
+          .controls
+            input#id_name.input-xlarge(required, name='name', placeholder='Your Name', type='text')
+            input#id_wurl(type='hidden' , name='wurl', value='#{wurl}')
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Enter')

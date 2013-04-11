@@ -15,6 +15,7 @@ var express = require('express')
   , Wall = require('./models/wall')
   , Images = require('./models/images')
   , Company = require('./models/company')
+  , User = require('./models/user')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
   , xml2js = require('xml2js')
@@ -124,7 +125,18 @@ function requiresLogin(req,res,next){
         res.redirect('/login');
       }
     });
-  } else {
+  }
+  else if (req.session.user_id) {
+    User.findById(req.session.user_id, function(err, user) {
+      if (user) {
+        req.currentUser = user;
+        next();
+      } else {
+        res.redirect('/ulogin');
+      }
+    });
+  }
+  else {
     res.redirect('/login');
   }
 };
@@ -288,6 +300,44 @@ app.post('/register.:format?', function(req, res){
   });
 });
 
+// user registration 
+app.get('/uregister', function(req,res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - User Register')
+  res.render('uregister',{
+    user: new User()	//needed?
+  });
+})
+
+app.post('/uregister.:format?', function(req, res){
+  var user = new User(req.body.user);
+
+  function companySaveFailed() {
+   // req.flash('warn', 'Account creation failed');
+    console.log('account creation failed');
+    res.render('uregister', {
+      locals: { title: 'Register', user: user }
+    });
+  }
+
+  user.save(function(err) {
+    if (err) return userSaveFailed();
+    // req.flash('info', 'Your account has been created');
+    console.log('Account Created');
+
+    switch (req.params.format) {
+      case 'json':
+        res.send(user.toObject());
+      	break;
+
+      default:
+        req.session.user_id = user.id;
+        res.redirect('/userwalls');
+      	break;
+    }
+  });
+});
+
 app.get('/join', function(req,res){
   res.local('layout', 'sitelayout');
   res.local('title', 'Kolabria - Join A Session')
@@ -349,6 +399,31 @@ app.post('/login', function(req, res){
 	  	req.flash('error',err || 'Invalid Username or Password');
 	    res.render('login',{
 	      company: {adminEmail : req.body.company.adminEmail}
+	    });
+	  }
+	});
+});
+app.get('/ulogin', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - User Login')
+  res.render('ulogin', {
+    user: {}
+  });
+});
+
+app.post('/ulogin', function(req, res){
+	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	User.findOne({ Email: req.body.user.Email }, function(err, user) {
+	  if (user && user.authenticate(req.body.user.password,user.password)) {
+	    req.session.user_id = user.id;
+      	res.redirect('/userwalls');
+	  } else {
+	  	user = {}
+	  	res.local('layout', 'sitelayout');
+  		res.local('title', 'Kolbria - User Login')
+	  	req.flash('error',err || 'Invalid Username or Password');
+	    res.render('ulogin',{
+	      user: {Email : req.body.user.Email}
 	    });
 	  }
 	});
@@ -617,8 +692,107 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 });
 
 /**
+* User Views
+**/
+app.get('/userwalls', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	    if (user) {
+			Iwall.find({ user_id: req.session.user_id}, function(err, walls) {
+				  if(err){
+				    console.log(err);
+				  }
+                  res.local('layout', 'uloginlayout');
+		          res.render('userwalls', {
+		             title: 'Kolabria'
+		           , user: user
+		           , walls: walls
+	              });
+	        });
+	     }	
+	});
+});
+
+// add new user wall
+app.post('/userwalls.:format?', requiresLogin, function(req,res){
+	var w = new Iwall();
+	w.user_id = req.session.user_id;
+	w.name = req.body.wall_name;
+    w.defaultWall_ID = w.id;
+    w.shareURL = (Math.random() * 1000 << 1000);
+	w.save(function(err) {
+	  if (err) console.log('New wall add failed');
+	});
+	res.redirect('/userwalls');
+});
+
+// remove user wall
+app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
+  console.log('Remove User Wall: ID -  ', req.params.id);
+  Iwall.findById(req.params.id, function (err, wall){
+	if(err) console.log(err);
+	if(wall){
+		wall.remove();
+	}
+  });
+  res.redirect('/userwalls');
+});
+
+
+
+/**
 * Drawing Views
 **/
+// user draw view  
+app.get('/user/:id.:format?/draw', function(req,res){
+  var ie = useragent.is(req.headers['user-agent']).ie;
+  console.log(" wall id:  ",req.params.id);
+  res.local('layout', 'userdraw'); 
+  User.findById(req.session.user_id, function(err, user) {
+	if (user){
+		Iwall.findById(req.params.id, function (err, wall) {
+		  if(err) console.log(err);
+		  if(wall){
+			res.render('draw',
+			   	{ 
+				title: 'Kolabria', wall: wall, userName: user.name, ie: ie  
+		      });
+		  }
+		  else console.log("can't find wall");
+	    });	
+	}
+  });
+});
+
+// join a shared user wall 
+
+app.get('/suw/:wurl.:format?', function(req,res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Join A Wall')
+  res.render('joinuserwall',{
+    wurl: req.params.wurl
+  });
+});
+
+
+app.post('/suw', function(req,res){
+	var ie = useragent.is(req.headers['user-agent']).ie;
+	res.local('layout', 'userdraw'); 
+	console.log(' shareURL: ',req.body.wurl);
+	console.log(' name:', req.body.name);
+	Iwall.findOne({ shareURL: req.body.wurl}, function(err, wall) {
+	  if(err) console.log(err);
+	  if(wall){
+		res.render('draw',
+		   	{ 
+			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie  
+	      });
+	  }
+	  else console.log("can't find wall");
+    });
+});
+
+
+
 
 // host appliance draw view test  - old code to remove 
 app.get('/host/:id.:format?/draw', function(req,res){
