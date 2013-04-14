@@ -9,7 +9,8 @@
         thead
           tr
             th WikiWall Name
-            th  ID
+            th  Link
+            th
             th
             th Edit
             th Remove
@@ -18,10 +19,13 @@
             tr 
               td #{wall.name}
               td https://points.kolabria.com:80/suw/#{wall.shareURL}
+              td 
+                if (wall.userSharedWith[0])
+                  p Shared
               td
                 a.btn(href='/user/#{wall.defaultWall_ID}/draw') Draw
               td
-                a.btn(href='/userwalls/wallid/edit') edit
+                a.btn(href='/userwalls/#{wall.defaultWall_ID}/edit') properties
               td
                 form(method="post", action='/userwalls/#{wall.defaultWall_ID}/')
                   input(type="hidden", name="_method", value="delete")
@@ -33,3 +37,16 @@
               td
                 input.btn.btn-primary(type='submit', value='Add')
               td
+      h3 Shared WikiWalls
+      table.table
+        thead
+          tr
+            th WikiWall Name
+            th
+        tbody
+          each swall in user.SharedWithMe
+            tr 
+              td #{swall.wallName}
+              td
+                a.btn(href='/user/#{swall.wallID}/draw') Draw
+ 

@@ -1,0 +1,38 @@
+extends drawlayout
+block toolbar
+  li.btn-group.dropup#walls
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-inbox
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Available Walls
+        li.divider
+  li.btn-group.dropup#users
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-user
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Active Users
+        li.divider
+
+block functions            
+  .pull-right
+    a.brand(href="#") #{wall.name}
+    nav#functions.nav.btn-group
+      a.settings.btn(href='http://localhost:3000/settings')
+        i.icon-wrench
+      a.quit.btn.pull-right(href='/host/list')
+        i.icon-off
+
+block localjs
+  script
+    var wallId = '#{wall.defaultWall_ID}';
+    var name = "#{rbox.name}";
+    var companyId = '#{wall.company_id}'; //from application 
+    var boxID = '#{rbox.id}'; //if name is not unique
+
+block localAnalytics
+  script
+    _gaq.push(['_trackEvent', 'Wall', 'Client Load',name]);

@@ -312,7 +312,7 @@ app.get('/uregister', function(req,res){
 app.post('/uregister.:format?', function(req, res){
   var user = new User(req.body.user);
 
-  function companySaveFailed() {
+  function userSaveFailed() {
    // req.flash('warn', 'Account creation failed');
     console.log('account creation failed');
     res.render('uregister', {
@@ -669,12 +669,12 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 	    Box.findOne({id: req.params.id}, function(err, box) {
 	      if(err) console.log(err);
 	      if (box){
-			  for (i=0; i++ ; i<box.shareList.length){
+			  for (i=0; i++ ; i<box.shareList.length){  //  this is wrong and doesn't work properly
 				 if (box.shareList[i].boxID == req.params.sb){
 					break;
-				}
+			     }
 			  }
-			  box.shareList[i-1].remove();
+			  box.shareList[i-1].remove();  // proabrly wrong too 
 		      box.save(function(err) {
 			    	if (err) console.log(' Box edit box update failed');
 		      });
@@ -716,6 +716,7 @@ app.get('/userwalls', requiresLogin, function(req,res){
 app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	var w = new Iwall();
 	w.user_id = req.session.user_id;
+	w.company_id = w.user_id;
 	w.name = req.body.wall_name;
     w.defaultWall_ID = w.id;
     w.shareURL = (Math.random() * 1000 << 1000);
@@ -735,6 +736,353 @@ app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
 	}
   });
   res.redirect('/userwalls');
+});
+
+// edit user wall info 	
+app.get('/userwalls/:id.:format?/edit', requiresLogin, function(req,res){      
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){
+	  if (user) {
+	    Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+			    res.render('editwall', {
+			      title: 'Kolabria'
+			      , user: user
+			      , wall: wall
+			      , userList: wall.userSharedWith
+			    });
+		    }
+		  });
+	  }
+	});
+	//TODO redirect to error page
+});
+
+// edit wallinfo - update wall name	
+app.put('/userwalls/:id.:format?', requiresLogin, function(req,res){ 
+	console.log('wall id: ',req.params.id);
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){ 
+	  if (user) { 
+		Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+		        wall.name = req.body.wall_name;
+		        wall.save((function(err) {
+				  	  if (err) console.log(' Wall edit wall update failed');
+			    }));
+			    res.render('editwall', {
+			      title: 'Kolabria'
+			      , user: user
+			      , wall: wall
+			      , userList: wall.userSharedWith
+			    });
+		  }
+		});
+	  }
+	});
+});
+
+//Box.findOne({id: req.params.id}, function(err, box) {
+//	Box.findOne({name: req.body.data}
+		
+//  share wall with another user 
+app.put('/userwalls/:id.:format?/share', requiresLogin, function(req,res){ 
+	console.log('adding user email: ',req.body.data);
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){ 
+	  if (user) { 
+		Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+		    if (wall.userSharedWith.indexOf(req.body.data) == -1) {  // check to see if already sharing with this use
+			    // add user email to shared wall list and add wallid to User list of walls shared with that user 
+			    User.findOne({Email: req.body.data},function(err,suser){
+				  if (err) console.log(err);
+				  if (suser){
+					suser.SharedWithMe.push({wallID: wall.id, wallName: wall.name});
+					//console.log('User to share with: ',suser);
+					suser.save(function(err){
+						if(err) console.log('Could not save new shared wall with user',err);
+					});
+					wall.userSharedWith.push(req.body.data);
+			        wall.save((function(err) {
+						  if (err) console.log(' Wall edit wall update failed');
+				    }));
+				    res.redirect('/userwalls/'+req.params.id+'/edit');
+				  }
+				  else {  
+					// error if user doesn't exist.
+					console.log('User not found');
+					req.flash('error',"No user registed by that email");
+					res.render('editwall', {
+				      title: 'Kolabria'
+				      , user: user
+				      , wall: wall
+				      , userList: wall.userSharedWith
+				    });
+				  }
+			    });			
+		    }
+		    else {
+				req.flash('error',"Wall already shared with this user");
+				res.render('editwall', {
+			      title: 'Kolabria'
+			      , user: user
+			      , wall: wall
+			      , userList: wall.userSharedWith
+			    });
+		    }
+		  }
+		  else res.redirect('/userwalls/'+req.params.id+'/edit');
+		});
+	  }
+	  else res.redirect('/userwalls/'+req.params.id+'/edit');
+	});
+});
+
+
+// Remove user from sharing wall 
+app.delete('/userwalls/:id.:format?/unshare/:email', requiresLogin, function(req,res){ 
+	//console.log('user to remove: ',req.params.email);
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){ 
+	  if (user) { 
+		Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+		    // remove user email to shared wall list and remove wallid to User list of walls shared with that user 
+		    //console.log('length of share list: ',wall.userSharedWith.length);
+		    for (i=0; i <= wall.userSharedWith.length; i++){
+		      if (wall.userSharedWith[i] == req.params.email){
+			    //console.log('Removing: ',wall.userSharedWith[i]);
+			    wall.userSharedWith.splice(i,1);
+			    wall.save((function(err) {
+					  if (err) console.log(' Wall edit wall update failed');
+			    }));
+			    break;
+		      }	
+	    	}
+	        User.findOne({Email: req.params.email},function(err,suser){
+			  if (err) console.log(err);
+			  if (suser){
+				  for (i=0; i<=suser.SharedWithMe.length ; i++){  
+					 if (suser.SharedWithMe[i].wallID == wall.id){
+						suser.SharedWithMe.splice(i,1);
+						suser.save(function(err){
+							if(err) console.log('Could not remove (save error) shared wall from user',err);
+						});
+						break;
+				     }
+				  }
+			  }
+			});
+		    res.render('editwall', {
+		      title: 'Kolabria'
+		      , user: user
+		      , wall: wall
+		      , userList: wall.userSharedWith
+		    });
+		  }
+		});
+	  }
+	});
+});
+
+//  share wall with another user 
+app.put('/userwalls/:id.:format?/publish', requiresLogin, function(req,res){ 
+	console.log('box id to publish to: ',req.body.data);
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){ 
+	  if (user) { 
+		Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+		    if (wall.publishedTo.indexOf(req.body.data) == -1) {  // check to see if already published to this box
+			    // add user email to shared wall list and add wallid to User list of walls shared with that user 
+			    Box.findOne({name: req.body.data},function(err,box){
+				  if (err) console.log(err);
+				  if (box){
+					box.pubList.push({wallID: wall.id, wallName: wall.name});
+					//console.log('User to share with: ',suser);
+					box.save(function(err){
+						if(err) console.log('Could not save new published wall to box',err);
+					});
+					wall.publishedTo.push(req.body.data);
+			        wall.save((function(err) {
+						  if (err) console.log(' Wall edit publish to box update failed');
+				    }));
+				    res.redirect('/userwalls/'+req.params.id+'/edit');
+				  }
+				  else {  
+					// error if user doesn't exist.
+					console.log('User not found');
+					req.flash('error',"No Controller registed by that name");
+					res.render('editwall', {
+				      title: 'Kolabria'
+				      , user: user
+				      , wall: wall
+				      , userList: wall.userSharedWith
+				    });
+				  }
+			    });			
+		    }
+		    else {
+				req.flash('error',"Wall already published");
+				res.render('editwall', {
+			      title: 'Kolabria'
+			      , user: user
+			      , wall: wall
+			      , userList: wall.userSharedWith
+			    });
+		    }
+		  }
+		  else res.redirect('/userwalls/'+req.params.id+'/edit');
+		});
+	  }
+	  else res.redirect('/userwalls/'+req.params.id+'/edit');
+	});
+});
+
+
+// Remove controller  from published wall 
+app.delete('/userwalls/:id.:format?/unpublish/:name', requiresLogin, function(req,res){ 
+	//console.log('user to remove: ',req.params.email);
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){ 
+	  if (user) { 
+		Iwall.findById(req.params.id, function(err, wall){
+	      if (err) console.log(err);
+	      if (wall){
+		    // remove user email to shared wall list and remove wallid to User list of walls shared with that user 
+		    //console.log('length of share list: ',wall.userSharedWith.length);
+		    for (i=0; i <= wall.publishedTo.length; i++){
+		      if (wall.publishedTo[i] == req.params.name){
+			    //console.log('Removing: ',wall.userSharedWith[i]);
+			    wall.publishedTo.splice(i,1);
+			    wall.save((function(err) {
+					  if (err) console.log(' Wall edit wall update failed');
+			    }));
+			    break;
+		      }	
+	    	}
+	        Box.findOne({name: req.params.name},function(err,box){
+			  if (err) console.log(err);
+			  if (box){
+				  for (i=0; i<=box.pubList.length ; i++){  
+					 if (box.pubList[i].wallID == wall.id){
+						box.pubList.splice(i,1);
+						box.save(function(err){
+							if(err) console.log('Could not remove (save error) shared wall from user',err);
+						});
+						break;
+				     }
+				  }
+			  }
+			});
+		    res.render('editwall', {
+		      title: 'Kolabria'
+		      , user: user
+		      , wall: wall
+		      , userList: wall.userSharedWith
+		    });
+		  }
+		});
+	  }
+	});
+});
+
+/**
+* Controller list of published walls 
+**/
+app.get('/host/list', function(req,res){
+
+//	console.log('User-Agent: ' + req.headers['user-agent']);
+  //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+    // console.log('Box Id: ',getBoxFromUA(req.headers['user-agent']));
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	//	console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err){
+			console.log(err);  // this doesn't work  - need to fix at some point - doesn't work since if no BID then never gets here
+              // this doesn't work  - need to fix at some point 
+                        console.log("Bad BID: ", bid);
+			res.local('layout', false); 
+			res.render('apperror',{ bid: bid});
+		  } 
+		  else {
+		//	console.log('Box: ',box); 
+			res.local('layout', 'sitelayout'); 
+			res.render('boxwalls',{ 
+			  	title: 'Host Wall"', box: box, ie: false
+		    });
+		  }
+	  });	
+	}
+});
+
+// remove published wall from box
+app.delete('/published/:id.:format?/', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	//	console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err) console.log(err);
+		  if (box){
+			  for (i=0; i<=box.pubList.length ; i++){  
+				 if (box.pubList[i].wallID == req.params.id){
+					box.pubList.splice(i,1);
+					box.save(function(err){
+						if(err) console.log('Could not remove (save error) shared wall from user',err);
+					});
+					break;
+			     }
+			  }
+			  Iwall.findOne({ _id: req.params.id}, function(err, wall) {
+			    if (err) console.log(err)
+			    if (wall) {
+					for (i=0; i <= wall.publishedTo.length; i++){
+					  if (wall.publishedTo[i] == box.name){
+					    //console.log('Removing: ',wall.userSharedWith[i]);
+					    wall.publishedTo.splice(i,1);
+					    wall.save((function(err) {
+							  if (err) console.log(' Wall edit wall update failed');
+					    }));
+					    break;
+					  }	
+					}
+		    	}
+		      });
+		   }  
+		   res.redirect('/host/list/');  
+	  });	
+	}
+});
+
+app.get('/published/:id.:format?/draw', function(req,res){  
+  res.local('layout', 'publishdraw'); 
+  res.local('title', 'Published Wall'); 
+  bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+//	console.log('Box ID: ',bid);
+  Box.findOne({ id: bid}, function(err, rbox) {
+    if (err) console.log(err)
+    //console.log("wall name: ",req.params.id);
+    Iwall.findOne({ _id: req.params.id}, function(err, wall) {
+	    if (err) console.log(err)
+	    if (wall) {
+		  	//console.log('wall: ',wall);
+		    res.render('draw',{
+		    	 wall: wall , rbox: rbox , ie: false
+	    	});
+    	}
+        else {
+	     req.flash('error',"Unable to open WikiWall");
+	     res.redirect('/host/list/');  
+	    }  
+    });		
+  });
 });
 
 
@@ -818,7 +1166,7 @@ app.get('/host/draw', function(req,res){
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
 		  if(err){
-			console.log(err);
+			console.log(err);  // this doesn't work  - need to fix at some point - doesn't work since if no BID then never gets here
               // this doesn't work  - need to fix at some point 
                         console.log("Bad BID: ", bid);
 			res.local('layout', false); 
@@ -902,6 +1250,7 @@ app.get('/trash/:id.:format?', function(req,res){
 	}//TODO else render error page?
 });
 
+// drawing view from box shared wall list
 app.get('/connect/:id', function(req,res){  
   res.local('layout', 'clientappliance'); 
   res.local('title', 'Client Wall'); 
@@ -921,7 +1270,30 @@ app.get('/connect/:id', function(req,res){
     });		
 	});
 });
-
+// drawing view from boxes pub list 
+app.get('/published/:id.:format?/draw', function(req,res){  
+  res.local('layout', 'publishdraw'); 
+  res.local('title', 'Published Wall'); 
+  bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+//	console.log('Box ID: ',bid);
+  Box.findOne({ id: bid}, function(err, rbox) {
+    if (err) console.log(err)
+    //console.log("wall name: ",req.params.id);
+    Iwall.findOne({ _id: req.params.id}, function(err, wall) {
+	    if (err) console.log(err)
+	    if (wall) {
+		  	//console.log('wall: ',wall);
+		    res.render('draw',{
+		    	 wall: wall , rbox: rbox , ie: false
+	    	});
+    	}
+        else {
+	     req.flash('error',"Unable to open WikiWall");
+	     res.redirect('/host/list/');  
+	    }  
+    });		
+  });
+});
 
 app.post('/fileUpload/:cId.:format?/:wallId', function(req,res){
 	   // console.log("companyId: "+req.params.cId+" wallId: "+req.params.wallId);

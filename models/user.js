@@ -11,6 +11,11 @@ var Mongoose = require("mongoose")
 
 var crypto = require('crypto');
 
+var SharedWall = new Schema({
+    wallID     : String
+  , wallName   : String
+});
+
 function validatePresenceOf(value) {
     return value && value.length;
 }
@@ -21,6 +26,7 @@ var UserSchema = new Schema({
   , hashed_password: String
   , salt: String
   , Pwd: {type: String}
+  , SharedWithMe: [SharedWall]
 });
 
 
@@ -50,12 +56,6 @@ UserSchema.method('encryptPassword', function(password) {
   return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
 });
 
-UserSchema.pre('save', function(next) {
-  if (!validatePresenceOf(this.password)) {
-    next(new Error('Invalid password'));
-  } else {
-    next();
-  }
-});
+
 
 module.exports = Mongoose.model('User',UserSchema);

@@ -2,6 +2,8 @@ var Mongoose = require('mongoose')
   , Schema = Mongoose.Schema
   , ObjectId = Schema.ObjectId;
 
+
+
  var iwallSchema = new Schema({
     name: {type: String,trim:true}
   , company_id: ObjectId
@@ -9,6 +11,8 @@ var Mongoose = require('mongoose')
   , shareURL: {type: String,trim:true}
   , user_id: ObjectId
   , PIN: String 
+  , userSharedWith: [String]   // email of users wall shared with
+  , publishedTo: [String]   // box names to which wall has been published
  });
 
 iwallSchema

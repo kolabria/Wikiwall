@@ -1,0 +1,24 @@
+.container
+  .page-header
+    h1 Controller:  #{box.name}
+  .row-fluid
+      br
+      h3 WikiWalls:
+      br
+      table.table
+        thead
+          tr
+            th WikiWall Name
+            th
+            th Remove From Controller
+        tbody
+          each wall in box.pubList
+            tr 
+              td #{wall. wallName}
+              td
+                a.btn(href='/published/#{wall.wallID}/draw') Draw
+              td
+                form(method="post", action='/published/#{wall.wallID}/')
+                  input(type="hidden", name="_method", value="delete")
+                  input.btn(type="submit", value='remove')
+
