@@ -122,7 +122,7 @@ function requiresLogin(req,res,next){
         req.currentCompany = company;
         next();
       } else {
-        res.redirect('/login');
+        res.redirect('/ulogin');
       }
     });
   }
@@ -137,7 +137,7 @@ function requiresLogin(req,res,next){
     });
   }
   else {
-    res.redirect('/login');
+    res.redirect('/ulogin');
   }
 };
 
