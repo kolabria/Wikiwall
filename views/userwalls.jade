@@ -8,12 +8,13 @@
       table.table
         thead
           tr
-            th WikiWall Name
+            th  WikiWall Name
             th  Link
-            th
-            th
-            th Edit
-            th Remove
+            th  Shared
+            th  Published
+            th  Draw
+            th  Propterties
+            th  Remove
         tbody
           each wall in walls
             tr 
@@ -21,32 +22,36 @@
               td https://points.kolabria.com:80/suw/#{wall.shareURL}
               td 
                 if (wall.userSharedWith[0])
-                  p Shared
+                  i.icon-ok
+              td 
+                if (wall.publishedTo[0])
+                  i.icon-ok
               td
-                a.btn(href='/user/#{wall.defaultWall_ID}/draw') Draw
+                a.btn(href='/user/#{wall.defaultWall_ID}/draw') open
               td
-                a.btn(href='/userwalls/#{wall.defaultWall_ID}/edit') properties
+                a.btn(href='/userwalls/#{wall.defaultWall_ID}/edit') edit
               td
                 form(method="post", action='/userwalls/#{wall.defaultWall_ID}/')
                   input(type="hidden", name="_method", value="delete")
                   input.btn(type="submit", value='remove')
+          br 
           tr
             form.form-horizontal(action='/userwalls', method='POST')
               td
                 input#id_wall_name(type='text', name='wall_name')
               td
-                input.btn.btn-primary(type='submit', value='Add')
+                input.btn.btn-primary(type='submit', value='New')
               td
       h3 Shared WikiWalls
       table.table
         thead
           tr
             th WikiWall Name
-            th
+            th Draw
         tbody
           each swall in user.SharedWithMe
             tr 
               td #{swall.wallName}
               td
-                a.btn(href='/user/#{swall.wallID}/draw') Draw
+                a.btn(href='/user/#{swall.wallID}/draw') Open
  
