@@ -478,16 +478,16 @@ app.post('/blog', function(req,res){
 **/
 
 app.get('/controllers', requiresLogin, function(req,res){	
-	Company.findById(req.session.company_id, function(err, company) {
-	  if (company) {
-	    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
-				if(err){
-			    console.log(err);
-			  }
-			  res.local('layout', 'loginlayout');
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+	    Box.find({ company_id: req.session.user_id}, function(err, boxes) {
+			if(err){
+			   console.log(err);
+			}
+			res.local('layout', 'uloginlayout');
 		    res.render('controllers', {
 		      title: 'Kolabria'
-		      , company: company
+		      , user: user
 		      , boxes: boxes
 	      });
 	    });	
@@ -509,11 +509,11 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 				else {
 				 	var b = new Box();
 					var w = new Iwall();
-					w.company_id = req.session.company_id;
+					w.company_id = req.session.user_id;
 					w.PIN = newPIN();
 					w.name = req.body.box_name;
 					b.name = req.body.box_name;
-				    b.company_id = req.session.company_id;
+				    b.company_id = req.session.user_id;
 				    b.id = req.body.box_id;
 				    b.defaultWall_ID = w.id; 
 				    b.PIN = w.PIN;
@@ -531,16 +531,16 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 				}
 			});
 	    }
-		Company.findById(req.session.company_id, function(err, company) {
-		  if (company) {
-		    Box.find({ company_id: req.session.company_id}, function(err, boxes) {
+		User.findById(req.session.user_id, function(err, user) {
+		  if (user) {
+		    Box.find({ company_id: req.session.user_id}, function(err, boxes) {
 				  if(err){
 				    console.log(err);
 				  }
-				  res.local('layout', 'loginlayout');
+				  res.local('layout', 'uloginlayout');
 			      res.render('controllers', {
 			       title: 'Kolabria'
-			       , company: company
+			       , user: user
 			       , boxes: boxes
 		      });
 		    });	
@@ -577,16 +577,16 @@ app.delete('/controllers/:id.:format?', requiresLogin, function(req,res){
 
 // edit box info 	
 app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){      
-	res.local('layout', 'loginlayout');
-	Company.findById(req.session.company_id, function(err, company){
-	  if (company) {
+	res.local('layout', 'uloginlayout');
+	User.findById(req.session.user_id, function(err, user){
+	  if (user) {
 	    //console.log('Edit Box: ID -N  ', req.params.id);
 	    Box.findOne({id: req.params.id}, function(err, box){
 	      if (err) console.log(err);
 	      if (box){
 			    res.render('editbox', {
 			      title: 'Kolabria'
-			      , company: company
+			      , user: user
 			      , box: box
 			      , shareList: box.shareList
 			    });
@@ -599,8 +599,8 @@ app.get('/controllers/:id.:format?/edit', requiresLogin, function(req,res){
 
 // edit box info - update box name	
 app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
-	Company.findById(req.session.company_id, function(err, company) {
-	  if (company) {
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
 	    console.log('Edit Box: ID -  ', req.params.id);
 	    Box.findOne({id: req.params.id}, function(err, box) {
 	    	if(err) console.log(err);
@@ -609,10 +609,10 @@ app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 		      box.save(function(err) {
 			  	  if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', 'loginlayout');
+		      res.local('layout', 'uloginlayout');
 			  	res.render('editbox', {
 		        title: 'Kolabria'
-		        , company: company
+		        , user: user
 		        , box: box
 		        , shareList: box.shareList
 		      });
@@ -626,8 +626,8 @@ app.put('/controllers/:id.:format?', requiresLogin, function(req,res){
 // need to determine if box name or ID
 
 app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
-	Company.findById(req.session.company_id, function(err, company){
-		if (company) {
+	User.findById(req.session.user_id, function(err, user){
+		if (user) {
 		   // console.log('Edit Box share: ID -  ', req.params.id);
 		   // console.log('Edit Box share: Box id to add: ', req.body.data);
 			Box.findOne({id: req.params.id}, function(err, box) {
@@ -645,10 +645,10 @@ app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 								if(err) console.log('Box edit box update failed',err);
 							});	
 						}
-						res.local('layout', 'loginlayout');
+						res.local('layout', 'uloginlayout');
 						res.render('editbox', {
 					        title: 'Kolabria'
-					        , company: company
+					        , user: user
 					        , box: box
 					        , shareList: box.shareList
 					    });
@@ -662,8 +662,8 @@ app.put('/controllers/:id.:format?/share', requiresLogin, function(req,res){
 
 //  Edit box info - remove box from share list 
 app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,res){
-	Company.findById(req.session.company_id, function(err, company) {
-	  if (company) {
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
 	    //console.log('Edit Box share: ID -  ', req.params.id);
 	    //console.log('Edit Box unshare: Box id to remove: ', req.params.sb);
 	    Box.findOne({id: req.params.id}, function(err, box) {
@@ -678,10 +678,10 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 		      box.save(function(err) {
 			    	if (err) console.log(' Box edit box update failed');
 		      });
-		      res.local('layout', 'loginlayout');
+		      res.local('layout', 'uloginlayout');
 			  	res.render('editbox', {
 		        title: 'Kolabria'
-		        , company: company
+		        , user: user
 		        , box: box
 		        , shareList: box.shareList
 		      });
@@ -989,6 +989,45 @@ app.delete('/userwalls/:id.:format?/unpublish/:name', requiresLogin, function(re
 		    });
 		  }
 		});
+	  }
+	});
+});
+
+// Change user password
+app.get('/account', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+			res.local('layout', 'uloginlayout');
+		    res.render('account', {
+		      title: 'Kolabria'
+		      , user: user
+	      });
+	  }
+	});
+});
+
+app.post('/account', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+		if (user && user.authenticate(req.body.currentPwd,user.password)) {
+			if (req.body.newPwd == req.body.confirmPwd)
+			{
+			  user.password = req.body.newPwd;
+			  user.save(function(err) {
+			    if (err) console.log('Password updated failed');
+			  });
+			  req.flash('success',"Password Updated");  // this shouldn't be an error 
+			  res.redirect('/account');
+		    }
+		    else {
+			  req.flash('error',"New Passwords don't match");
+			  res.redirect('/account');
+		    }
+		}
+		else {
+			req.flash('error',"Old Password Incorrect");
+			res.redirect('/account');
+		}
 	  }
 	});
 });
@@ -1445,7 +1484,7 @@ app.get('/sdestroy', function(req, res){
   if (req.session) {
     req.session.destroy(function() {});
   }
-  res.redirect('/login');
+  res.redirect('/ulogin');
 });
 
 

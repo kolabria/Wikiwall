@@ -72,16 +72,16 @@ body
             |  Login
             b.caret
           #join-dropdown.dropdown-menu.pull-right
-            form.form-vertical(action='/login', method='post')
+            form.form-vertical(action='/ulogin', method='post')
               //TODO remove inline styles
               div(style='display: none;') 
                 //TODO needs to be randomly generated and verified
                 input(type='hidden', name='csrfmiddlewaretoken', value='') 
               label(for='id_email') Email
-              input#id_email.span3(required, name='company[adminEmail]', maxlength='30', placeholder='Email@email.com', type='email')
+              input#id_email.span3(required, name='user[Email]', maxlength='30', placeholder='Email@email.com', type='email')
               label(for='id_password') Password
-              input#id_password.span3(required, name='company[password]', maxlength='30', placeholder='Password', type='password')
-              a.pull-left(href='/register' , tabindex=0) Create a new account
+              input#id_password.span3(required, name='user[password]', maxlength='30', placeholder='Password', type='password')
+              a.pull-left(href='/uregister' , tabindex=0) Create a new account
               input.btn.btn-primary.pull-right(type='submit', value='Login')
     .navbar
       a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
