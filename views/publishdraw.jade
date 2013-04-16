@@ -1,5 +1,17 @@
 extends drawlayout
 block toolbar
+  li.btn-group.dropup#shareTo
+      button.btn.dropdown-toggle(data-toggle="dropdown")
+        i.icon-share
+        span.caret
+      ul.dropdown-menu
+        li
+          h4 Share Wall {#{wall.PIN}}
+        li.divider
+        for sb in rbox.shareList
+          li.btn(data-value='#{sb.boxID}')
+            span #{sb.boxName}
+            i
   li.btn-group.dropup#walls
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-inbox
@@ -16,10 +28,9 @@ block toolbar
         li
           h4 Active Users
         li.divider
-
 block functions            
   .pull-right
-    a.brand(href="#") #{wall.name}
+    a.brand #{wall.name}
     nav#functions.nav.btn-group
       a.settings.btn(href='http://localhost:3000/settings')
         i.icon-wrench

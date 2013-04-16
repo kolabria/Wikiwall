@@ -354,21 +354,21 @@ app.post('/join', function(req,res){
    var ie = useragent.is(req.headers['user-agent']).ie;
   //  console.log('/join - user agent: ', req.headers['user-agent']);
   //  console.log('/join - ie: '+ie+' version: '+useragent.is(req.headers['user-agent']).version);
-   res.local('layout', 'clientuser');
-   Box.findOne({name: req.body.room}, function(err, box) {
+   console.log('Wall name: '+req.body.room+' PIN: '+req.body.code);
+   res.local('layout', 'userdraw');
+   Iwall.findOne({name: req.body.room}, function(err, wall) {
      if(err) console.log(err);
-     if(!box) {
-		req.flash('error',"Invalid Room Name");
+     if(!wall) {
+		req.flash('error',"Invalid Wall Name");
 		res.redirect('/join');  
      }
 	 else {
-	     //is a box	- check PIN
+	     //is a wall	- check PIN
 	     //console.log('join: good room');
-		 if (box.PIN == req.body.code) {
+		 if (wall.PIN == req.body.code) {
 			//console.log('join: good PIN');
-			res.local('title', 'Kolabria - '+box.name)
 	        res.render('draw', {
-		      title: 'Kolabria', box: box, userName: req.body.name, ie: ie
+		      title: 'Kolabria - '+wall.name, wall: wall, userName: req.body.name, ie: ie  
 		    });
 		 }
 		 else {
@@ -717,6 +717,7 @@ app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	var w = new Iwall();
 	w.user_id = req.session.user_id;
 	w.company_id = w.user_id;
+	w.PIN = newPIN();
 	w.name = req.body.wall_name;
     w.defaultWall_ID = w.id;
     w.shareURL = (Math.random() * 1000 << 1000);
@@ -732,6 +733,8 @@ app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
   Iwall.findById(req.params.id, function (err, wall){
 	if(err) console.log(err);
 	if(wall){
+		// need to remove from all shared users list of sharedWithMe list 
+		// need to remove from all boxes pubList 
 		wall.remove();
 	}
   });
@@ -890,7 +893,7 @@ app.delete('/userwalls/:id.:format?/unshare/:email', requiresLogin, function(req
 	});
 });
 
-//  share wall with another user 
+//  publish wall to a box 
 app.put('/userwalls/:id.:format?/publish', requiresLogin, function(req,res){ 
 	console.log('box id to publish to: ',req.body.data);
 	res.local('layout', 'uloginlayout');
@@ -1036,27 +1039,21 @@ app.post('/account', requiresLogin, function(req,res){
 * Controller list of published walls 
 **/
 app.get('/host/list', function(req,res){
-
-//	console.log('User-Agent: ' + req.headers['user-agent']);
-  //	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
-    // console.log('Box Id: ',getBoxFromUA(req.headers['user-agent']));
 	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
-		  if(err){
-			console.log(err);  // this doesn't work  - need to fix at some point - doesn't work since if no BID then never gets here
-              // this doesn't work  - need to fix at some point 
-                        console.log("Bad BID: ", bid);
-			res.local('layout', false); 
-			res.render('apperror',{ bid: bid});
-		  } 
-		  else {
-		//	console.log('Box: ',box); 
-			res.local('layout', 'sitelayout'); 
+		  if(err) console.log(err);
+		  if (box) {
+			res.local('layout', 'boxlayout'); 
 			res.render('boxwalls',{ 
 			  	title: 'Host Wall"', box: box, ie: false
 		    });
+		  } 
+		  else {    //	box not found  
+            console.log("Bad BID: ", bid);
+		    res.local('layout', false); 
+		    res.render('apperror',{ bid: bid});
 		  }
 	  });	
 	}
@@ -1096,6 +1093,126 @@ app.delete('/published/:id.:format?/', function(req,res){
 		      });
 		   }  
 		   res.redirect('/host/list/');  
+	  });	
+	}
+});
+
+// create a new wall on the box
+app.get('/host/list/new', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+		console.log('create new wall for - Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err) console.log(err);
+		  if (box){
+			var pin = newPIN();
+			var w = new Iwall();
+			w.user_id = box.oid;
+			w.company_id = box.oid;
+			w.PIN = pin;
+			var d = new Date();
+			w.name = box.name+' - '+d.toUTCString();  // 
+		    w.defaultWall_ID = w.id;
+		    w.shareURL = (Math.random() * 1000 << 1000);
+		   // console.log('new wall ID: ',w.id);
+		   // console.log('new wall: ',w);
+			w.save(function(err) {
+			  if (err) console.log('New wall add failed: ',err);
+			});
+			box.localList.push({wallID: w.id, wallName: w.name, PIN: pin });
+			//console.log('User to share with: ',suser);
+			box.save(function(err){
+				if(err) console.log('Could not save new local wall to box',err);
+			});			
+			
+		    res.redirect('/host/list/');
+		  }
+		  else {
+			console.log("Bad BID: ", bid);
+			res.local('layout', false); 
+			res.render('apperror',{ bid: bid});
+	      }
+	  });	
+	}
+});
+
+// remove local wall from box
+app.delete('/host/list/:id.:format?/', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	//	console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err) console.log(err);
+		  if (box){
+			  for (i=0; i<=box.localList.length ; i++){  
+				 if (box.localList[i].wallID == req.params.id){
+					box.localList.splice(i,1);
+					box.save(function(err){
+						if(err) console.log('Could not remove (save error) shared wall from user',err);
+					});
+					break;
+			     }
+			  }
+			  Iwall.findById(req.params.id, function (err, wall){
+				if(err) console.log(err);
+				if(wall){
+					wall.remove();
+				}
+			  });
+		   }  
+		   res.redirect('/host/list/');  
+	  });	
+	}
+});
+//  Assign local wall to a user
+// remove local wall from box
+app.post('/host/list/:id.:format?/assign', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	//	console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err) console.log(err);
+		  if (box){
+			  Iwall.findById(req.params.id, function (err, wall){
+				if(err) console.log(err);
+				if(wall){
+					console.log('email to assign wall: ',req.body.email);
+					User.findOne({ Email: req.body.email }, function(err, user) {
+						if (user) {
+							box.pubList.push({wallID: wall.id, wallName: wall.name});
+							//console.log('User to share with: ',suser);
+							box.save(function(err){
+								if(err) console.log('Could not save new published wall to box',err);
+							});
+							console.log("user found");
+							wall.user_id = user.id;  // assign wall to this user
+							wall.company_id = user.id;					
+							wall.publishedTo.push(box.name);
+					        wall.save((function(err) {
+								  if (err) console.log(' wall save failed: assign to user: ',err);
+						    }));
+						    for (i=0; i<=box.localList.length ; i++){  
+							  if (box.localList[i].wallID == req.params.id){
+							    box.localList.splice(i,1);
+								box.save(function(err){
+									if(err) console.log('Assign: removeing local wall',err);
+								});
+								break;
+						      }
+						    }
+						    res.redirect('/host/list/');  
+						}
+						else{
+							console.log("user not found");
+							req.flash('error',"Unable to find assignee");
+							res.redirect('/host/list/');  
+						}
+					});
+				}
+			  });
+
+		   }  
+		   
 	  });	
 	}
 });
@@ -1303,8 +1420,7 @@ app.get('/connect/:id', function(req,res){
     Box.findOne({ id: req.params.id}, function(err, hbox) {
 	    if (err) console.log(err)
 	    res.render('draw',{
-	    	 hbox: hbox
-	    	 , rbox: rbox , ie: false
+	    	 hbox: hbox , rbox: rbox , ie: false
     	});
     });		
 	});

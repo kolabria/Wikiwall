@@ -3,7 +3,7 @@
     h1 Controller:  #{box.name}
   .row-fluid
       br
-      h3 WikiWalls:
+      h3 Published WikiWalls:
       br
       table.table
         thead
@@ -14,11 +14,41 @@
         tbody
           each wall in box.pubList
             tr 
-              td #{wall. wallName}
+              td #{wall.wallName}
               td
                 a.btn(href='/published/#{wall.wallID}/draw') Draw
               td
                 form(method="post", action='/published/#{wall.wallID}/')
                   input(type="hidden", name="_method", value="delete")
                   input.btn(type="submit", value='remove')
+      h3 Local WikiWalls:
+      br
+      table.table
+        thead
+          tr
+            th WikiWall Name
+            th Assign Owner
+            th
+            th Delete
+        tbody
+          each lw in box.localList
+            tr 
+              td #{lw.wallName}
+              td
+                form.form-horizontal(action='/host/list/#{lw.wallID}/assign', method='POST')
+                  script 
+                    this.VKI_size=5;
+                    this.VKI_showVersion= false;
+                  input.keyboardInput#id_email(type='text', name='email',placeholder='bob@acme.com')
+                  input.btn.btn-primary(type='submit', value='Assign')
+              td
+                a.btn(href='/published/#{lw.wallID}/draw') Draw
+              td
+                form(method="post", action='/host/list/#{lw.wallID}/')
+                  input(type="hidden", name="_method", value="delete")
+                  input.btn(type="submit", value='delete')
+          br 
+          tr
+            td
+              a.btn.btn-primary(href='/host/list/new') New Wall
 

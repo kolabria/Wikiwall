@@ -12,6 +12,12 @@ var PublishedWall = new Schema({
   , wallName   : String
 });
 
+var LocalWall = new Schema({
+    wallID     : String
+  , wallName   : String
+  , PIN: String
+});
+
  var boxSchema = new Schema({
     id: {type: String ,index: { unique: true } } 
   , name: {type: String,trim:true}
@@ -19,7 +25,8 @@ var PublishedWall = new Schema({
   , defaultWall_ID: {type: ObjectId}   // , default: '4f47be322f8b522d303f1fef'
   , PIN: String
   , shareList: [ShareWall]  
-  , pubList: [PublishedWall]  
+  , pubList: [PublishedWall]
+  , localList: [LocalWall]  
  });
 
 boxSchema
