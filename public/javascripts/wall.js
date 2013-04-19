@@ -219,7 +219,107 @@ now.ready(function(){
     path.name = p._id;
     callback();
   }
+/***************  screen sharing functions *************/
 
+function getURIformcanvas() {
+    var ImageURItoShow = "";
+    var canvasFromVideo = document.getElementById("imageView");
+    if (canvasFromVideo.getContext) {
+        var ctx = canvasFromVideo.getContext("2d"); // Get the context for the canvas.canvasFromVideo.
+        var ImageURItoShow = canvasFromVideo.toDataURL("image/png");
+        now.sendImage(ImageURItoShow, paper.project.activeLayer.index, view.center, function(name){
+          loadImage(name, view.center, ImageURItoShow, function(){
+            paper.view.draw();
+          });
+
+        });
+
+
+    }
+   // var imgs = document.getElementById("imgs");
+   // imgs.appendChild(Canvas2Image.convertToImage(canvasFromVideo, 300, 200, 'png'));
+}
+
+
+function ssCapture() {
+    var video = document.getElementById("video");
+    var canvasDraw = document.getElementById('imageView');
+    var w = canvasDraw.width;
+    var h = canvasDraw.height;
+    var ctxDraw = canvasDraw.getContext('2d');
+
+    ctxDraw.clearRect(0, 0, w, h);
+    ctxDraw.drawImage(video, 0, 0, w, h);
+    ctxDraw.save();
+    
+	getURIformcanvas();	 
+}
+
+//start screen sharing
+startSS = function(){
+  console.log("start screen sharing");
+  var rtcMultiConnection = new RTCMultiConnection({
+      session: Session.Screen,
+      direction: Direction.OneWay,
+      openSignalingChannel: function (config) {
+          //var channel = config.channel || location.hash.replace('#', '') || 'screen-sharing-using-RTCMultiConnection';
+          var channel = wallId; 
+          var socket = new Firebase('https://kolabria.firebaseIO.com/' + channel);
+          socket.channel = channel;
+          socket.on('child_added', function (data) {
+              config.onmessage && config.onmessage(data.val());
+          });
+          socket.send = function (data) {
+              this.push(data);
+          };
+          config.onopen && setTimeout(config.onopen, 1);
+          socket.onDisconnect().remove();
+          return socket;
+      },
+      onRemoteStream: function (media) {
+          var mediaElement = media.mediaElement;
+
+          var localMediaStreams = document.getElementById('local-media-stream');
+          localMediaStreams.insertBefore(mediaElement, localMediaStreams.firstChild);
+          mediaElement.controls = false;
+          // jQuery('video').css({left:25,top:0,height:500});  this doesn't work or at least do what I want it to do
+          jQuery("video").attr("id","video");   
+          //jQuery("video").attr("width","500px");  adds attibutes but video still same size
+          //jQuery("video").attr("height","600px");  
+      },
+      onLocalStream: function (media) {
+          var mediaElement = media.mediaElement;
+          var mainVideo = document.getElementById('local-media-stream');
+          mainVideo.appendChild(mediaElement);
+          mediaElement.controls = false;
+      }
+  });
+
+  document.getElementById('init-RTCMultiConnection').onclick = function () {
+      rtcMultiConnection.initSession();
+      this.disabled = true;
+      now.sendScreenShare();
+  };
+  document.getElementById('vCapture').onclick = function () {
+      ssCapture();
+  };
+
+
+}
+
+
+
+now.screenShare = function(){
+     console.log('Start screen sharing');
+     jQuery('canvas').css({top:500});
+     //jQuery('#ssarea').append('<section><h2>Share Your Screen</h2><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
+     //jQuery('#ssarea').append('<section><h2>Share Your Screen</h2><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
+
+      jQuery('#ssarea').append('<section><h2>Share Your Screen</h2><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section><button id="vCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><br/><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="300" height="200"></canvas></div><div id="imgs"></div>');
+     //jQuery('#ssarea').append('<section><h2>Share Your Screen</h2><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section><button onClick="ssCapture()" style="width: 64px;border:solid 2px #ccc;">Capture</button><br/><div id="container" style="border:none"><canvas id="imageView" style="left: 0; top: 0; z-index: 0;border:1px solid #000000" width="300" height="200"></canvas></div><div id="imgs"></div>');
+
+     startSS();
+}
 
 
   /************ PPT viewer functions ********/
@@ -763,7 +863,9 @@ window.oncontextmenu = function(event) {
            // jQuery('#videoconf').append('<video id="localVideo"></video><div id="remotes"></div>');
           //$('#ssdisplay').modal();
           jQuery('canvas').css({top:500});
-          jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
+          //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
+          jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
+
           startSS();         
           break;    
         case 'Upload':
@@ -826,5 +928,7 @@ window.oncontextmenu = function(event) {
   })
   jQuery('.tool[value=Pen]').click();
 });
+
+
 
 
