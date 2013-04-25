@@ -323,60 +323,25 @@ function setScreenControls() {
   };
 }
 
-
-
-//start screen sharing
-startSS = function(){
-  console.log("start screen sharing");
-  var rtcMultiConnection = new RTCMultiConnection({
-      session: Session.Screen,
-      direction: Direction.OneWay,
-      openSignalingChannel: function (config) {
-          //var channel = config.channel || location.hash.replace('#', '') || 'screen-sharing-using-RTCMultiConnection';
-          var channel = wallId; 
-          var socket = new Firebase('https://kolabria.firebaseIO.com/' + channel);
-          socket.channel = channel;
-          socket.on('child_added', function (data) {
-              config.onmessage && config.onmessage(data.val());
-          });
-          socket.send = function (data) {
-              this.push(data);
-          };
-          config.onopen && setTimeout(config.onopen, 1);
-          socket.onDisconnect().remove();
-          return socket;
-      },
-      onRemoteStream: function (media) {
-          var mediaElement = media.mediaElement;
-
-          var localMediaStreams = document.getElementById('local-media-stream');
-          localMediaStreams.insertBefore(mediaElement, localMediaStreams.firstChild);
-          mediaElement.controls = false;
-          // jQuery('video').css({left:25,top:0,height:500});  this doesn't work or at least do what I want it to do
-          jQuery("video").attr("id","video");   
-          //jQuery("video").attr("width","500px");  adds attibutes but video still same size
-          //jQuery("video").attr("height","600px");  
-      },
-      onLocalStream: function (media) {
-          var mediaElement = media.mediaElement;
-          var mainVideo = document.getElementById('local-media-stream');
-          mainVideo.appendChild(mediaElement);
-          mediaElement.controls = false;
-      }
-  });
-
-  document.getElementById('init-RTCMultiConnection').onclick = function () {
-      rtcMultiConnection.initSession();
-      this.disabled = true;
-      now.sendScreenShare();
-  };
-  document.getElementById('sCapture').onclick = function () {
-      ssCapture();
-  };
-
-
+openCloseSS = function (){
+  if (!screenShareActive){
+    console.log('Open Screen');
+    jQuery('canvas').css({top:500});
+    jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+    setScreenControls();         
+	screenConnection.open(wallId+'screen');  
+	isScreenShareInitiator = true;  
+	screenShareActive = true;
+  }
+  else {  // close screen sharing 
+    jQuery('canvas').css({top:0});
+    jQuery('#ssarea').empty();
+    screenConnection.leave();
+    //screenConnection = new RTCMultiConnection(wallId+'screen');
+    //isScreenShareInitiator = false;        
+    screenShareActive = false;
+  }
 }
-
 
 
 now.screenShare = function(){
@@ -390,6 +355,110 @@ now.screenShare = function(){
 
      startSS();
 }
+
+/*************** video conferencing functions *************/
+var isVCInitiator = false;
+var VCActive = false;
+var VCSession;
+var localVCStream;
+var remoteVCStreams = new Array();
+var remoteVideoSize = 100;
+
+var VCSizeX = 200;
+var VCSizeY = 200; 
+var VCWidth, VCHeight;
+var VCConnection = new RTCMultiConnection(wallId+'VC');
+VCConnection.session = 'audio + video';
+
+
+VCConnection.onNewSession = function (session) {      
+      console.log('onNewSession-VC: ', session); 
+       if (!isVCInitiator) {
+	     jQuery('canvas').css({top:500, left:200});  //160
+	     jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="local-video-container"></section><section id="remote-videos-container"></section>');
+         VCSession = session;
+         VCConnection.join(session);
+         setVCControls();
+       }
+       //document.getElementById('open-screen').innerHTML="View Screen"; 
+       VCSession = session;
+};
+
+VCConnection.onstream = function (stream) {
+	console.log('Video onstream:',stream);
+	var video = document.createElement('div');
+	video.className = 'video-container';
+	video.id = stream.userid; 
+	video.appendChild(stream.mediaElement);
+    if (stream.type === 'local') {
+        localStream = stream;
+        document.getElementById('local-video-container').appendChild(video);
+        stream.mediaElement.width = 100 ;  
+		stream.mediaElement.height = 100 ;
+    }
+    if (stream.type === 'remote') {
+        remoteVCStreams.push(stream);
+        var remoteVideosContainer = document.getElementById('remote-videos-container');
+        remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+        stream.mediaElement.width = remoteVideoSize ;  
+		stream.mediaElement.height = remoteVideoSize ;
+    }
+};
+
+
+VCConnection.onUserLeft = function(userid) {
+	console.log('Left - userid: ',userid);
+	var video = document.getElementById(userid);
+	if(video) video.parentNode.removeChild(video);
+};
+
+function setVCControls() {
+	  document.getElementById('lv-plus').onclick = function () {
+			localStream.mediaElement.width +=100;  
+			localStream.mediaElement.height +=100;
+	  };
+	  document.getElementById('lv-minus').onclick = function () {
+			localStream.mediaElement.width -=100;  
+			localStream.mediaElement.height -=100;
+	  };
+	  document.getElementById('rv-plus').onclick = function () {
+		for (i=0; i<remoteVCStreams.length; i++){
+			remoteVCStreams[i].mediaElement.width +=100;  
+			remoteVCStreams[i].mediaElement.height +=100;
+		}
+		remoteVideoSize = remoteVCStreams[i-1].mediaElement.height;	
+	  };
+	  document.getElementById('rv-minus').onclick = function () {
+		for (i=0; i<remoteVCStreams.length; i++){
+			remoteVCStreams[i].mediaElement.width -=100;  
+			remoteVCStreams[i].mediaElement.height -=100;
+		}
+		remoteVideoSize = remoteVCStreams[i-1].mediaElement.height;
+	  };
+}
+
+openCloseVC = function (){
+  if (!VCActive){
+    console.log('Open VC');
+   // jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+    jQuery('canvas').css({top:500, left:200});  //160
+    jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="local-video-container"></section><section id="remote-videos-container"></section>');
+    setVCControls();         
+	VCConnection.open(wallId+'VC');  
+	isVCInitiator = true;  
+	VCActive = true;
+  }
+  else {  // close VC    
+    jQuery('canvas').css({top:0, left:0});
+    jQuery('#videoconf').empty();
+    VCConnection.leave();
+    //screenConnection = new RTCMultiConnection(wallId+'screen');
+    //isScreenShareInitiator = false;        
+    VCActive = false;
+  }
+}
+
+
 
 
   /************ PPT viewer functions ********/
@@ -924,32 +993,16 @@ window.oncontextmenu = function(event) {
           break;
         case 'Vconf':
           // start video conference
-          startVC();
-          now.sendVideoConf();
+          openCloseVC();
+         // now.sendVideoConf();
           break;    
         case 'ShareScreen':
           // start screen sharing
            // jQuery('canvas').css({top:160});
            // jQuery('#videoconf').append('<video id="localVideo"></video><div id="remotes"></div>');
           //$('#ssdisplay').modal();
-          if (!screenShareActive){
-	        console.log('Open Screen');
-	        jQuery('canvas').css({top:500});
-	        jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
-	        setScreenControls();         
-			screenConnection.open(wallId+'screen');  
-			isScreenShareInitiator = true;  
-			screenShareActive = true;
-          }
-          else {  // close screen sharing 
-	        jQuery('canvas').css({top:0});
-	        jQuery('#ssarea').empty();
-	        screenConnection.leave();
-	        //screenConnection = new RTCMultiConnection(wallId+'screen');
-            //isScreenShareInitiator = false;        
-            screenShareActive = false;
-          }
-          
+ 
+          openCloseSS();
           //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
           //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
           //startSS();   
