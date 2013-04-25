@@ -223,18 +223,15 @@ now.ready(function(){
 
 function getURIformcanvas() {
     var ImageURItoShow = "";
-    var canvasFromVideo = document.getElementById("imageView");
-    if (canvasFromVideo.getContext) {
-        var ctx = canvasFromVideo.getContext("2d"); // Get the context for the canvas.canvasFromVideo.
-        var ImageURItoShow = canvasFromVideo.toDataURL("image/png");
+    var canvasFromScreen = document.getElementById("imageView");
+    if (canvasFromScreen.getContext) {
+        var ctx = canvasFromScreen.getContext("2d"); // Get the context for the canvas.canvasFromVideo.
+        var ImageURItoShow = canvasFromScreen.toDataURL("image/png");
         now.sendImage(ImageURItoShow, paper.project.activeLayer.index, view.center, function(name){
           loadImage(name, view.center, ImageURItoShow, function(){
             paper.view.draw();
           });
-
         });
-
-
     }
    // var imgs = document.getElementById("imgs");
    // imgs.appendChild(Canvas2Image.convertToImage(canvasFromVideo, 300, 200, 'png'));
@@ -242,18 +239,91 @@ function getURIformcanvas() {
 
 
 function ssCapture() {
-    var video = document.getElementById("video");
+    var screen = document.getElementById("screen-video");
     var canvasDraw = document.getElementById('imageView');
     var w = canvasDraw.width;
     var h = canvasDraw.height;
     var ctxDraw = canvasDraw.getContext('2d');
 
     ctxDraw.clearRect(0, 0, w, h);
-    ctxDraw.drawImage(video, 0, 0, w, h);
+    ctxDraw.drawImage(screen, 0, 0, w, h);
     ctxDraw.save();
     
 	getURIformcanvas();	 
 }
+
+var isScreenShareInitiator = false;
+var screenShareActive = false;
+var screenSession;
+var screenStream;
+var screenSizeX = 200;
+var screenSizeY = 200; 
+var screenWidth, screenHeight;
+var screenConnection = new RTCMultiConnection(wallId+'screen');
+screenConnection.session = 'only-screen';
+screenConnection.direction = 'one-way';
+
+screenConnection.onNewSession = function (session) {      
+      console.log('onNewSession-screen: ', session); 
+       if (!isScreenShareInitiator) {
+	     jQuery('canvas').css({top:500});
+	     jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="400"></canvas></div>');
+         screenSession = session;
+         screenConnection.join(session);
+         setScreenControls();
+       }
+       //document.getElementById('open-screen').innerHTML="View Screen"; 
+       screenSession = session;
+};
+
+screenConnection.onstream = function (stream) {
+   console.log('Screen onstream:',stream);
+   var screen = document.createElement('div');
+   screen.className = 'screen-container';
+   screen.id = 'screen-content';
+   screen.appendChild(stream.mediaElement);
+   stream.mediaElement.id = 'screen-video';
+   if (stream.type === 'local') {
+      screenStream = stream;
+      document.getElementById('screen-container').appendChild(screen);
+      stream.mediaElement.width = screenSizeX;  
+      stream.mediaElement.height = screenSizeY;
+   }
+   if (stream.type === 'remote') {
+      screenStream = stream;
+      document.getElementById('screen-container').appendChild(screen);
+      stream.mediaElement.width = screenSizeX ;  
+      stream.mediaElement.height = screenSizeY ;
+  }
+};
+
+function setScreenControls() {
+	document.getElementById('sr-plus').onclick = function () {
+			screenStream.mediaElement.width +=50;  
+			screenStream.mediaElement.height +=50;
+	};
+	document.getElementById('sr-minus').onclick = function () {
+			screenStream.mediaElement.width -=50;  
+			screenStream.mediaElement.height -=50;
+	};
+	document.getElementById('sr-full').onclick = function () {
+			screenWidth = screenStream.mediaElement.width;
+			console.log('width:'+screenStream.mediaElement.width+' : '+screenWidth);
+			screenHeight = screenStream.mediaElement.height;
+			screenStream.mediaElement.width = window.innerWidth;  
+			screenStream.mediaElement.height = window.innerHeight;
+	};
+	document.getElementById('sr-small').onclick = function () {
+		    console.log('width, height ',screenWidth,' ',screenHeight);
+			screenStream.mediaElement.width =screenWidth;  
+			screenStream.mediaElement.height =screenHeight;
+	};
+	document.getElementById('sCapture').onclick = function () {
+      ssCapture();
+  };
+}
+
+
 
 //start screen sharing
 startSS = function(){
@@ -300,7 +370,7 @@ startSS = function(){
       this.disabled = true;
       now.sendScreenShare();
   };
-  document.getElementById('vCapture').onclick = function () {
+  document.getElementById('sCapture').onclick = function () {
       ssCapture();
   };
 
@@ -862,11 +932,28 @@ window.oncontextmenu = function(event) {
            // jQuery('canvas').css({top:160});
            // jQuery('#videoconf').append('<video id="localVideo"></video><div id="remotes"></div>');
           //$('#ssdisplay').modal();
-          jQuery('canvas').css({top:500});
+          if (!screenShareActive){
+	        console.log('Open Screen');
+	        jQuery('canvas').css({top:500});
+	        jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+	        setScreenControls();         
+			screenConnection.open(wallId+'screen');  
+			isScreenShareInitiator = true;  
+			screenShareActive = true;
+          }
+          else {  // close screen sharing 
+	        jQuery('canvas').css({top:0});
+	        jQuery('#ssarea').empty();
+	        screenConnection.leave();
+	        //screenConnection = new RTCMultiConnection(wallId+'screen');
+            //isScreenShareInitiator = false;        
+            screenShareActive = false;
+          }
+          
           //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
-          jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
-
-          startSS();         
+          //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
+          //startSS();   
+            
           break;    
         case 'Upload':
           // show powerpoint upload modal
