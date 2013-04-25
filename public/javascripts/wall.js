@@ -326,8 +326,10 @@ function setScreenControls() {
 			screenWidth = screenStream.mediaElement.width;
 			console.log('width:'+screenStream.mediaElement.width+' : '+screenWidth);
 			screenHeight = screenStream.mediaElement.height;
-			screenStream.mediaElement.width = window.innerWidth;  
-			screenStream.mediaElement.height = window.innerHeight;
+			screenStream.mediaElement.width = window.innerWidth; 
+		    var sh = window.innerHeight - jQuery('#toobar').height();
+		    console.log('new screen h',sh);
+			screenStream.mediaElement.height = sh;
 			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
 	        jQuery('canvas').css({top:newTop+'px'});
             document.getElementById('sr-full').disabled = true;
