@@ -1111,7 +1111,8 @@ app.get('/host/list/new', function(req,res){
 			w.company_id = box.oid;
 			w.PIN = pin;
 			var d = new Date();
-			w.name = box.name+' - '+d.toUTCString();  // 
+			//w.name = box.name+' - '+d.toUTCString();  // 
+			w.name = box.name+'-'+d.toLocaleDateString()+'-'+newPIN();   
 		    w.defaultWall_ID = w.id;
 		    w.shareURL = (Math.random() * 1000 << 1000);
 		   // console.log('new wall ID: ',w.id);
