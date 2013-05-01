@@ -37,15 +37,22 @@ html
               li  
                 button.btn.tool(type='button', onclick='', value='Select')
                   i.icon-hand-up
-              li  
-                button.btn.tool(type='button', onclick='', value='Show')
-                  i.icon-play-circle 
-              li  
-                button.btn.tool(type='button', onclick='', value='Vconf')
-                  i.icon-facetime-video 
-              li  
-                button.btn.tool(type='button', onclick='', value='ShareScreen')
-                  i.icon-fullscreen                                 
+              //- li  
+                //- button.btn.tool(type='button', onclick='', value='Show')
+                  //- i.icon-play-circle 
+              li.btn-group.dropup#vconf
+                button.btn.dropdown-toggle(data-toggle="dropdown")
+                  i.icon-facetime-video
+                  span.caret
+                ul.dropdown-menu
+                  li.btn(data-value='vcFull')
+                    h4 Full Screen
+                  li.btn(data-value='vcSplit')
+                    h4 Split Screen
+                  li.btn(data-value='vcHangup')
+                    h4 Hangup
+                  li.btn(data-value='vcCall')
+                    h4 Call                          
               block toolbar
           block functions
       .whiteboard!= body

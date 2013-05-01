@@ -1,5 +1,14 @@
 extends drawlayout
 block toolbar
+ li.btn-group.dropup#ShareScreen
+   button.btn.dropdown-toggle(data-toggle="dropdown")
+     i.icon-fullscreen
+     span.caret
+   ul.dropdown-menu
+     li.btn(data-value='ssSize')
+       h4 Minimize
+     li.btn(data-value='ssCapture')
+       h4 Capture Screen
   li.btn-group.dropup#walls
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-inbox

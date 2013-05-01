@@ -1,5 +1,16 @@
 extends drawlayout
 block toolbar
+  li.btn-group.dropup#ShareScreen
+    button.btn.dropdown-toggle(data-toggle="dropdown")
+      i.icon-fullscreen
+      span.caret
+    ul.dropdown-menu
+      li.btn#ssSize(data-value='ssSize')
+        h4 Minimize
+      li.btn#ssCapture(data-value='ssCapture')
+        h4 Capture Screen
+      li.btn#ssShare(data-value='ssShare')
+        h4 Share Screen
   li.btn-group.dropup#users
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-user
@@ -8,9 +19,9 @@ block toolbar
         li
           h4 Active Users
         li.divider
-  li  
-     button.btn.tool(type='button', onclick='', value='Upload')
-       i.icon-upload
+  //-li  
+     //-button.btn.tool(type='button', onclick='', value='Upload')
+       //-i.icon-upload
 block functions                        
   .pull-right
     a.brand(href="#") #{wall.name}

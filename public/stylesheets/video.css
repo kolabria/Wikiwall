@@ -29,3 +29,8 @@ video {
   -webkit-transition: all 1s;
   -webkit-box-sizing: border-box;
 }
+#mylocalVideo {
+  border: 5px solid #777;
+  outline: 0px;
+  height: 70px;
+}

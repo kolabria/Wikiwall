@@ -1974,8 +1974,8 @@ everyone.now.sendViewerBegin = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.viewerBegin();
 }
 
-everyone.now.sendScreenShare = function(){
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.screenShare();
+everyone.now.sendScreenCapture = function(cmd){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.screenCapture(cmd);
 }
 everyone.now.sendVideoConf = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.videoConf();
