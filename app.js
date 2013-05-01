@@ -1112,7 +1112,7 @@ app.get('/host/list/new', function(req,res){
 			w.PIN = pin;
 			var d = new Date();
 			//w.name = box.name+' - '+d.toUTCString();  // 
-			w.name = box.name+'-'+d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()+'-'+newPIN();   
+			w.name = box.name+'-'+d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()+'-'+(Math.floor((Math.random()*100)+1);   
 		    w.defaultWall_ID = w.id;
 		    w.shareURL = (Math.random() * 1000 << 1000);
 		   // console.log('new wall ID: ',w.id);
