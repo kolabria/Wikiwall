@@ -278,7 +278,7 @@ function ssMax(){
       jQuery('canvas').css({top:newTop+'px'});
       console.log('screen width: ',window.innerWidth);
       //screenStream.mediaElement.style.left="200px";
-      jQuery('#screen-content').css({left:window.innerWidth/2+'px'});
+      jQuery('#screen-video').css({left:window.innerWidth/2+'px'});
 
     }
 }
