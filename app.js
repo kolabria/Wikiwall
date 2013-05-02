@@ -1218,6 +1218,37 @@ app.post('/host/list/:id.:format?/assign', function(req,res){
 	}
 });
 
+app.post('/host/list/:id.:format?/rename', function(req,res){
+	console.log('rename local wall- wallid:',req.params.id,' new name: ',req.body.wallName);
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+		Box.findOne({ id: bid} , function(err, box) {
+		  if(err) console.log(err);
+		  if (box){	
+			  Iwall.findById(req.params.id, function (err, wall){
+				if(err) console.log(err);
+				if(wall){
+					for (i=0; i<=box.localList.length ; i++){  
+					  if (box.localList[i].wallID == req.params.id){
+					    box.localList[i].wallName = req.body.wallName;
+						box.save(function(err){
+							if(err) console.log('Rename: local wall',err);
+						});
+						break;
+				      }
+				    }
+				    wall.name = req.body.wallName;
+					wall.save((function(err) {
+						  if (err) console.log(' wall save failed: assign to user: ',err);
+				    }));
+				}
+			  });
+	      }
+	    res.redirect('/host/list/'); 
+	    });
+    }
+});
+
+
 app.get('/published/:id.:format?/draw', function(req,res){  
   res.local('layout', 'publishdraw'); 
   res.local('title', 'Published Wall'); 
