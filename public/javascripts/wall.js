@@ -324,7 +324,7 @@ screenConnection.onNewSession = function (session) {
        if (!isScreenShareInitiator) {
 	     //jQuery('canvas').css({top:500});
 	     //jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="400"></canvas></div>');
-         jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="800" height="450"></canvas></div>');
+         jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1000" height="562"></canvas></div>');
 
         // var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         // jQuery('canvas').css({top:newTop+'px'});
@@ -383,7 +383,7 @@ jQuery('#ShareScreen li').click(function(e){
         if (!screenShareActive){  // open screen share session
           console.log('Open Screen');
           //jQuery('canvas').css({top:500});
-          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="800" height="450"></canvas></div>');
+          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1000" height="562"></canvas></div>');
           var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
           //jQuery('canvas').css({top:newTop+'px'});       
           screenConnection.open(wallId+'screen');  
