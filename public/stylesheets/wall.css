@@ -76,3 +76,6 @@ canvas{
 #local-media-stream video {
     width: 34em;
 }
+.delete-object {
+	z-index: 1;
+}

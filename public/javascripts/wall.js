@@ -264,21 +264,24 @@ function ssMax(){
       console.log('new screen h',sh);
       screenStream.mediaElement.height = sh;
       var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-      jQuery('canvas').css({top:newTop+'px'});	
+      // jQuery('canvas').css({top:newTop+'px'});	
+      jQuery('canvas').css('z-index','-1');	
+      jQuery('screen-container').css('left','100'); 
     }
     else {
 	  console.log('start ss with VC active');
 	  screenWidth = screenStream.mediaElement.width;
 	  screenHeight = screenStream.mediaElement.height;
-	  screenStream.mediaElement.width = window.innerWidth/2; 
+	  screenStream.mediaElement.width = window.innerWidth/3*2; 
 	  var sh = window.innerHeight - jQuery('header').height()-4;  // give a 4px buffer 
       console.log('new screen h',sh);
       screenStream.mediaElement.height = sh;
       var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-      jQuery('canvas').css({top:newTop+'px'});
+      //jQuery('canvas').css({top:newTop+'px'});
       console.log('screen width: ',window.innerWidth);
       //screenStream.mediaElement.style.left="200px";
-      jQuery('#screen-video').css({left:window.innerWidth/2+'px'});
+      jQuery('canvas').css('z-index','-1');	
+      jQuery('#screen-content').css({left:window.innerWidth/3}); //css({left:vWidth+10})
 
     }
 }
@@ -292,11 +295,15 @@ function ssMin() {
 }
 
 function ssBack(){  // put the screen sharing behind the whiteboard
-   jQuery('canvas').css({top:0});
+   //jQuery('canvas').css({top:0});
+   jQuery('canvas').css('z-index','1');
+   jQuery('screen-container').css('z-index','-1');	
 }
 function ssFront(){  // move whiteboard down for screen sharing view
-	var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-    jQuery('canvas').css({top:newTop+'px'});
+	//var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    //jQuery('canvas').css({top:newTop+'px'});
+   jQuery('canvas').css('z-index','-1');
+   jQuery('screen-container').css('z-index','1');
 }
 
 var isScreenShareInitiator = false;
@@ -317,7 +324,7 @@ screenConnection.onNewSession = function (session) {
        if (!isScreenShareInitiator) {
 	     //jQuery('canvas').css({top:500});
 	     //jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="400"></canvas></div>');
-         jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="400"></canvas></div>');
+         jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="800" height="450"></canvas></div>');
 
         // var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         // jQuery('canvas').css({top:newTop+'px'});
@@ -376,9 +383,9 @@ jQuery('#ShareScreen li').click(function(e){
         if (!screenShareActive){  // open screen share session
           console.log('Open Screen');
           //jQuery('canvas').css({top:500});
-          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="800" height="450"></canvas></div>');
           var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-          jQuery('canvas').css({top:newTop+'px'});       
+          //jQuery('canvas').css({top:newTop+'px'});       
           screenConnection.open(wallId+'screen');  
           isScreenShareInitiator = true;  
           screenShareActive = true;
@@ -387,8 +394,9 @@ jQuery('#ShareScreen li').click(function(e){
         else {  // close screen share session
           
           screenConnection.leave();
+          ssBack();
           jQuery('#ssarea').empty();
-          jQuery('canvas').css({top:0+'px'});
+          //jQuery('canvas').css({top:0+'px'});
 		//var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //  jQuery('canvas').css({top:newTop+'px'});
          
@@ -401,13 +409,15 @@ jQuery('#ShareScreen li').click(function(e){
         break;
      case 'ssSize':  //  resize screen size
         if (screenFull) {
-	      ssMin();
-          jQuery('#ssSize').html('<h4>Maximize</h4>');
+	      //ssMin();
+	      ssBack();
+          jQuery('#ssSize').html('<h4>Show</h4>');
           screenFull = false;
         }
         else {
-          ssMax();
-          jQuery('#ssSize').html('<h4>Minimize</h4>');
+          //ssMax();
+          ssFront();
+          jQuery('#ssSize').html('<h4>Hide</h4>');
           screenFull = true; 
         }
         break;
@@ -530,7 +540,7 @@ sizeVideo = function() {
 	// rezise local and remote video elements based on number of participants and size of window
 	var vHeight;
 	var vWidth;
-	var areaWidth = $(window).width()/2;
+	var areaWidth = $(window).width()/3;  // - make 1/3  - /3
 	//console.log ('areaWidth: ',areaWidth);
 	var areaheight = $(window).height() - jQuery('#toolbar').height();
 	//console.log('areaheight: ',areaheight);
@@ -610,6 +620,7 @@ VCConnection.onstream = function (stream) {
 		//stream.mediaElement.height = remoteVideoSize ;
 		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //jQuery('canvas').css({top:newTop+'px'});
+        VCActive = true;
     }
 };
 
