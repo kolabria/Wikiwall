@@ -22,10 +22,6 @@ var express = require('express')
   , request = require('request')  //http request library
   , useragent = require('useragent'); 
 
-var os = require("os");
-
-console.log('host name: ',os.hostname());
-
 var https = require('https');
 var http = require('http');
 
@@ -36,7 +32,7 @@ var MongoStore = require('connect-mongo')(express);
 **/
 
 var port = process.env.VCAP_APP_PORT || 8000;
-
+var hostname = process.env.SERV_HOSTNAME || 'localhost';
 var db;
 var boxes = {};
 var shares = {};
@@ -710,7 +706,7 @@ app.get('/userwalls', requiresLogin, function(req,res){
 		             title: 'Kolabria'
 		           , user: user
 		           , walls: walls
-		           , hostname: os.hostname()
+		           , hostname: hostname
 	              });
 	        });
 	     }	
