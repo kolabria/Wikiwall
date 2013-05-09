@@ -1641,7 +1641,7 @@ app.get('/sdestroy', function(req, res){
 //Now.JS initialization
 
 var nowjs = require("now");
-var everyone = nowjs.initialize(app);
+var everyone = nowjs.initialize(app, {port: port});
 
 
 //Functions
