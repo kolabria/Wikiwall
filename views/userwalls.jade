@@ -19,7 +19,7 @@
           each wall in walls
             tr 
               td #{wall.name}
-              td https://points.kolabria.com:80/suw/#{wall.shareURL}
+              td https://#{hostname}/suw/#{wall.shareURL}
               td 
                 if (wall.userSharedWith[0])
                   i.icon-ok

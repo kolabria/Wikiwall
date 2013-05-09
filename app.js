@@ -22,6 +22,10 @@ var express = require('express')
   , request = require('request')  //http request library
   , useragent = require('useragent'); 
 
+var os = require("os");
+
+console.log('host name: ',os.hostname());
+
 var https = require('https');
 var http = require('http');
 
@@ -706,6 +710,7 @@ app.get('/userwalls', requiresLogin, function(req,res){
 		             title: 'Kolabria'
 		           , user: user
 		           , walls: walls
+		           , hostname: os.hostname()
 	              });
 	        });
 	     }	
