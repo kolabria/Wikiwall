@@ -31,7 +31,7 @@ var MongoStore = require('connect-mongo')(express);
 * Initialize Variables and Global Database
 **/
 
-var port = process.env.VCAP_APP_PORT || 8000;
+var port = process.env.SEC_SERV_PORT || 8000;
 var hostname = process.env.SERV_HOSTNAME || 'localhost';
 var db;
 var boxes = {};
@@ -46,6 +46,8 @@ var options = {
 };
 
 var app = module.exports = express.createServer(options);
+
+
 
 //need to assign this to a db variable?
 
@@ -96,6 +98,15 @@ app.configure('production', function(){
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", port, app.settings.env);
 
+/**********************  open server config *****/ 
+var app_open = express.createServer();
+var open_port = process.env.SERV_PORT || 8888;; 
+
+
+app_open.listen(open_port);
+console.log("Express server listening on port %d in %s mode", open_port, app_open.settings.env);
+
+
 /**
 * Middleware
 **/
@@ -110,6 +121,7 @@ app.dynamicHelpers({
 app.helpers({
   _:require('underscore') // make underscore available to clientside
 })
+
 
 /**
 * Login Middleware
@@ -239,6 +251,11 @@ app.get('/', function(req,res){
   res.local('title', 'Kolabria - Sharing Visual Ideas')
   res.render('index',{});
 });
+
+app_open.get('*', function(req,res){
+  res.redirect('https://'+hostname+':'+port+ req.path);
+});
+
 
 
 //Todo Remove?
