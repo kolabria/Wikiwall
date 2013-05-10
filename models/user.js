@@ -27,6 +27,7 @@ var UserSchema = new Schema({
   , salt: String
   , Pwd: {type: String}
   , SharedWithMe: [SharedWall]
+  , freeAcct: Boolean
 });
 
 

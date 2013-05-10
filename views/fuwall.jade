@@ -1,0 +1,33 @@
+.container
+  .page-header
+    h1 Free Account
+    h2 User:  #{user.name}
+  .row-fluid
+      br
+      h3 WikiWalls:
+      br
+      table.table
+        thead
+          tr
+            th  WikiWall Name
+            th  Link
+            th  Draw
+        tbody
+          
+          tr 
+            td #{wall.name}
+            td https://#{hostname}/suw/#{wall.shareURL}
+            td
+              a.btn(href='/user/#{wall.defaultWall_ID}/draw') open
+      h3 Shared WikiWalls
+      table.table
+        thead
+          tr
+            th WikiWall Name
+            th Draw
+        tbody
+          each swall in user.SharedWithMe
+            tr 
+              td #{swall.wallName}
+              td
+                a.btn(href='/user/#{swall.wallID}/draw') Open

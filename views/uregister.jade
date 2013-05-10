@@ -18,6 +18,19 @@
           .controls
             input.input-xlarge#password(required, name='user[password]', value=user.password || '', type='password', placeholder="Password")
         .control-group
+          label.control-label Plan Type:
+          .controls
+            input(type='radio',name='accttype',value='free')
+            |   Free
+            br
+            input(type='radio', name='accttype', value='paid')
+            |   Paid
+        .control-group
+          label.control-label(for="auth") Authentication Code:
+          .controls
+            input.input-xlarge#password( name='authcode', placeholder="paid accounts only")
+
+        .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Register')
         .control-group
           a.pull-right(href='ULogin') Login

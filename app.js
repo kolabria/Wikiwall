@@ -319,23 +319,51 @@ app.post('/uregister.:format?', function(req, res){
       locals: { title: 'Register', user: user }
     });
   }
+  if (req.body.accttype == 'free'){
+	user.freeAcct = true;
 
-  user.save(function(err) {
-    if (err) return userSaveFailed();
-    // req.flash('info', 'Your account has been created');
-    console.log('Account Created');
+    user.save(function(err) {
+      if (err) return userSaveFailed();
+      // req.flash('info', 'Your account has been created');
+      console.log('Account Created');
 
-    switch (req.params.format) {
-      case 'json':
-        res.send(user.toObject());
-      	break;
+      switch (req.params.format) {
+        case 'json':
+          res.send(user.toObject());
+        	break;
 
-      default:
-        req.session.user_id = user.id;
-        res.redirect('/userwalls');
-      	break;
+        default:
+          req.session.user_id = user.id;
+          res.redirect('/userwalls');
+        	break;
+      }
+    });
+  }
+  else {
+    if (req.body.authcode == 'little red ridding hood') {
+		user.freeAcct = false;
+	    user.save(function(err) {
+	      if (err) return userSaveFailed();
+	      // req.flash('info', 'Your account has been created');
+	      console.log('Account Created');
+
+	      switch (req.params.format) {
+	        case 'json':
+	          res.send(user.toObject());
+	        	break;
+
+	        default:
+	          req.session.user_id = user.id;
+	          res.redirect('/userwalls');
+	        	break;
+	      }
+	    });
     }
-  });
+    else {
+	   req.flash('error', 'Invalid authentication code');
+	   res.redirect('/uregister');
+    }
+  }
 });
 
 app.get('/join', function(req,res){
@@ -695,8 +723,10 @@ app.delete('/controllers/:id.:format?/unshare/:sb', requiresLogin, function(req,
 * User Views
 **/
 app.get('/userwalls', requiresLogin, function(req,res){	
+	var w;
 	User.findById(req.session.user_id, function(err, user) {
 	    if (user) {
+		  if (!user.freeAcct) {
 			Iwall.find({ user_id: req.session.user_id}, function(err, walls) {
 				  if(err){
 				    console.log(err);
@@ -709,7 +739,37 @@ app.get('/userwalls', requiresLogin, function(req,res){
 		           , hostname: hostname
 	              });
 	        });
-	     }	
+	      }
+	      else {
+		    Iwall.find({ user_id: req.session.user_id}, function(err, walls) {
+			  if(err){
+			    console.log(err);
+			  } 
+			  if (walls.length == 0) {
+	              w = new Iwall();
+			      w.user_id = req.session.user_id;
+				  w.company_id = w.user_id;
+				  w.PIN = newPIN();
+				  w.name = user.name+newPIN();
+			      w.defaultWall_ID = w.id;
+			      w.shareURL = (Math.random() * 1000 << 1000);
+				  w.save(function(err) {
+				    if (err) console.log('New wall add failed');
+				  });
+	          }
+	          else {
+		        w = walls[0];
+	          }
+			  res.local('layout', 'uloginlayout');
+			  res.render('fuwall', {
+		         title: 'Kolabria'
+		       , user: user
+		       , wall: w
+		       , hostname: hostname
+	          });
+			});
+          }
+	    }	
 	});
 });
 
@@ -736,6 +796,7 @@ app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
 	if(wall){
 		// need to remove from all shared users list of sharedWithMe list 
 		// need to remove from all boxes pubList 
+		// need to remove wall and paths 
 		wall.remove();
 	}
   });
@@ -1630,7 +1691,23 @@ app.post('/images', function(req,res){
 });
 
 app.get('/sdestroy', function(req, res){
+//	console.log('session: ', req.session);
+	var uid = req.session.user_id;
   if (req.session) {
+	User.findById(uid, function(err, user) {
+	    if (user) {
+		  if (user.freeAcct) {
+		    Iwall.find({ user_id: uid}, function(err, walls) {
+			  if(err){
+			    console.log(err);
+			  } 
+			  if (walls.length >=1) {
+	            walls[0].remove();
+	          }
+			});
+		 }
+	  }
+	});
     req.session.destroy(function() {});
   }
   res.redirect('/ulogin');
