@@ -96,15 +96,40 @@ app.configure('production', function(){
 
 
 app.listen(port);
-console.log("Express server listening on port %d in %s mode", port, app.settings.env);
+console.log("Express secure server listening on port %d in %s mode", port, app.settings.env);
 
 /**********************  open server config *****/ 
 var app_open = express.createServer();
+
+app_open.configure(function(){
+  app_open.set('views', __dirname + '/views');
+  app_open.set('view engine', 'jade');
+  app_open.use(express.bodyParser());
+  app_open.use(express.methodOverride());
+  app_open.use(express.cookieParser());
+  app_open.use(express.session({ 
+      secret: 'galaxy quest'
+    , store: new MongoStore({
+	    db: 'myDb'
+      }) 
+  }));
+  app_open.use(app_open.router);
+  app_open.use(express.static(__dirname + '/public'));
+});
+
+app_open.configure('development', function(){
+  app_open.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+});
+
+app_open.configure('production', function(){
+  app_open.use(express.errorHandler()); 
+});
+
 var open_port = process.env.SERV_PORT || 8888;; 
 
 
 app_open.listen(open_port);
-console.log("Express server listening on port %d in %s mode", open_port, app_open.settings.env);
+console.log("Express open server listening on port %d in %s mode", open_port, app_open.settings.env);
 
 
 /**
@@ -119,6 +144,17 @@ app.dynamicHelpers({
 });
 
 app.helpers({
+  _:require('underscore') // make underscore available to clientside
+})
+
+app_open.dynamicHelpers({
+  messages: require('express-messages-bootstrap') // allow for flash messages
+  , base: function(req,res){
+  	return req.header('host')
+  }
+});
+
+app_open.helpers({
   _:require('underscore') // make underscore available to clientside
 })
 
@@ -246,17 +282,54 @@ app.get('/apperror', function(req,res){
 * Site Routes
 **/
 
+
+
+
 app.get('/', function(req,res){
   res.local('layout', 'sitelayout');
   res.local('title', 'Kolabria - Sharing Visual Ideas')
   res.render('index',{});
 });
 
+app_open.get('/', function(req,res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Sharing Visual Ideas')
+  res.render('index',{});
+});
+
+
+app_open.get('/about', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - About')
+    res.render('about',{});
+})
+app_open.get('/contact', function(req, res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Contact')
+    res.render('contact',{});
+
+})
+app_open.post('/contact', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Contact')
+
+
+})
+app_open.get('/product', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Product')
+    res.render('product',{});
+
+})
+
+// redirects all remaining pages to secure site 
 app_open.get('*', function(req,res){
   res.redirect('https://'+hostname+':'+port+ req.path);
 });
 
-
+app_open.post('*', function(req,res){
+  res.redirect('https://'+hostname+':'+port+ req.path);
+});
 
 //Todo Remove?
 app.get('/tindex', function(req,res){
