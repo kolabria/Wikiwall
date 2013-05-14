@@ -878,15 +878,57 @@ app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	res.redirect('/userwalls');
 });
 
+// called to delete wall from each user who it is shared with
+removeSharedWith = function(sharers, wallId){
+// find each sharer and remove wall from Shared with me
+  for (i=0;i<sharers.length;i++) {
+	User.findOne({Email: sharers[i]},function(err,suser){
+	  if (err) console.log(err);
+	  if (suser){
+		  for (i=0; i<=suser.SharedWithMe.length ; i++){  
+			 if (suser.SharedWithMe[i].wallID == wallId){
+				suser.SharedWithMe.splice(i,1);
+				suser.save(function(err){
+					if(err) console.log('Could not remove (save error) shared wall from user',err);
+				});
+				break;
+		     }
+		  }
+	  }
+	});
+  }
+}
+
+removePubedTo = function(pubedTo, wallId) {
+	for (i=0;i<pubedTo.length; i++){
+			Box.findOne({name: pubedTo[i]},function(err,box){
+			  if (err) console.log(err);
+			  if (box){
+				  for (i=0; i<=box.pubList.length ; i++){  
+					 if (box.pubList[i].wallID == wallId){
+						box.pubList.splice(i,1);
+						box.save(function(err){
+							if(err) console.log('Could not remove (save error) shared wall from user',err);
+						});
+						break;
+				     }
+				  }
+			  }
+			});
+		}
+	}
+
 // remove user wall
 app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
   console.log('Remove User Wall: ID -  ', req.params.id);
   Iwall.findById(req.params.id, function (err, wall){
 	if(err) console.log(err);
 	if(wall){
-		// need to remove from all shared users list of sharedWithMe list 
-		// need to remove from all boxes pubList 
-		// need to remove wall and paths 
+		//  remove from all shared users list of sharedWithMe list 
+		removeSharedWith(wall.userSharedWith,req.params.id);
+		// remove from all boxes pubList 
+		removePubedTo(wall.publishedTo, req.params.id);
+		deleteWall(req.params.id);  // delete drawing wall and paths
 		wall.remove();
 	}
   });
@@ -1311,6 +1353,7 @@ app.delete('/host/list/:id.:format?/', function(req,res){
 				if(wall){
 					wall.remove();
 				}
+				deleteWall(req.params.id);
 			  });
 		   }  
 		   res.redirect('/host/list/');  
