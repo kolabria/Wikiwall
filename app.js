@@ -1891,6 +1891,8 @@ everyone.now.initWall = function(callback){
   var client = this.user.clientId;
   var name = this.now.name;
   var wallId = this.now.wallId;
+  var browser = this.now.browser;
+  var bversion = this.now.bversion; 
   var usernames = [];
   
     //add this user to a group      
@@ -1905,13 +1907,15 @@ everyone.now.initWall = function(callback){
 	  });
   }
 
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client);
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client, browser, bversion);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).getUsers(function(users){
     async.forEach(users, function(item, callback){
       nowjs.getClient(item, function(){
         usernames.push({
             name: this.now.name
             , id: this.user.clientId
+            , browser: this.now.browser
+            , bversion: this.now.bversion
           });
         callback();
       })

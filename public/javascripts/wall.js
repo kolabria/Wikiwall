@@ -13,6 +13,8 @@ now.ready(function(){
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
+  now.browser = $.ua.browser.name; 
+  now.bversion = $.ua.browser.version;
   if(typeof boxID != 'undefined'){
     now.boxID = boxID
     now.register(function(shared,shares){
@@ -34,6 +36,7 @@ now.ready(function(){
   var color = 'black';
   var width = 6;
   var scribd_doc;
+  var usernames = [];  // array of current users on the wall 
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -381,6 +384,20 @@ jQuery('#ShareScreen li').click(function(e){
   switch(cl){
       case 'ssShare':  
         if (!screenShareActive){  // open screen share session
+	        var browserNotChrome = false;
+	        var badPeople = " ";
+	        console.log('usernames length: ',usernames.length);
+	        for (i=0; i < usernames.length; i++){
+		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
+		      if (usernames[i].browser != "Chrome") {
+			    browserNotChrome = true; 
+			    badPeople = badPeople+usernames[i].name+' , ';
+		      }
+	        }
+	        if (browserNotChrome) {
+		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
+		     break; 
+        	}
           console.log('Open Screen');
           //jQuery('canvas').css({top:500});
           jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1300" height="731"></canvas></div>');
@@ -621,6 +638,7 @@ VCConnection.onstream = function (stream) {
 		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //jQuery('canvas').css({top:newTop+'px'});
         VCActive = true;
+        jQuery('#vcCall').html('<h4>HangUp</h4>');
     }
 };
 
@@ -672,27 +690,48 @@ jQuery('#vconf li').click(function(e){
   //console.log('clicked vconf button cl: ',cl);
   switch(cl){
       case 'vcCall': 
-        console.log('Open VC');
-        //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
-        jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
-        
-        var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-        //jQuery('canvas').css({top:newTop+'px'});
-        // by default split screen in two - video - whiteboard
-        var middle = $(window).width()/2;
-        jQuery('canvas').css({left:middle});
-        //setVCControls();         
-        VCConnection.open(wallId+'VC');  
-        isVCInitiator = true;  
-        VCActive = true;
-        break;
-     case 'vcHangup':
-        jQuery('canvas').css({top:0, left:0});
-        jQuery('#videoconf').empty();
-        VCConnection.leave();
-        //VCConnection = new RTCMultiConnection(wallId+'VC');
-        //isVCInitiator = false;        
-        VCActive = false;
+        if (!VCActive) {
+	        //console.log('Browser: ',$.ua.browser.name);
+	        //console.log('Browser version: ',$.ua.browser.version);
+	        //console.log('Browser version: ',$.ua.browser.major);
+	        var browserNotChrome = false;
+	        var badPeople = " ";
+	        console.log('usernames length: ',usernames.length);
+	        for (i=0; i < usernames.length; i++){
+		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
+		      if (usernames[i].browser != "Chrome") {
+			    browserNotChrome = true; 
+			    badPeople = badPeople+usernames[i].name+' , ';
+		      }
+	        }
+	        if (browserNotChrome) {
+		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
+		     break; 
+        	}
+	      	console.log('Open VC');
+	        //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
+	        jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+
+	        var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        //jQuery('canvas').css({top:newTop+'px'});
+	        // by default split screen in two - video - whiteboard
+	        var middle = $(window).width()/2;
+	        jQuery('canvas').css({left:middle});
+	        //setVCControls();         
+	        VCConnection.open(wallId+'VC');  
+	        isVCInitiator = true;  
+	        VCActive = true;
+	        jQuery('#vcCall').html('<h4>HangUp</h4>');
+        }
+        else {
+	        jQuery('canvas').css({top:0, left:0});
+	        jQuery('#videoconf').empty();
+	        VCConnection.leave();
+	        //VCConnection = new RTCMultiConnection(wallId+'VC');
+	        //isVCInitiator = false;        
+	        VCActive = false;
+	        jQuery('#vcCall').html('<h4>Call</h4>');
+        }
         break;
      case 'vcFull':
         
@@ -865,15 +904,24 @@ openCloseVC = function (){
 	
   }
   /******** NOW functions *******/
-  now.pushUser = function(username, clientId){
+  now.pushUser = function(username, clientId, browser, bversion){
     jQuery('#users').find('ul').append('<li class="'+clientId+'">'+username+'</li>');
-    gAlert(username+' Has Joined')
+    gAlert(username+' Has Joined');
+    usernames.push({
+        name: username
+        , id: clientId
+        , browser: browser
+        , bversion: bversion
+      });
   }
   now.pullUser = function(username, clientId){
     users = jQuery('#users').find('.'+clientId);
     if (users.length){
       jQuery(users).detach()
       gAlert(username + ' Has Left');
+    }
+    if (i=usernames.indexOf("clientId")){
+	   usernames.splice(i);
     }
   }
 
@@ -908,6 +956,12 @@ openCloseVC = function (){
     }
     for(i = 0; i < users.length;i++){
       jQuery('#users').find('ul').append('<li class="'+users[i].id+'">'+users[i].name+'</li>');
+      usernames.push({
+          name: users[i].name
+        , id: users[i].id
+        , browser: users[i].browser
+        , bversion: users[i].bversion
+      });
     }
     paper.view.draw();//refresh canvas
   });	
