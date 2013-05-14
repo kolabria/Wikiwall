@@ -37,6 +37,7 @@ now.ready(function(){
   var width = 6;
   var scribd_doc;
   var usernames = [];  // array of current users on the wall 
+  var xOffset = 0;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -99,9 +100,9 @@ now.ready(function(){
   }
   
   updateDelete = function(){
-    var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
-    var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
-    jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+    var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+    var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
+    jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
   }
 
   scrollNav = function(){
@@ -582,6 +583,7 @@ sizeVideo = function() {
 	  }
 	  localStream.mediaElement.width = vWidth/2;  
 	  localStream.mediaElement.height =vHeight/2;
+	  xOffset = vWidth+10;
 	  jQuery('canvas').css({left:vWidth+10});  // readjust canvas positioning so don't have wasted space 
     }	
 }
@@ -716,6 +718,7 @@ jQuery('#vconf li').click(function(e){
 	        //jQuery('canvas').css({top:newTop+'px'});
 	        // by default split screen in two - video - whiteboard
 	        var middle = $(window).width()/2;
+	        xOffset = middle;
 	        jQuery('canvas').css({left:middle});
 	        //setVCControls();         
 	        VCConnection.open(wallId+'VC');  
@@ -731,6 +734,7 @@ jQuery('#vconf li').click(function(e){
 	        //isVCInitiator = false;        
 	        VCActive = false;
 	        jQuery('#vcCall').html('<h4>Call</h4>');
+	        xOffset = 0;
         }
         break;
      case 'vcFull':
@@ -1153,8 +1157,8 @@ window.oncontextmenu = function(event) {
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
-      var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
-      var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
+      var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+      var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
       select.target.item.selected = true;
       jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
