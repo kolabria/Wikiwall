@@ -13,6 +13,9 @@ var Mongoose = require('mongoose')
   , PIN: String 
   , userSharedWith: [String]   // email of users wall shared with
   , publishedTo: [String]   // box names to which wall has been published
+  , createdOn: Date
+  , lastOpened: Date
+  , timesOpened: Number
  });
 
 iwallSchema

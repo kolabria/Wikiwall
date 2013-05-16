@@ -408,6 +408,7 @@ jQuery('#ShareScreen li').click(function(e){
           isScreenShareInitiator = true;  
           screenShareActive = true;
           jQuery('#ssShare').html('<h4>Close</h4>');
+          now.actionMeeting(wallId, name, 'goSS');
         }
         else {  // close screen share session
           
@@ -446,6 +447,7 @@ jQuery('#ShareScreen li').click(function(e){
           jQuery('#ssCapture').html('<h4>Release</h4>');
           screenCapture = true;
           now.sendScreenCapture('capture');
+          now.actionMeeting(wallId, name, 'goSSCapture');
         }
         else {
 	      ssFront();
@@ -725,6 +727,7 @@ jQuery('#vconf li').click(function(e){
 	        isVCInitiator = true;  
 	        VCActive = true;
 	        jQuery('#vcCall').html('<h4>HangUp</h4>');
+	        now.actionMeeting(wallId, name, 'goVC');
         }
         else {
 	        jQuery('canvas').css({top:0, left:0});
@@ -1279,8 +1282,7 @@ window.oncontextmenu = function(event) {
     if(/.*tool.*/.test(cl)){
       switch(t){
         case 'Nav':
-          scrollNav();  
-          _gaq.push(['_trackEvent', 'Nav', 'clicked',name]);    
+          scrollNav();     
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2;
@@ -1294,13 +1296,11 @@ window.oncontextmenu = function(event) {
           obj.addClass('btn-info');
           c.addClass('crosshair');
           pen.activate();
-          _gaq.push(['_trackEvent', 'Pen', 'clicked',name]);
           break;
         case 'Select':
           obj.addClass('btn-info');
           c.addClass('pointer');
           select.activate();
-          _gaq.push(['_trackEvent', 'Select', 'clicked',name]);
           break;
         case 'Center':
           var l = paper.project.activeLayer.bounds.center;
@@ -1312,7 +1312,6 @@ window.oncontextmenu = function(event) {
           break;
         case 'Export':
           exportCanvas();
-          _gaq.push(['_trackEvent', 'Export', 'clicked',name]);
           break;
         case 'Show':
           // show powerpoint list
@@ -1393,6 +1392,7 @@ window.oncontextmenu = function(event) {
     e.preventDefault();
     var file = e.originalEvent.dataTransfer.files[0];
     processFiles(file);
+    now.actionMeeting(wallId, name, 'goEImg');
   })
   jQuery('.tool[value=Pen]').click();
 });

@@ -18,6 +18,7 @@ var express = require('express')
   , User = require('./models/user')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
+  , Meeting = require('./models/meeting.js')
   , xml2js = require('xml2js')
   , request = require('request')  //http request library
   , useragent = require('useragent'); 
@@ -485,6 +486,7 @@ app.post('/join', function(req,res){
 	     //console.log('join: good room');
 		 if (wall.PIN == req.body.code) {
 			//console.log('join: good PIN');
+			joinMeeting(wall.id,req.body.name, 'join');
 	        res.render('draw', {
 		      title: 'Kolabria - '+wall.name, wall: wall, userName: req.body.name, ie: ie  
 		    });
@@ -843,6 +845,7 @@ app.get('/userwalls', requiresLogin, function(req,res){
 				  w.name = user.name+newPIN();
 			      w.defaultWall_ID = w.id;
 			      w.shareURL = (Math.random() * 1000 << 1000);
+			      w.timesOpened = 0;
 				  w.save(function(err) {
 				    if (err) console.log('New wall add failed');
 				  });
@@ -865,6 +868,19 @@ app.get('/userwalls', requiresLogin, function(req,res){
 
 // add new user wall
 app.post('/userwalls.:format?', requiresLogin, function(req,res){
+	User.findById(req.session.user_id, function(err, user){
+	  if (user) {
+		//console.log('user: ',user.name);
+		if (user.numWalls) {
+		  user.numWalls=user.numWalls+1;
+	    }
+	    else
+	      user.numWalls = 1;
+		user.save(function(err){
+			if(err) console.log('userwall count save fail');
+		});
+	  }
+	});
 	var w = new Iwall();
 	w.user_id = req.session.user_id;
 	w.company_id = w.user_id;
@@ -872,8 +888,10 @@ app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	w.name = req.body.wall_name;
     w.defaultWall_ID = w.id;
     w.shareURL = (Math.random() * 1000 << 1000);
+    w.createdOn = new Date();
+    w.timesOpened = 0;
 	w.save(function(err) {
-	  if (err) console.log('New wall add failed');
+	  if (err) console.log('New wall add failed',err);
 	});
 	res.redirect('/userwalls');
 });
@@ -921,6 +939,14 @@ removePubedTo = function(pubedTo, wallId) {
 // remove user wall
 app.delete('/userwalls/:id.:format?', requiresLogin, function(req,res){
   console.log('Remove User Wall: ID -  ', req.params.id);
+  User.findById(req.session.user_id, function(err, user){
+    if (user) {
+	  user.numWalls=user.numWalls-1;
+	  user.save(function(err){
+		if(err) console.log('userwall count save fail');
+	  });
+    }
+  });
   Iwall.findById(req.params.id, function (err, wall){
 	if(err) console.log(err);
 	if(wall){
@@ -1309,6 +1335,8 @@ app.get('/host/list/new', function(req,res){
 			w.name = box.name+'-'+d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()+'-'+(Math.floor((Math.random()*100)+1));   
 		    w.defaultWall_ID = w.id;
 		    w.shareURL = (Math.random() * 1000 << 1000);
+		    w.createdOn = new Date();
+		    w.timesOpened = 0;
 		   // console.log('new wall ID: ',w.id);
 		   // console.log('new wall: ',w);
 			w.save(function(err) {
@@ -1375,6 +1403,14 @@ app.post('/host/list/:id.:format?/assign', function(req,res){
 					console.log('email to assign wall: ',req.body.email);
 					User.findOne({ Email: req.body.email }, function(err, user) {
 						if (user) {
+							if (user.numWalls) {
+							  user.numWalls=user.numWalls+1;
+						    }
+						    else
+						      user.numWalls = 1;
+							user.save(function(err){
+							  if(err) console.log('userwall count save fail');
+							});
 							box.pubList.push({wallID: wall.id, wallName: wall.name});
 							//console.log('User to share with: ',suser);
 							box.save(function(err){
@@ -1456,6 +1492,12 @@ app.get('/published/:id.:format?/draw', function(req,res){
 	    if (err) console.log(err)
 	    if (wall) {
 		  	//console.log('wall: ',wall);
+		    wall.lastOpened = new Date();
+		    wall.timesOpened = wall.timesOpened +1;
+			wall.save(function(err) {
+			  if (err) console.log('New wall add failed: ',err);
+			});
+			joinMeeting(wall.id,rbox.name,'box');
 		    res.render('draw',{
 		    	 wall: wall , rbox: rbox , ie: false
 	    	});
@@ -1467,6 +1509,187 @@ app.get('/published/:id.:format?/draw', function(req,res){
     });		
   });
 });
+
+//  ********  sys admin view *********
+app.get('/sysadmin', function(req,res){	
+	User.find({}, function(err, users) {
+	  if(err) console.log(err);
+	    Box.find({}, function(err, boxes) {
+			if(err) console.log(err);
+			var totalPaths=0;
+			var avg = 0; 
+			Wall.find({},function(err,walls){
+				if(err) console.log(err);
+				if (walls){
+					for (i=0; i < walls.length; i++){
+						totalPaths = totalPaths + walls[i].paths.length;	
+					}
+				}
+				avg = totalPaths / walls.length;
+				Meeting.find({},function(err,meetings){
+					if (err) console.log(err);
+					res.local('layout', 'uloginlayout');
+			        res.render('sysadmin', {
+			           title: 'Kolabria'
+			          , user: 'sysadmin'
+			          , users: users
+			          , boxes: boxes
+			          , avgPath: avg
+			          , meetings: meetings
+		            });
+				})
+	         });
+	    });	
+	});
+});
+
+app.delete('/sysadmin/user/:id.:format?/', function(req,res){
+   //console.log('remove user: ',req.params.id);
+   // find user and remove
+   // remove all iwalls, walls, shared with, published 
+  User.findById(req.params.id, function(err, user){
+    if (user) {
+	  console.log('user id:',user.id);
+	  Iwall.find({user_id: user.id},function(err,walls){
+		if (walls){
+		//	console.log('walls found: ', walls.length);
+			var cnt = walls.length;
+			for (i=0; i < cnt ; i++){
+				console.log('wall to remove',walls[i].id);
+				console.log('index: '+i+' lenght: '+cnt);
+				var userSharedWith = walls[i].userSharedWith;
+				console.log('shared with: ',userSharedWith);
+				var wallId = walls[i].id;
+				var publishedTo = walls[i].publishedTo;
+				console.log('share list length: ', userSharedWith.length);
+				if (userSharedWith.length >0)  removeSharedWith(userSharedWith,wallId);
+				// remove from all boxes pubList 
+				if (publishedTo.length > 0) removePubedTo(publishedTo, wallId);
+				deleteWall(wallId);  // delete drawing wall and paths
+				walls[i].remove();
+			}	
+		}
+	  });
+	  user.remove();
+	  req.flash('error',"User Removed");
+	  res.redirect('/sysadmin/'); 
+    }
+    else {
+	  req.flash('error',"Unable to remove user");
+	  res.redirect('/sysadmin/'); 
+    }
+  });
+});
+
+// show details about walls for a user 
+
+app.get('/sysadmin/:id.:format?/details', function(req,res){
+ // console.log('user details: ',req.params.id);
+  User.findById(req.params.id, function(err, user){
+    if (user) {
+      Iwall.find({user_id: req.params.id},function(err,walls){
+        if (walls){
+          //console.log('walls found: ', walls.length);
+          res.local('layout', 'uloginlayout');
+          res.render('syswalldetails', {
+             title: 'Kolabria'
+            , walls: walls
+            , user: user
+          });
+	    }
+      });
+    }
+  });
+});
+
+
+joinMeeting = function(wallId, name, from){
+	//console.log('joinMeeting- wId: '+wallId+' name: '+name);	
+	Meeting.find({wallId: wallId})
+	.where('active').equals(true)
+	.exec(function(err,m){
+		if (err) console.log(err);
+		if (m.length >0) {
+			// found active meeting so add participant
+			//console.log('found an existing meeting', m[0]);
+			m[0].currentParticipants=m[0].currentParticipants+1;
+			m[0].maxParticipants=m[0].maxParticipants+1;
+			switch (from){
+				case 'user': 
+				  m[0].fromUser = true;
+				  break;
+				case 'box': 
+				  m[0].fromBox = true;
+				  break;
+				case 'url': 
+				  m[0].fromURL = true;
+				  break;
+				case 'join': 
+				  m[0].fromJoin = true;
+				  break;
+			}
+			m[0].save(function(err) {
+			  if (err) console.log('meeting add participant failed: ',err);
+			});
+		}
+		else {
+			// no active meeting so start one. 
+			//console.log('create a new meeting');
+			var nm = new Meeting();
+			nm.active = true;
+			nm.wallId = wallId;
+			nm.currentParticipants = 1;
+			nm.maxParticipants = 1;
+			switch (from){
+				case 'user': 
+				  nm.fromUser = true;
+				  break;
+				case 'box': 
+				  nm.fromBox = true;
+				  break;
+				case 'url': 
+				  nm.fromURL = true;
+				  break;
+				case 'join': 
+				  nm.fromJoin = true;
+				  break;
+			}
+			nm.startTime = new Date();
+			
+			nm.save(function(err) {
+			  if (err) console.log('new meeting save failed: ',err);
+			});
+		}
+	});	
+}
+leaveMeeting = function(wallId, name){
+	//console.log('leaveMeeting- wId: '+wallId+' name: '+name);	
+	Meeting.find({wallId: wallId})
+	.where('active').equals(true)
+	.exec(function(err,m){
+		if (err) console.log(err);
+		if (m.length >0) {
+			// found active meeting so delete participant
+			//console.log('found an existing meeting', m[0]);
+			if (m[0].currentParticipants > 1) {
+				m[0].currentParticipants=m[0].currentParticipants-1;
+			}
+			else{
+				//  if last participant then end meeting
+				m[0].currentParticipants=0;
+				m[0].active = false;
+				m[0].stopTime = new Date();
+			}
+			m[0].save(function(err) {
+			  if (err) console.log('meeting add participant failed: ',err);
+			});
+		}
+		else {
+			console.log('leaveMeeting: no active meeting found');
+		}
+	});	
+}
+
 
 
 
@@ -1483,6 +1706,12 @@ app.get('/user/:id.:format?/draw', function(req,res){
 		Iwall.findById(req.params.id, function (err, wall) {
 		  if(err) console.log(err);
 		  if(wall){
+			wall.lastOpened = new Date();
+			wall.timesOpened = wall.timesOpened +1; 
+			wall.save(function(err) {
+			  if (err) console.log('New wall add failed: ',err);
+			});
+			joinMeeting(wall.id,user.name,'user');
 			res.render('draw',
 			   	{ 
 				title: 'Kolabria', wall: wall, userName: user.name, ie: ie  
@@ -1513,6 +1742,12 @@ app.post('/suw', function(req,res){
 	Iwall.findOne({ shareURL: req.body.wurl}, function(err, wall) {
 	  if(err) console.log(err);
 	  if(wall){
+	    wall.lastOpened = new Date();
+	    wall.timesOpened = wall.timesOpened +1;
+		wall.save(function(err) {
+			  if (err) console.log('New wall add failed: ',err);
+		});
+		joinMeeting(wall.id,req.body.name,'url');
 		res.render('draw',
 		   	{ 
 			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie  
@@ -1665,6 +1900,12 @@ app.get('/published/:id.:format?/draw', function(req,res){
 	    if (err) console.log(err)
 	    if (wall) {
 		  	//console.log('wall: ',wall);
+		    wall.lastOpened = new Date();
+		    wall.timesOpened = wall.timesOpened +1;
+			wall.save(function(err) {
+			  if (err) console.log('New wall add failed: ',err);
+			});
+			joinMeeting(wall.id,rbox.name,'box');
 		    res.render('draw',{
 		    	 wall: wall , rbox: rbox , ie: false
 	    	});
@@ -2193,6 +2434,7 @@ nowjs.on('disconnect', function(){
 	
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
   delete boxes[this.now.boxID];
+  leaveMeeting(this.now.wallId,this.now.name);
 });
 
 everyone.now.serverLog = function(msg){
@@ -2228,3 +2470,33 @@ everyone.now.sendVideoConf = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.videoConf();
 }
 
+everyone.now.actionMeeting = function(wallId, name, action){
+//	console.log('ActionMeeting- wId: '+wallId+' name: '+name+' Action:'+action);	
+	Meeting.find({wallId: wallId})
+	.where('active').equals(true)
+	.exec(function(err,m){
+		if (err) console.log(err);
+		if (m.length >0) {
+			switch (action){
+				case 'goVC':
+				  m[0].vcUsed = true;
+				  break;
+				case 'goSS':
+				  m[0].ssUsed = true;
+				  break;
+				case 'goSSCapture':
+				  m[0].ssCapture = true;
+				  break;
+				case 'goEImg':
+				  m[0].embeddedImage = true;
+				  break;
+			}		
+			m[0].save(function(err) {
+			  if (err) console.log('meeting add action failed: ',err);
+			});
+		}
+		else {
+			console.log('actionMeeting: no active meeting found');
+		}
+	});	
+}

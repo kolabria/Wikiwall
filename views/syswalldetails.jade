@@ -1,0 +1,39 @@
+.container
+  .page-header
+    h1 Sys Admin View
+  .row-fluid
+      br
+      h3 User: #{user.Email}
+      br
+      table.table
+        thead
+          tr
+            th  Wall Id
+            th  Created
+            th  Last Opened
+            th  # Opened
+            th  Shared
+            th  Published
+        tbody
+          each wall in walls
+            tr 
+              td #{wall.id}
+              - var d = wall.createdOn
+              - var cDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+              - var cTime = d.getHours()+':'+d.getMinutes()
+              td #{cDate} - #{cTime}
+              if (wall.lastOpened)
+                - d = wall.lastOpened
+                - cDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+                - cTime = d.getHours()+':'+d.getMinutes()
+              else
+                - cDate = cTime = ''
+              td #{cDate} - #{cTime}
+              td #{wall.timesOpened}
+              td
+                if (wall.userSharedWith.length > 0)
+                  i.icon-ok
+              td 
+                if (wall.publishedTo.length >0)
+                  i.icon-ok
+      a.btn(href='/sysadmin/') Back
