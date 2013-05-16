@@ -190,6 +190,15 @@ function requiresLogin(req,res,next){
   }
 };
 
+function requiresSysLogin(req,res,next){
+  if (req.session.sys_id) {
+    next();
+  } else {
+    res.redirect('/slogin');
+  }
+};
+
+
 function requiresBoxID(req,res,next){
 	console.log('BoxAuth - User-Agent: ' + req.headers['user-agent']);
 	bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
@@ -431,7 +440,7 @@ app.post('/uregister.:format?', function(req, res){
     });
   }
   else {
-    if (req.body.authcode == 'little red ridding hood') {
+    if (req.body.authcode == 'MapleLeaf') {
 		user.freeAcct = false;
 	    user.save(function(err) {
 	      if (err) return userSaveFailed();
@@ -549,6 +558,30 @@ app.post('/ulogin', function(req, res){
 	});
 });
 
+app.get('/slogin', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolbria - System Login')
+  res.render('slogin', {
+    user: {}
+  });
+});
+
+app.post('/slogin', function(req, res){
+	console.log("System Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	if (req.body.user.Email == "ted_judge@radiobeam.ca" && req.body.user.password == "DarthVadar1977") {
+		req.session.sys_id = 99;
+      	res.redirect('/sysadmin');
+	}
+	else {
+	  user = {}
+	  res.local('layout', 'sitelayout');
+  	  res.local('title', 'Kolbria - System Login')
+	  req.flash('error','Invalid Username or Password');
+	  res.render('slogin',{
+	    user: {Email : req.body.user.Email}
+	  });
+	}
+});
 
 app.get('/about', function(req,res){
 	res.local('layout', 'sitelayout')
@@ -1511,7 +1544,7 @@ app.get('/published/:id.:format?/draw', function(req,res){
 });
 
 //  ********  sys admin view *********
-app.get('/sysadmin', function(req,res){	
+app.get('/sysadmin', requiresSysLogin, function(req,res){	
 	User.find({}, function(err, users) {
 	  if(err) console.log(err);
 	    Box.find({}, function(err, boxes) {
@@ -1543,7 +1576,7 @@ app.get('/sysadmin', function(req,res){
 	});
 });
 
-app.delete('/sysadmin/user/:id.:format?/', function(req,res){
+app.delete('/sysadmin/user/:id.:format?/', requiresSysLogin, function(req,res){
    //console.log('remove user: ',req.params.id);
    // find user and remove
    // remove all iwalls, walls, shared with, published 
@@ -1583,7 +1616,7 @@ app.delete('/sysadmin/user/:id.:format?/', function(req,res){
 
 // show details about walls for a user 
 
-app.get('/sysadmin/:id.:format?/details', function(req,res){
+app.get('/sysadmin/:id.:format?/details', requiresSysLogin, function(req,res){
  // console.log('user details: ',req.params.id);
   User.findById(req.params.id, function(err, user){
     if (user) {
