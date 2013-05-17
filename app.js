@@ -545,6 +545,15 @@ app.post('/ulogin', function(req, res){
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
 	    req.session.user_id = user.id;
+        if (user.freeAcct) {
+	      Iwall.find({ user_id: user.id}, function(err, walls) {
+		    if(err) console.log(err);
+		    if (walls.length >=1) {
+			//console.log('remove free wall');
+              walls[0].remove();
+            }
+		  });
+	    }
       	res.redirect('/userwalls');
 	  } else {
 	  	user = {}
@@ -2120,28 +2129,7 @@ app.post('/images', function(req,res){
 });
 
 app.get('/sdestroy', function(req, res){
-//	console.log('session: ', req.session); 
-	var uid = req.session.user_id;
-	//console.log('sdestroy: uid: ',uid);
   if (req.session) {
-	//console.log('sdestroy: look for user');
-	User.findById(uid, function(err, user) {
-	    if (user) {
-	//	console.log('sdestroy: found user');
-		  if (user.freeAcct) {
-		//	console.log('sdestroy: free account');
-		    Iwall.find({ user_id: uid}, function(err, walls) {
-			  if(err){
-			    console.log(err);
-			  } 
-			  if (walls.length >=1) {
-				//console.log('remove free wall');
-	            walls[0].remove();
-	          }
-			});
-		 }
-	  }
-	});
     req.session.destroy(function() {});
   }
   res.redirect('/ulogin');
