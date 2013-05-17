@@ -1653,13 +1653,17 @@ app.get('/sysadmin/:id.:format?/details', requiresSysLogin, function(req,res){
     if (user) {
       Iwall.find({user_id: req.params.id},function(err,walls){
         if (walls){
-          //console.log('walls found: ', walls.length);
-          res.local('layout', 'uloginlayout');
-          res.render('syswalldetails', {
-             title: 'Kolabria'
-            , walls: walls
-            , user: user
-          });
+	      	Meeting.find({ownerId: req.params.id},function(err,meetings){
+				if (err) console.log(err);
+				//console.log('walls found: ', walls.length);
+	            res.local('layout', 'uloginlayout');
+	            res.render('syswalldetails', {
+	               title: 'Kolabria'
+	              , walls: walls
+	              , user: user
+	              , meetings: meetings
+	            });
+			});
 	    }
       });
     }
@@ -1699,29 +1703,37 @@ joinMeeting = function(wallId, name, from){
 		else {
 			// no active meeting so start one. 
 			//console.log('create a new meeting');
-			var nm = new Meeting();
-			nm.active = true;
-			nm.wallId = wallId;
-			nm.currentParticipants = 1;
-			nm.maxParticipants = 1;
-			switch (from){
-				case 'user': 
-				  nm.fromUser = true;
-				  break;
-				case 'box': 
-				  nm.fromBox = true;
-				  break;
-				case 'url': 
-				  nm.fromURL = true;
-				  break;
-				case 'join': 
-				  nm.fromJoin = true;
-				  break;
-			}
-			nm.startTime = new Date();
-			
-			nm.save(function(err) {
-			  if (err) console.log('new meeting save failed: ',err);
+			Iwall.findById(wallId, function (err, wall) { 
+				if (err) console.log(err);
+				if (wall) {
+					var nm = new Meeting();
+					nm.active = true;
+					nm.wallId = wallId;
+					
+					nm.ownerId = wall.user_id;
+					console.log('ownerId: ',nm.ownerId);
+					nm.currentParticipants = 1;
+					nm.maxParticipants = 1;
+					switch (from){
+						case 'user': 
+						  nm.fromUser = true;
+						  break;
+						case 'box': 
+						  nm.fromBox = true;
+						  break;
+						case 'url': 
+						  nm.fromURL = true;
+						  break;
+						case 'join': 
+						  nm.fromJoin = true;
+						  break;
+					}
+					nm.startTime = new Date();
+
+					nm.save(function(err) {
+					  if (err) console.log('new meeting save failed: ',err);
+					});
+				}
 			});
 		}
 	});	

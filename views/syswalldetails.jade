@@ -36,4 +36,66 @@
               td 
                 if (wall.publishedTo.length >0)
                   i.icon-ok
+      h3 Meetings
+      table.table
+        thead
+          tr
+            th Wall ID
+            th Date
+            th Time
+            th Duration (min)
+            th Active
+            th Max Participants
+            th User
+            th Box
+            th URL
+            th Join
+            th VC Used
+            th SS Used
+            th SS Capture
+            th E-Image        
+        tbody
+          each m in meetings
+            tr 
+              td #{m.wallId}
+              if (m.active)
+                - var stop = new Date()
+              else
+                - var stop = m.stopTime 
+              - var dur = stop-m.startTime
+              - var min = Math.round(((dur % 86400000) % 3600000) / 60000)
+              - var d = m.startTime
+              - var meetDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+              - var meetTime = d.getHours()+':'+d.getMinutes()
+              td #{meetDate}
+              td #{meetTime}
+              td #{min}
+              td
+                if (m.active)
+                  i.icon-ok
+              td #{m.maxParticipants}
+              td 
+                if (m.fromUser)
+                  i.icon-ok
+              td 
+                if (m.fromBox)
+                  i.icon-ok
+              td 
+                if (m.fromURL)
+                  i.icon-ok
+              td 
+                if (m.fromJoin)
+                  i.icon-ok
+              td 
+                if (m.vcUsed)
+                  i.icon-ok
+              td
+                if (m.ssUsed)
+                  i.icon-ok
+              td
+                if (m.ssCapture)
+                  i.icon-ok
+              td
+                if (m.embeddedImage)
+                  i.icon-ok
       a.btn(href='/sysadmin/') Back

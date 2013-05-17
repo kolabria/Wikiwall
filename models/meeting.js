@@ -6,6 +6,7 @@ var Mongoose = require('mongoose')
 
  var meetingSchema = new Schema({
     wallId: ObjectId
+  , ownerId: ObjectId
   , startTime: Date
   , stopTime: Date
   , currentParticipants: Number
