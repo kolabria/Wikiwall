@@ -541,7 +541,7 @@ app.get('/ulogin', function(req, res){
 });
 
 app.post('/ulogin', function(req, res){
-	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	//console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
 	    req.session.user_id = user.id;
@@ -1288,6 +1288,27 @@ app.post('/account', requiresLogin, function(req,res){
 	});
 });
 
+// upgrade from free to paid account 
+
+app.post('/acct-upgrade', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+		if (req.body.authcode == 'MapleLeaf') {
+			user.freeAcct = false;
+		    user.save(function(err) {
+		      if (err) return userSaveFailed();
+		      req.flash('success', 'Your account has been upgraded');
+		      console.log('Account Created');
+		      res.redirect('/account');
+		    });
+		}
+		else {
+			req.flash('error',"Invalid Code");
+			res.redirect('/account');
+		}
+	  }
+    });
+});
 /**
 * Controller list of published walls 
 **/

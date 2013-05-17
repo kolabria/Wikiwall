@@ -20,4 +20,16 @@
             input.input-xlarge#password(required, name='confirmPwd', type='password', placeholder="Confirm Password")
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Change Password')
-       
+          br
+      if (user.freeAcct)
+        h3 Upgrade Account:
+        br
+        form.form-horizontal.users(name='upgrade', action='/acct-upgrade', method='post')
+          .control-group
+            label.control-label(for="auth") Authentication Code:
+            .controls
+              input.input-xlarge#password( name='authcode', placeholder="upgrade code")
+          .control-group
+            input.btn.btn-primary.pull-right(type='submit', value='Upgrade')
+          
+          
