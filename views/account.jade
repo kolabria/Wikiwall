@@ -20,7 +20,7 @@
             input.input-xlarge#password(required, name='confirmPwd', type='password', placeholder="Confirm Password")
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Change Password')
-          br
+      br
       if (user.freeAcct)
         h3 Upgrade Account:
         br
@@ -31,5 +31,7 @@
               input.input-xlarge#password( name='authcode', placeholder="upgrade code")
           .control-group
             input.btn.btn-primary.pull-right(type='submit', value='Upgrade')
-          
+      br
+      a.btn(href='https://docs.google.com/a/kolabria.com/spreadsheet/viewform?formkey=dGw0Vnh2OGNobExOQXdmeHJfRnNFVEE6MQ',target='_blank') Report Bug
+      
           
