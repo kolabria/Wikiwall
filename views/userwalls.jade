@@ -8,13 +8,13 @@
       table.table
         thead
           tr
-            th  WikiWall Name
-            th  Share Link
-            th  Shared
-            th  Published
-            th  Draw
-            th  Properties
-            th  Remove
+            th.hints(data-toggle='tooltip', title='List of walls you have crated')  WikiWall Name
+            th.hints(data-toggle='tooltip', title='Use this link to share your wikiwall with others') Share Link
+            th.hints(data-toggle='tooltip', title='Checked if wall shared with other registed user')  Shared
+            th.hints(data-toggle='tooltip', title='Checked if wall is published to a meeting room')  Published
+            th.hints(data-toggle='tooltip', title='Go have a whiteboard meeting')  Draw
+            th.hints(data-toggle='tooltip', title='Click to share with registered user and publish wall to a meeting room') Properties
+            th.hints(data-toggle='tooltip', title=' Permanently delete wall')  Remove
         tbody
           each wall in walls
             tr 
@@ -38,7 +38,7 @@
           tr
             form.form-horizontal(action='/userwalls', method='POST')
               td
-                input#id_wall_name(type='text', name='wall_name')
+                input#id_wall_name(type='text', name='wall_name',placeholder='name of new wall')
               td
                 input.btn.btn-primary(type='submit', value='New')
               td
@@ -46,12 +46,12 @@
       table.table
         thead
           tr
-            th WikiWall Name
-            th Draw
+            th.hints(data-toggle='tooltip', title='List of walls shared with you by other registered users')  WikiWall Name
+            th.hints(data-toggle='tooltip', title='Go have a whiteboard meeting') Draw
         tbody
           each swall in user.SharedWithMe
             tr 
               td #{swall.wallName}
               td
                 a.btn(href='/user/#{swall.wallID}/draw') Open
- 
+     

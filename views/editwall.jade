@@ -40,13 +40,13 @@
             form.form-horizontal(action='/userwalls/#{wall.id}/share', method='post')
               input(type="hidden", name="_method", value="put")
               td
-                label(for="id_data") Add user to share wall
+                label(for="id_data") Add registed user to share wall
               td
                 input#id_data(type='text', placeholder='User email', name='data')
               td
                 input.btn.btn-primary(type='submit', value='Add')
   .row-fluid
-      h2 List of Controller published too
+      h2 List of rooms wall is published too
       table.table
         thead
           tr
@@ -64,7 +64,7 @@
             form.form-horizontal(action='/userwalls/#{wall.id}/publish', method='post')
               input(type="hidden", name="_method", value="put")
               td
-                label(for="id_data") Add name of controller to publish too
+                label(for="id_data") Add name of room to publish too
               td
                 input#id_data(type='text', placeholder='Room Name', name='data')
               td

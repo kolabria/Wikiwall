@@ -10,8 +10,8 @@
         thead
           tr
             th  WikiWall Name
-            th  Link
-            th  Draw
+            th.hints(data-toggle='tooltip', title='Use this link to share your wikiwall with others') Share Link
+            th.hints(data-toggle='tooltip', title='Go have a whiteboard meeting')  Draw
         tbody
           
           tr 
@@ -23,8 +23,8 @@
       table.table
         thead
           tr
-            th WikiWall Name
-            th Draw
+            th.hints(data-toggle='tooltip', title='List of walls with you by other registered users') WikiWall Name
+            th.hints(data-toggle='tooltip', title='Go have a whiteboard meeting') Draw
         tbody
           each swall in user.SharedWithMe
             tr 

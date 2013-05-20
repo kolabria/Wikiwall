@@ -1397,6 +1397,12 @@ window.oncontextmenu = function(event) {
   jQuery('.tool[value=Pen]').click();
 });
 
-
+shareLinkOpen = function(){
+  $('#shareLink').modal();	
+}
+ 
+shareLinkClose = function(){
+	$('#shareLink').modal('hide');
+ }
 
 

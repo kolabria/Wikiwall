@@ -1,6 +1,6 @@
 extends drawlayout
 block toolbar
-  li.btn-group.dropup#ShareScreen
+  li.btn-group.dropup.hints#ShareScreen(data-toggle='tooltip', title='Screen Sharing')
     button.btn.dropdown-toggle(data-toggle="dropdown")
       i.icon-fullscreen
       span.caret
@@ -9,7 +9,7 @@ block toolbar
         h4 Minimize
       li.btn#ssCapture(data-value='ssCapture')
         h4 Capture Screen
-  li.btn-group.dropup#shareTo
+  li.btn-group.dropup.hints#shareTo(data-toggle='tooltip', title='Share wtih another room or join with PIN code')
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-share
         span.caret
@@ -21,7 +21,7 @@ block toolbar
           li.btn(data-value='#{sb.boxID}')
             span #{sb.boxName}
             i
-  li.btn-group.dropup#walls
+  li.btn-group.dropup.hints#walls(data-toggle='tooltip', title='Shared from another room')
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-inbox
         span.caret
@@ -29,7 +29,7 @@ block toolbar
         li
           h4 Available Walls
         li.divider
-  li.btn-group.dropup#users
+  li.btn-group.dropup.hints#users(data-toggle='tooltip', title='Meeting attendees & Share Link')
       button.btn.dropdown-toggle(data-toggle="dropdown")
         i.icon-user
         span.caret
@@ -41,9 +41,9 @@ block functions
   .pull-right
     a.brand #{wall.name}
     nav#functions.nav.btn-group
-      a.settings.btn(href='http://localhost:3000/settings')
+      a.settings.btn.hints(data-toggle='tooltip', title='Settings', href='http://localhost:3000/settings')
         i.icon-wrench
-      a.quit.btn.pull-right(href='/host/list')
+      a.quit.btn.pull-right.hints(data-toggle='tooltip', title='Exit', href='/host/list')
         i.icon-off
 
 block localjs

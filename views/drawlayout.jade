@@ -18,9 +18,9 @@ html
         nav#toolbar.toolbar
             ul.nav.pull-left
               li.btn-group.dropup.pen
-                button.btn.tool(type='button', onclick='', value='Pen')
+                button.btn.tool.hints(data-toggle='tooltip', title='Draw Tool',type='button', onclick='', value='Pen')
                   i.icon-pencil   
-                button.btn.dropdown-toggle(data-toggle="dropdown")       
+                button.btn.dropdown-toggle.hints(data-toggle='tooltip', title='Colors',data-toggle="dropdown")       
                   span.caret
                 ul.dropdown-menu.pull-right
                   li
@@ -32,15 +32,15 @@ html
                   li
                     button.btn.btn-primary.color(type='button', onclick='', value='Blue')
               li  
-                button.btn.tool(type='button', onclick='', value='Nav')
+                button.btn.tool.hints(data-toggle='tooltip', title='Pan and Zoom',type='button', onclick='', value='Nav')
                   i.icon-move
               li  
-                button.btn.tool(type='button', onclick='', value='Select')
+                button.btn.tool.hints(data-toggle='tooltip', title='Select Tool',type='button', onclick='', value='Select')
                   i.icon-hand-up
               //- li  
                 //- button.btn.tool(type='button', onclick='', value='Show')
                   //- i.icon-play-circle 
-              li.btn-group.dropup#vconf
+              li.btn-group.dropup.hints#vconf(data-toggle='tooltip', title='Video Conference')
                 button.btn.dropdown-toggle(data-toggle="dropdown")
                   i.icon-facetime-video
                   span.caret
@@ -89,6 +89,15 @@ html
       .modal-footer
         a.btn(onclick='javascript:pptListClose();') Close
         a
+    #shareLink.modal.hide.fade
+      .modal-header
+        h3 Share Wall
+      .modal-body
+        p Send this link to others to share your wall
+        h4 points.kolabria.com/suw/#{wall.shareURL}
+      .modal-footer
+        a.btn(onclick='javascript:shareLinkClose();') Close
+      
     block upmodal
     #pptShow.modal.hide.fade
       .modal-header
@@ -128,6 +137,7 @@ html
       var wallInit;
       $(document).ready(function(){
         wallInit = true; 
+        $('.hints').tooltip({delay: { show: 750, hide: 100 }});
       });
     - if (ie)
       script(src='//'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");
