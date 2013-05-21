@@ -1777,26 +1777,33 @@ app.get('/user/:id.:format?/draw', function(req,res){
   var ie = useragent.is(req.headers['user-agent']).ie;
   console.log(" wall id:  ",req.params.id);
   res.local('layout', 'userdraw'); 
-  User.findById(req.session.user_id, function(err, user) {
-	if (user){
-		Iwall.findById(req.params.id, function (err, wall) {
-		  if(err) console.log(err);
-		  if(wall){
-			wall.lastOpened = new Date();
-			wall.timesOpened = wall.timesOpened +1; 
-			wall.save(function(err) {
-			  if (err) console.log('New wall add failed: ',err);
-			});
-			joinMeeting(wall.id,user.name,'user');
-			res.render('draw',
-			   	{ 
-				title: 'Kolabria', wall: wall, userName: user.name, ie: ie  
-		      });
-		  }
-		  else console.log("can't find wall");
-	    });	
-	}
-  });
+  if (req.session.user_id) {
+	User.findById(req.session.user_id, function(err, user) {
+		if (user){
+			Iwall.findById(req.params.id, function (err, wall) {
+			  if(err) console.log(err);
+			  if(wall){
+				wall.lastOpened = new Date();
+				wall.timesOpened = wall.timesOpened +1; 
+				wall.save(function(err) {
+				  if (err) console.log('New wall add failed: ',err);
+				});
+				joinMeeting(wall.id,user.name,'user');
+				res.render('draw',
+				   	{ 
+					title: 'Kolabria', wall: wall, userName: user.name, ie: ie  
+			      });
+			  }
+			  else console.log("can't find wall");
+		    });	
+		}
+	  });
+  }
+  else {
+	req.flash('error',"Login session expired");
+    res.redirect('/ulogin');		
+  }
+  
 });
 
 // join a shared user wall 
