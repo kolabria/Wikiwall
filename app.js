@@ -23,6 +23,8 @@ var express = require('express')
   , request = require('request')  //http request library
   , useragent = require('useragent'); 
 
+var wwDatabase = 'beta1';    // name of wikiwall database
+
 var https = require('https');
 var http = require('http');
 
@@ -67,7 +69,7 @@ var app = module.exports = express.createServer(options);
 
 // when create new company, must create new db for that company 
 
-Mongoose.connect('mongodb://localhost/cdb13');
+Mongoose.connect('mongodb://localhost/'+wwDatabase);
 
 
 /**
