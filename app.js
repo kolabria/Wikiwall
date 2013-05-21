@@ -42,11 +42,11 @@ var users = {};
 var sslPath = process.env.APP_PATH || '';
 //var ssDir = __dirname + '/public/uploads/';
 var options = {
- // key: fs.readFileSync(sslPath+'privatekey.pem'),
- // cert: fs.readFileSync(sslPath+'certificate.pem')
- ca:   fs.readFileSync(__dirname+'/ssl/sub.class1.server.ca.pem'),
- key:  fs.readFileSync(__dirname+'/ssl/ssl.key'),
- cert: fs.readFileSync(__dirname+'/ssl/ssl.crt')
+  //key: fs.readFileSync(sslPath+'privatekey.pem'),
+  //cert: fs.readFileSync(sslPath+'certificate.pem')
+  ca:   fs.readFileSync(__dirname+'/ssl/sub.class1.server.ca.pem'),
+  key:  fs.readFileSync(__dirname+'/ssl/ssl.key'),
+  cert: fs.readFileSync(__dirname+'/ssl/ssl.crt')
 };
 
 var app = module.exports = express.createServer(options);
