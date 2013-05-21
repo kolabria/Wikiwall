@@ -10,10 +10,10 @@
         table.table
           thead
             tr
-              th Controller ID
-              th Controller Name
-              th Edit
-              th Remove
+              th.hints(data-toggle='tooltip', title='Unique ID for contoller - found on bottom') Controller ID
+              th.hints(data-toggle='tooltip', title='Unique name you give to identify meeting room') Controller Name
+              th.hints(data-toggle='tooltip', title='Change name and configure room sharing') Edit
+              th.hints(data-toggle='tooltip', title='Permanently delete controller') Remove
           tbody
             each box in boxes
               tr
@@ -28,9 +28,9 @@
             tr
               form.form-horizontal(action='/controllers', method='POST')
                 td
-                  input#id_box_id(type='text', name='box_id')
+                  input#id_box_id(type='text', name='box_id', placeholder='Found on bottom of controller')
                 td
-                  input#id_box_name(type='text', name='box_name')
+                  input#id_box_name(type='text', name='box_name', placeholder='Name to identify meeting room')
                 td
                   input.btn.btn-primary(type='submit', value='Add')
                 td
