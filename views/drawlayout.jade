@@ -142,7 +142,10 @@ html
     - if (ie)
       script(src='//'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");
     - else
-      script(src='//'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");  
+      - if (jslibcomp)
+        script(src='//'+base+'/javascripts/wall.min.js', canvas='myCanvas', type="text/paperscript");  
+      - else
+        script(src='//'+base+'/javascripts/wall.js', canvas='myCanvas', type="text/paperscript");
     script
        
 

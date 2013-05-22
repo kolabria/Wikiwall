@@ -36,6 +36,13 @@ var MongoStore = require('connect-mongo')(express);
 
 var port = process.env.SEC_SERV_PORT || 8000;
 var hostname = process.env.SERV_HOSTNAME || 'localhost';
+if (process.env.JSLIB_COMP == "true"){  // check if should used compressed wall.js libary 
+	var jslibcomp = true;
+}
+else {
+	var jslibcomp = false;
+}
+
 var db;
 var boxes = {};
 var shares = {};
@@ -43,17 +50,22 @@ var users = {};
 
 var sslPath = process.env.APP_PATH || '';
 //var ssDir = __dirname + '/public/uploads/';
-var options = {
-  //key: fs.readFileSync(sslPath+'privatekey.pem'),
-  //cert: fs.readFileSync(sslPath+'certificate.pem')
-  ca:   fs.readFileSync(__dirname+'/ssl/sub.class1.server.ca.pem'),
-  key:  fs.readFileSync(__dirname+'/ssl/ssl.key'),
-  cert: fs.readFileSync(__dirname+'/ssl/ssl.crt')
-};
+
+if (hostname == "www.kolabria.com") {  // use signed certificate on public server 
+  var options = {		
+    ca:   fs.readFileSync(__dirname+'/ssl/sub.class1.server.ca.pem'),
+    key:  fs.readFileSync(__dirname+'/ssl/ssl.key'),
+    cert: fs.readFileSync(__dirname+'/ssl/ssl.crt')
+  };
+}
+else {
+  var options = {
+    key: fs.readFileSync(sslPath+'privatekey.pem'),
+    cert: fs.readFileSync(sslPath+'certificate.pem')
+  };
+}
 
 var app = module.exports = express.createServer(options);
-
-
 
 //need to assign this to a db variable?
 
@@ -104,6 +116,7 @@ app.configure('production', function(){
 app.listen(port);
 console.log("Express secure server listening on port %d in %s mode", port, app.settings.env);
 
+
 /**********************  open server config *****/ 
 var app_open = express.createServer();
 
@@ -136,7 +149,7 @@ var open_port = process.env.SERV_PORT || 8888;;
 
 app_open.listen(open_port);
 console.log("Express open server listening on port %d in %s mode", open_port, app_open.settings.env);
-
+console.log("hostname: ",hostname);
 
 /**
 * Middleware
@@ -502,7 +515,7 @@ app.post('/join', function(req,res){
 			//console.log('join: good PIN');
 			joinMeeting(wall.id,req.body.name, 'join');
 	        res.render('draw', {
-		      title: 'Kolabria - '+wall.name, wall: wall, userName: req.body.name, ie: ie  
+		      title: 'Kolabria - '+wall.name, wall: wall, userName: req.body.name, ie: ie, jslibcomp: jslibcomp 
 		    });
 		 }
 		 else {
@@ -1548,6 +1561,7 @@ app.post('/host/list/:id.:format?/rename', function(req,res){
     }
 });
 
+//  draw from list of walls on box 
 
 app.get('/published/:id.:format?/draw', function(req,res){  
   res.local('layout', 'publishdraw'); 
@@ -1568,7 +1582,7 @@ app.get('/published/:id.:format?/draw', function(req,res){
 			});
 			joinMeeting(wall.id,rbox.name,'box');
 		    res.render('draw',{
-		    	 wall: wall , rbox: rbox , ie: false
+		    	 wall: wall , rbox: rbox , ie: false, jslibcomp: jslibcomp
 	    	});
     	}
         else {
@@ -1796,7 +1810,7 @@ app.get('/user/:id.:format?/draw', function(req,res){
 				joinMeeting(wall.id,user.name,'user');
 				res.render('draw',
 				   	{ 
-					title: 'Kolabria', wall: wall, userName: user.name, ie: ie  
+					title: 'Kolabria', wall: wall, userName: user.name, ie: ie, jslibcomp: jslibcomp 
 			      });
 			  }
 			  else console.log("can't find wall");
@@ -1838,7 +1852,7 @@ app.post('/suw', function(req,res){
 		joinMeeting(wall.id,req.body.name,'url');
 		res.render('draw',
 		   	{ 
-			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie  
+			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie, jslibcomp: jslibcomp 
 	      });
 	  }
 	  else console.log("can't find wall");
@@ -1883,7 +1897,7 @@ app.get('/host/draw', function(req,res){
 			res.local('layout', 'hostappliance'); 
 			res.local('title', 'Host Wall')
 			res.render('draw',{ 
-			  	box: box, ie: false
+			  	box: box, ie: false, jslibcomp: jslibcomp
 		    });
 		  }
 	  });	
@@ -1970,7 +1984,7 @@ app.get('/connect/:id', function(req,res){
     Box.findOne({ id: req.params.id}, function(err, hbox) {
 	    if (err) console.log(err)
 	    res.render('draw',{
-	    	 hbox: hbox , rbox: rbox , ie: false
+	    	 hbox: hbox , rbox: rbox , ie: false, jslibcomp: jslibcomp
     	});
     });		
 	});
@@ -1995,7 +2009,7 @@ app.get('/published/:id.:format?/draw', function(req,res){
 			});
 			joinMeeting(wall.id,rbox.name,'box');
 		    res.render('draw',{
-		    	 wall: wall , rbox: rbox , ie: false
+		    	 wall: wall , rbox: rbox , ie: false, jslibcomp: jslibcomp
 	    	});
     	}
         else {
