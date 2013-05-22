@@ -352,6 +352,32 @@ app_open.get('/product', function(req,res){
 
 })
 
+app_open.post('/ulogin', function(req, res){
+	//console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	User.findOne({ Email: req.body.user.Email }, function(err, user) {
+	  if (user && user.authenticate(req.body.user.password,user.password)) {
+	    req.session.user_id = user.id;
+        if (user.freeAcct) {
+	      Iwall.find({ user_id: user.id}, function(err, walls) {
+		    if(err) console.log(err);
+		    if (walls.length >=1) {
+			//console.log('remove free wall');
+              walls[0].remove();
+            }
+		  });
+	    }
+      	res.redirect('https://'+hostname+':'+port+'/userwalls');
+	  } else {
+	  	user = {}
+	  	res.local('layout', 'sitelayout');
+  		res.local('title', 'Kolbria - User Login')
+	  	req.flash('error',err || 'Invalid Username or Password');
+	    res.render('ulogin',{
+	      user: {Email : req.body.user.Email}
+	    });
+	  }
+	});
+});
 // redirects all remaining pages to secure site 
 app_open.get('*', function(req,res){
   res.redirect('https://'+hostname+':'+port+ req.path);
@@ -586,6 +612,8 @@ app.post('/ulogin', function(req, res){
 	  }
 	});
 });
+
+
 
 app.get('/slogin', function(req, res){
   res.local('layout', 'sitelayout');
