@@ -57,12 +57,14 @@ if (hostname == "www.kolabria.com") {  // use signed certificate on public serve
     key:  fs.readFileSync(__dirname+'/ssl/ssl.key'),
     cert: fs.readFileSync(__dirname+'/ssl/ssl.crt')
   };
+  var wwDatabase = 'beta1';    // name of wikiwall database
 }
 else {
   var options = {
     key: fs.readFileSync(sslPath+'privatekey.pem'),
     cert: fs.readFileSync(sslPath+'certificate.pem')
   };
+  var wwDatabase = 'cdb13';    // name of wikiwall database
 }
 
 var app = module.exports = express.createServer(options);
