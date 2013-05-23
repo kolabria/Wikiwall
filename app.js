@@ -587,7 +587,7 @@ app.get('/ulogin', function(req, res){
 });
 
 app.post('/ulogin', function(req, res){
-	//console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
 	    req.session.user_id = user.id;
@@ -605,7 +605,7 @@ app.post('/ulogin', function(req, res){
 	  	user = {}
 	  	res.local('layout', 'sitelayout');
   		res.local('title', 'Kolbria - User Login')
-	  	req.flash('error',err || 'Invalid Username or Password');
+	  	req.flash('error',err || 'Invalid  email or Password');
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
 	    });
