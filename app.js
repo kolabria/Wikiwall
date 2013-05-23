@@ -604,12 +604,16 @@ app.post('/ulogin', function(req, res){
 	  } else {
 		if (user){
 			console.log('ulogin - invalid authentication: ',req.body.user.Email);
+			req.flash('error', 'Invalid Password');
 		}
-		else console.log('ulogin - cannot find user: ',req.body.user.Email);
+		else {
+			console.log('ulogin - cannot find user: ',req.body.user.Email);
+			req.flash('error','Invalid Email');
+		}
 	  	user = {}
 	  	res.local('layout', 'sitelayout');
   		res.local('title', 'Kolbria - User Login')
-	  	req.flash('error',err || 'Invalid  email or Password');
+	  	
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
 	    });
