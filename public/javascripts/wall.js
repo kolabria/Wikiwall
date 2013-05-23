@@ -604,6 +604,8 @@ VCConnection.onNewSession = function (session) {
          VCSession = session;
          VCConnection.join(session);
          //setVCControls();
+         VCActive = true;
+         jQuery('#vcCall').html('<h4>HangUp</h4>');
        }
        //document.getElementById('open-screen').innerHTML="View Screen"; 
        VCSession = session;
@@ -641,8 +643,7 @@ VCConnection.onstream = function (stream) {
 		//stream.mediaElement.height = remoteVideoSize ;
 		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //jQuery('canvas').css({top:newTop+'px'});
-        VCActive = true;
-        jQuery('#vcCall').html('<h4>HangUp</h4>');
+ 
     }
 };
 
