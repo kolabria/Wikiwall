@@ -353,7 +353,7 @@ app_open.get('/product', function(req,res){
 })
 
 app_open.post('/ulogin', function(req, res){
-	//console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
 	    req.session.user_id = user.id;
@@ -371,7 +371,7 @@ app_open.post('/ulogin', function(req, res){
 	  	user = {}
 	  	res.local('layout', 'sitelayout');
   		res.local('title', 'Kolbria - User Login')
-	  	req.flash('error',err || 'Invalid Username or Password');
+	  	req.flash('error',err || 'Invalid email or Password');
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
 	    });
@@ -459,8 +459,8 @@ app.post('/uregister.:format?', function(req, res){
   var user = new User(req.body.user);
 
   function userSaveFailed() {
-   // req.flash('warn', 'Account creation failed');
-    console.log('account creation failed');
+    req.flash('warn', 'Account creation failed');
+    console.log('account creation failed for: ',req.body.user.Email);
     res.render('uregister', {
       locals: { title: 'Register', user: user }
     });
@@ -470,7 +470,7 @@ app.post('/uregister.:format?', function(req, res){
 
     user.save(function(err) {
       if (err) return userSaveFailed();
-      // req.flash('info', 'Your account has been created');
+      req.flash('info', 'Your account has been created');
       console.log('Account Created');
 
       switch (req.params.format) {
@@ -490,7 +490,7 @@ app.post('/uregister.:format?', function(req, res){
 		user.freeAcct = false;
 	    user.save(function(err) {
 	      if (err) return userSaveFailed();
-	      // req.flash('info', 'Your account has been created');
+	      req.flash('info', 'Your account has been created');
 	      console.log('Account Created');
 
 	      switch (req.params.format) {
