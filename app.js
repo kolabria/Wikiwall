@@ -605,7 +605,7 @@ app.post('/ulogin', function(req, res){
 		if (user){
 			console.log('ulogin - cannot find user: ',req.body.user.Email);
 		}
-		else console.log('ulogin - invalid authentication: 'req.body.user.Email);
+		else console.log('ulogin - invalid authentication: ',req.body.user.Email);
 	  	user = {}
 	  	res.local('layout', 'sitelayout');
   		res.local('title', 'Kolbria - User Login')
