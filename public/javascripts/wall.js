@@ -322,6 +322,7 @@ var screenWidth, screenHeight;
 var screenConnection = new RTCMultiConnection(wallId+'screen');
 screenConnection.session = 'only-screen';
 screenConnection.direction = 'one-way';
+// screenConnection.firebase = 'kolabria;
 
 screenConnection.onNewSession = function (session) {      
       console.log('onNewSession-screen: ', session); 
