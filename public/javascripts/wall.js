@@ -1213,9 +1213,9 @@ window.oncontextmenu = function(event) {
         jQuery('.delete-object').click();
         break;
       case 67:
-        //c for center?
-        jQuery('.tool[value=Center]').click();
-        console.log('center');
+        //c for center?   comment out since command c activates
+       // jQuery('.tool[value=Center]').click();
+       // console.log('center');
         break;
       case 83:
         //s for select?
