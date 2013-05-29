@@ -370,7 +370,7 @@ app_open.post('/ulogin', function(req, res){
 	  } else {
 	  	user = {}
 	  	res.local('layout', 'sitelayout');
-  		res.local('title', 'Kolbria - User Login')
+  		res.local('title', 'Kolabria - User Login')
 	  	req.flash('error',err || 'Invalid email or Password');
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
@@ -411,7 +411,7 @@ app.get('/t2index', function(req,res){
 
 app.get('/register', function(req,res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - Register')
+  res.local('title', 'Kolabria - Register')
   res.render('register',{
     company: new Company()	//needed?
   });
@@ -449,7 +449,7 @@ app.post('/register.:format?', function(req, res){
 // user registration 
 app.get('/uregister', function(req,res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - User Register')
+  res.local('title', 'Kolabria - User Register')
   res.render('uregister',{
     user: new User()	//needed?
   });
@@ -556,7 +556,7 @@ app.post('/join', function(req,res){
 
 app.get('/login', function(req, res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - Login')
+  res.local('title', 'Kolabria - Login')
   res.render('login', {
     company: {}
   });
@@ -570,7 +570,7 @@ app.post('/login', function(req, res){
 	  } else {
 	  	company = {}
 	  	res.local('layout', 'sitelayout');
-  		res.local('title', 'Kolbria - Login')
+  		res.local('title', 'Kolabria - Login')
 	  	req.flash('error',err || 'Invalid Username or Password');
 	    res.render('login',{
 	      company: {adminEmail : req.body.company.adminEmail}
@@ -580,7 +580,7 @@ app.post('/login', function(req, res){
 });
 app.get('/ulogin', function(req, res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - User Login')
+  res.local('title', 'Kolabria - User Login')
   res.render('ulogin', {
     user: {}
   });
@@ -625,7 +625,7 @@ app.post('/ulogin', function(req, res){
 
 app.get('/slogin', function(req, res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolbria - System Login')
+  res.local('title', 'Kolabria - System Login')
   res.render('slogin', {
     user: {}
   });
@@ -640,7 +640,7 @@ app.post('/slogin', function(req, res){
 	else {
 	  user = {}
 	  res.local('layout', 'sitelayout');
-  	  res.local('title', 'Kolbria - System Login')
+  	  res.local('title', 'Kolabria - System Login')
 	  req.flash('error','Invalid Username or Password');
 	  res.render('slogin',{
 	    user: {Email : req.body.user.Email}
