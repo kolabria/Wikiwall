@@ -626,6 +626,7 @@ VCConnection.onstream = function (stream) {
         var middle = $(window).width()/2;
         stream.mediaElement.width = middle/2 ;  
 		stream.mediaElement.height = middle/2/1.7778;
+		stream.mediaElement.muted = true; 
 		sizeVideo();
 		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //jQuery('canvas').css({top:newTop+'px'});
