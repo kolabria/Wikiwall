@@ -26,6 +26,7 @@ canvas{
   position:absolute;
   top:0px;
   background-image: url(../img/grid_noise.png);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .move{
