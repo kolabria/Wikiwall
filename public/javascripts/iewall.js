@@ -13,6 +13,8 @@ now.ready(function(){
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
+  now.browser = $.ua.browser.name; 
+  now.bversion = $.ua.browser.version;
   if(typeof boxID != 'undefined'){
     now.boxID = boxID
     now.register(function(shared,shares){
@@ -34,6 +36,8 @@ now.ready(function(){
   var color = 'black';
   var width = 6;
   var scribd_doc;
+  var usernames = [];  // array of current users on the wall 
+  var xOffset = 0;
 
 
   /******** HELPER FUNCTIONS *******/
@@ -91,9 +95,9 @@ now.ready(function(){
   }
   
   updateDelete = function(){
-    var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
-    var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
-    jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY})
+    var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+    var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
+    jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
   }
 
   scrollNav = function(){
@@ -214,6 +218,563 @@ now.ready(function(){
     path.name = p._id;
     callback();
   }
+/***************  screen sharing functions *************/
+
+function getURIformcanvas() {
+    var ImageURItoShow = "";
+    var canvasFromScreen = document.getElementById("imageView");
+    if (canvasFromScreen.getContext) {
+        var ctx = canvasFromScreen.getContext("2d"); // Get the context for the canvas.canvasFromVideo.
+        var ImageURItoShow = canvasFromScreen.toDataURL("image/png");
+        now.sendImage(ImageURItoShow, paper.project.activeLayer.index, view.center, function(name){
+          loadImage(name, view.center, ImageURItoShow, function(){
+            paper.view.draw();
+          });
+        });
+    }
+   // var imgs = document.getElementById("imgs");
+   // imgs.appendChild(Canvas2Image.convertToImage(canvasFromVideo, 300, 200, 'png'));
+}
+
+
+function ssCapture() {
+    var screen = document.getElementById("screen-video");
+    var canvasDraw = document.getElementById('imageView');
+    var w = canvasDraw.width;
+    var h = canvasDraw.height;
+    var ctxDraw = canvasDraw.getContext('2d');
+
+    ctxDraw.clearRect(0, 0, w, h);
+    ctxDraw.drawImage(screen, 0, 0, w, h);
+    ctxDraw.save();
+    
+	getURIformcanvas();	 
+}
+function ssMax(){
+    if (!VCActive) {
+      console.log("toolbar height: ",jQuery('header').css("height"));
+      screenWidth = screenStream.mediaElement.width;
+      console.log('width:'+screenStream.mediaElement.width+' : '+screenWidth);
+      screenHeight = screenStream.mediaElement.height;
+      console.log('window w:h - ',window.innerWidth,":",window.innerHeight);
+      console.log('toobar: ',jQuery('header').height());
+      screenStream.mediaElement.width = window.innerWidth;  
+      var sh = window.innerHeight - jQuery('header').height()-4;  // give a 4px buffer 
+      console.log('new screen h',sh);
+      screenStream.mediaElement.height = sh;
+      var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+      // jQuery('canvas').css({top:newTop+'px'});	
+      jQuery('canvas').css('z-index','-1');	
+      jQuery('screen-container').css('left','100'); 
+    }
+    else {
+	  console.log('start ss with VC active');
+	  screenWidth = screenStream.mediaElement.width;
+	  screenHeight = screenStream.mediaElement.height;
+	  screenStream.mediaElement.width = window.innerWidth/3*2; 
+	  var sh = window.innerHeight - jQuery('header').height()-4;  // give a 4px buffer 
+      console.log('new screen h',sh);
+      screenStream.mediaElement.height = sh;
+      var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+      //jQuery('canvas').css({top:newTop+'px'});
+      console.log('screen width: ',window.innerWidth);
+      //screenStream.mediaElement.style.left="200px";
+      jQuery('canvas').css('z-index','-1');	
+      jQuery('#screen-content').css({left:window.innerWidth/3}); //css({left:vWidth+10})
+
+    }
+}
+
+function ssMin() {
+    console.log('width, height ',screenWidth,' ',screenHeight);
+	screenStream.mediaElement.width =screenWidth;  
+	screenStream.mediaElement.height =screenHeight;
+	var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    jQuery('canvas').css({top:newTop+'px'});	
+}
+
+function ssBack(){  // put the screen sharing behind the whiteboard
+   //jQuery('canvas').css({top:0});
+   jQuery('canvas').css('z-index','1');
+   jQuery('screen-container').css('z-index','-1');	
+}
+function ssFront(){  // move whiteboard down for screen sharing view
+	//var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    //jQuery('canvas').css({top:newTop+'px'});
+   jQuery('canvas').css('z-index','-1');
+   jQuery('screen-container').css('z-index','1');
+}
+
+var isScreenShareInitiator = false;
+var screenShareActive = false;
+var screenSession;
+var screenFull = false; 
+var screenCapture = false;
+var screenStream;
+var screenSizeX = 200;
+var screenSizeY = 200; 
+var screenWidth, screenHeight;
+var screenConnection = new RTCMultiConnection(wallId+'screen');
+screenConnection.session = 'only-screen';
+screenConnection.direction = 'one-way';
+// screenConnection.firebase = 'kolabria;
+
+screenConnection.onNewSession = function (session) {      
+      console.log('onNewSession-screen: ', session); 
+       if (!isScreenShareInitiator) {
+	     //jQuery('canvas').css({top:500});
+	     //jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="400"></canvas></div>');
+         jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1300" height="731"></canvas></div>');
+
+        // var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        // jQuery('canvas').css({top:newTop+'px'});
+         screenSession = session;
+         screenConnection.join(session);
+         screenShareActive = true;
+         jQuery('#ssShare').html('<h4>Close</h4>');
+         //setScreenControls();
+       }
+       //document.getElementById('open-screen').innerHTML="View Screen"; 
+       screenSession = session;
+};
+
+screenConnection.onstream = function (stream) {
+   console.log('Screen onstream:',stream);
+   var screen = document.createElement('div');
+   screen.className = 'screen-container';
+   screen.id = 'screen-content';
+   screen.appendChild(stream.mediaElement);
+   stream.mediaElement.id = 'screen-video';
+   if (stream.type === 'local') {
+      screenStream = stream;
+      document.getElementById('screen-container').appendChild(screen);
+      stream.mediaElement.width = screenSizeX;  
+      stream.mediaElement.height = screenSizeY;
+      //var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+      //jQuery('canvas').css({top:newTop+'px'});
+   }
+   if (stream.type === 'remote') {
+      screenStream = stream;
+      document.getElementById('screen-container').appendChild(screen);
+      stream.mediaElement.width = screenSizeX ;  
+      stream.mediaElement.height = screenSizeY ;
+      
+      //var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+      //jQuery('canvas').css({top:newTop+'px'});
+   }
+   ssMax();   
+   screenFull = true;
+};
+
+screenConnection.onUserLeft = function(userid) {
+	console.log('Left - userid: ',userid);
+	jQuery('#ssarea').empty();
+    jQuery('canvas').css({top:0+'px'});   
+    screenShareActive = false;
+    jQuery('#ssShare').html('<h4>Share Screen</h4>');
+};
+jQuery('#ShareScreen li').click(function(e){
+ // e.stopImmediatePropagation(); //Two clicks are fired, this is a patch, need to find reason why.
+  var li = jQuery(this);
+  cl = li.attr('data-value');
+  //console.log('clicked vconf button cl: ',cl);
+  switch(cl){
+      case 'ssShare':  
+        if (!screenShareActive){  // open screen share session
+	        var browserNotChrome = false;
+	        var badPeople = " ";
+	        console.log('usernames length: ',usernames.length);
+	        for (i=0; i < usernames.length; i++){
+		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
+		      if (usernames[i].browser != "Chrome") {
+			    browserNotChrome = true; 
+			    badPeople = badPeople+usernames[i].name+' , ';
+		      }
+	        }
+	        if (browserNotChrome) {
+		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
+		     break; 
+        	}
+          console.log('Open Screen');
+          //jQuery('canvas').css({top:500});
+          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1300" height="731"></canvas></div>');
+          var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+          //jQuery('canvas').css({top:newTop+'px'});       
+          screenConnection.open(wallId+'screen');  
+          isScreenShareInitiator = true;  
+          screenShareActive = true;
+          jQuery('#ssShare').html('<h4>Close</h4>');
+          now.actionMeeting(wallId, name, 'goSS');
+        }
+        else {  // close screen share session
+          
+          screenConnection.leave();
+          ssBack();
+          jQuery('#ssarea').empty();
+          //jQuery('canvas').css({top:0+'px'});
+		//var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        //  jQuery('canvas').css({top:newTop+'px'});
+         
+          //screenConnection = new RTCMultiConnection(wallId+'screen');
+          //isScreenShareInitiator = false;        
+          screenShareActive = false;
+          jQuery('#ssShare').html('<h4>Share Screen</h4>');
+        }
+        
+        break;
+     case 'ssSize':  //  resize screen size
+        if (screenFull) {
+	      //ssMin();
+	      ssBack();
+          jQuery('#ssSize').html('<h4>Show</h4>');
+          screenFull = false;
+        }
+        else {
+          //ssMax();
+          ssFront();
+          jQuery('#ssSize').html('<h4>Hide</h4>');
+          screenFull = true; 
+        }
+        break;
+     case 'ssCapture':   // capture screen image to whiteboard 
+        if (!screenCapture) {
+	      ssBack();
+	      ssCapture();
+          jQuery('#ssCapture').html('<h4>Release</h4>');
+          screenCapture = true;
+          now.sendScreenCapture('capture');
+          now.actionMeeting(wallId, name, 'goSSCapture');
+        }
+        else {
+	      ssFront();
+	      jQuery('#ssCapture').html('<h4>Capture</h4>');
+	      screenCapture = false; 
+	      now.sendScreenCapture('release');
+        }
+        break;
+  }
+});
+
+
+now.screenCapture = function(cmd){
+  if (cmd == 'capture'){
+    ssBack();
+    jQuery('#ssCapture').html('<h4>Release</h4>');
+    screenCapture = true;
+  }
+  else if (cmd == 'release'){
+     ssFront();
+     jQuery('#ssCapture').html('<h4>Capture</h4>');
+     screenCapture = false;
+  }
+}
+
+//sst:27px vct:0px newT: 27px0px
+function setScreenControls() {
+	document.getElementById('sr-full').disabled = false;
+    document.getElementById('sr-small').disabled = true;
+	document.getElementById('sr-plus').onclick = function () {
+			screenStream.mediaElement.width +=50;  
+			screenStream.mediaElement.height +=50;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+	};
+	document.getElementById('sr-minus').onclick = function () {
+			screenStream.mediaElement.width -=50;  
+			screenStream.mediaElement.height -=50;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+	};
+	document.getElementById('sr-full').onclick = function () {
+		    // console.log("ssarea height: ",jQuery('#ssarea').css("height"));
+		    console.log("toolbar height: ",jQuery('header').css("height"));
+			screenWidth = screenStream.mediaElement.width;
+			console.log('width:'+screenStream.mediaElement.width+' : '+screenWidth);
+			screenHeight = screenStream.mediaElement.height;
+			screenStream.mediaElement.width = window.innerWidth; 
+		    var sh = window.innerHeight - jQuery('#toobar').height();
+		    console.log('new screen h',sh);
+			screenStream.mediaElement.height = sh;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+            document.getElementById('sr-full').disabled = true;
+            document.getElementById('sr-small').disabled = false;			
+	};
+	document.getElementById('sr-small').onclick = function () {
+		    console.log('width, height ',screenWidth,' ',screenHeight);
+			screenStream.mediaElement.width =screenWidth;  
+			screenStream.mediaElement.height =screenHeight;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+	        document.getElementById('sr-full').disabled = false;
+	        document.getElementById('sr-small').disabled = true;
+	};
+	document.getElementById('sCapture').onclick = function () {
+      ssCapture();
+  };
+}
+
+openCloseSS = function (){
+  if (!screenShareActive){
+    console.log('Open Screen');
+    //jQuery('canvas').css({top:500});
+    jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+    var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    jQuery('canvas').css({top:newTop+'px'});
+    setScreenControls();         
+	screenConnection.open(wallId+'screen');  
+	isScreenShareInitiator = true;  
+	screenShareActive = true;
+  }
+  else {  // close screen sharing 
+    jQuery('canvas').css({top:0});
+    jQuery('#ssarea').empty();
+    screenConnection.leave();
+    //screenConnection = new RTCMultiConnection(wallId+'screen');
+    //isScreenShareInitiator = false;        
+    screenShareActive = false;
+  }
+}
+
+
+/*************** video conferencing functions *************/
+var isVCInitiator = false;
+var VCActive = false;
+var VCSession;
+var localVCStream;
+var remoteVCStreams = new Array();
+var remoteVideoSize = 200;
+
+var VCSizeX = 200;
+var VCSizeY = 200; 
+var VCWidth, VCHeight;
+var VCConnection = new RTCMultiConnection(wallId+'VC');
+VCConnection.session = 'audio + video';
+
+
+sizeVideo = function() {
+	// rezise local and remote video elements based on number of participants and size of window
+	var vHeight;
+	var vWidth;
+	var areaWidth = $(window).width()/3;  // - make 1/3  - /3
+	//console.log ('areaWidth: ',areaWidth);
+	var areaheight = $(window).height() - jQuery('#toolbar').height();
+	//console.log('areaheight: ',areaheight);
+	// make local video 1/2 size of remote video
+	var numRemotes = remoteVCStreams.length;
+	//console.log('num remotes streams: ',numRemotes);
+	if (numRemotes != 0){
+	  vHeight = areaheight / (numRemotes+1); 
+	  //console.log('vHeight 1: ',vHeight);
+	  //vHeight = vHeight + (vHeight/2)/numRemotes; 
+	  vWidth = vHeight * 1.7778;   //  HD video aspect ratio calulation
+	  if (vWidth > areaWidth){
+		// use area Width for sizing 
+		vWidth = areaWidth;
+		vHeight = vWidth /1.7778; 
+      }
+	
+	  //console.log('Video Height: ',vHeight);
+	  for (i=0; i<remoteVCStreams.length; i++){
+		remoteVCStreams[i].mediaElement.width =vWidth;  
+	  	remoteVCStreams[i].mediaElement.height =vHeight;
+	  }
+	  localStream.mediaElement.width = vWidth/2;  
+	  localStream.mediaElement.height =vHeight/2;
+	  xOffset = vWidth+10;
+	  jQuery('canvas').css({left:vWidth+10});  // readjust canvas positioning so don't have wasted space 
+    }	
+}
+
+VCConnection.onNewSession = function (session) {      
+      console.log('onNewSession-VC: ', session); 
+       if (!isVCInitiator) {
+	     //jQuery('canvas').css({top:500, left:200});  //160
+	     //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
+         jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+	    
+         var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+         //jQuery('canvas').css({top:newTop+'px'});
+         var middle = $(window).width()/2;
+         jQuery('canvas').css({left:middle});
+         VCSession = session;
+         VCConnection.join(session);
+         //setVCControls();
+         VCActive = true;
+         jQuery('#vcCall').html('<h4>HangUp</h4>');
+       }
+       //document.getElementById('open-screen').innerHTML="View Screen"; 
+       VCSession = session;
+};
+
+VCConnection.onstream = function (stream) {
+	console.log('Video onstream:',stream);
+	var video = document.createElement('div');
+	video.className = 'video-container';
+	video.id = stream.userid; 
+	console.log('stream id: ',stream.userid);
+	video.appendChild(stream.mediaElement);
+    if (stream.type === 'local') {
+        localStream = stream;
+       document.getElementById('local-video-container').appendChild(video);
+        //document.getElementById('local-video-container').appendChild(stream.mediaElement);
+        var middle = $(window).width()/2;
+        stream.mediaElement.width = middle/2 ;  
+		stream.mediaElement.height = middle/2/1.7778;
+		stream.mediaElement.muted = true; 
+		sizeVideo();
+		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        //jQuery('canvas').css({top:newTop+'px'});
+    }
+    if (stream.type === 'remote') {
+        remoteVCStreams.push(stream);
+        var remoteVideosContainer = document.getElementById('remote-videos-container');
+        remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+        //remoteVideosContainer.appendChild(stream.mediaElement, remoteVideosContainer.firstChild);
+        var videosize = ($(window).width()/2*3)/4;
+		stream.mediaElement.width = videosize ;
+		stream.mediaElement.height = videosize/1.7778;
+		 
+		sizeVideo();
+        //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
+		//stream.mediaElement.height = remoteVideoSize ;
+		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        //jQuery('canvas').css({top:newTop+'px'});
+ 
+    }
+};
+
+
+VCConnection.onUserLeft = function(userid) {
+	console.log('Left - userid: ',userid);
+	var video = document.getElementById(userid);
+	if(video) video.parentNode.removeChild(video);
+};
+
+function setVCControls() {
+	  document.getElementById('lv-plus').onclick = function () {
+			localStream.mediaElement.width +=100;  
+			localStream.mediaElement.height +=100;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+	  };
+	  document.getElementById('lv-minus').onclick = function () {
+			localStream.mediaElement.width -=100;  
+			localStream.mediaElement.height -=100;
+			var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        jQuery('canvas').css({top:newTop+'px'});
+	  };
+	  document.getElementById('rv-plus').onclick = function () {
+		for (i=0; i<remoteVCStreams.length; i++){
+			remoteVCStreams[i].mediaElement.width +=100;  
+			remoteVCStreams[i].mediaElement.height +=100;
+		}
+		remoteVideoSize = remoteVCStreams[i-1].mediaElement.height;	
+		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        jQuery('canvas').css({top:newTop+'px'});
+	  };
+	  document.getElementById('rv-minus').onclick = function () {
+		for (i=0; i<remoteVCStreams.length; i++){
+			remoteVCStreams[i].mediaElement.width -=100;  
+			remoteVCStreams[i].mediaElement.height -=100;
+		}
+		remoteVideoSize = remoteVCStreams[i-1].mediaElement.height;
+		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+        jQuery('canvas').css({top:newTop+'px'});
+	  };
+}
+
+
+jQuery('#vconf li').click(function(e){
+ // e.stopImmediatePropagation(); //Two clicks are fired, this is a patch, need to find reason why.
+  var li = jQuery(this);
+  cl = li.attr('data-value');
+  //console.log('clicked vconf button cl: ',cl);
+  switch(cl){
+      case 'vcCall': 
+        if (!VCActive) {
+	        //console.log('Browser: ',$.ua.browser.name);
+	        //console.log('Browser version: ',$.ua.browser.version);
+	        //console.log('Browser version: ',$.ua.browser.major);
+	        var browserNotChrome = false;
+	        var badPeople = " ";
+	        console.log('usernames length: ',usernames.length);
+	        for (i=0; i < usernames.length; i++){
+		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
+		      if (usernames[i].browser != "Chrome") {
+			    browserNotChrome = true; 
+			    badPeople = badPeople+usernames[i].name+' , ';
+		      }
+	        }
+	        if (browserNotChrome) {
+		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
+		     break; 
+        	}
+	      	console.log('Open VC');
+	        //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
+	        jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+
+	        var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	        //jQuery('canvas').css({top:newTop+'px'});
+	        // by default split screen in two - video - whiteboard
+	        var middle = $(window).width()/2;
+	        xOffset = middle;
+	        jQuery('canvas').css({left:middle});
+	        //setVCControls();         
+	        VCConnection.open(wallId+'VC');  
+	        isVCInitiator = true;  
+	        VCActive = true;
+	        jQuery('#vcCall').html('<h4>HangUp</h4>');
+	        now.actionMeeting(wallId, name, 'goVC');
+        }
+        else {
+	        jQuery('canvas').css({top:0, left:0});
+	        jQuery('#videoconf').empty();
+	        VCConnection.leave();
+	        //VCConnection = new RTCMultiConnection(wallId+'VC');
+	        //isVCInitiator = false;        
+	        VCActive = false;
+	        jQuery('#vcCall').html('<h4>Call</h4>');
+	        xOffset = 0;
+        }
+        break;
+     case 'vcFull':
+        
+        break;
+     case 'vcSplit':
+
+        break;
+  }
+})
+
+
+openCloseVC = function (){
+  if (!VCActive){
+    console.log('Open VC');
+   // jQuery('#ssarea').append('<p>Screen <button id="sr-plus">+</button> <button id="sr-minus">-</button>   <button id="sr-full">Full Screen</button> <button id="sr-small">Small</button>   <button id="sCapture" style="width: 64px;border:solid 2px #ccc;">Capture</button><section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="700" height="500"></canvas></div>');
+    //jQuery('canvas').css({top:500, left:200});  //160
+    jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="local-video-container"></section><section id="remote-videos-container"></section>');
+    var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    //jQuery('canvas').css({top:newTop+'px'});
+    jQuery('canvas').css({left:300});
+    setVCControls();         
+	VCConnection.open(wallId+'VC');  
+	isVCInitiator = true;  
+	VCActive = true;
+  }
+  else {  // close VC    
+    jQuery('canvas').css({top:0, left:0});
+    jQuery('#videoconf').empty();
+    VCConnection.leave();
+    //screenConnection = new RTCMultiConnection(wallId+'screen');
+    //isScreenShareInitiator = false;        
+    VCActive = false;
+  }
+}
+
+
+
+
   /************ PPT viewer functions ********/
 
   pptListClose = function(){
@@ -348,15 +909,24 @@ now.ready(function(){
 	
   }
   /******** NOW functions *******/
-  now.pushUser = function(username, clientId){
+  now.pushUser = function(username, clientId, browser, bversion){
     jQuery('#users').find('ul').append('<li class="'+clientId+'">'+username+'</li>');
-    gAlert(username+' Has Joined')
+    gAlert(username+' Has Joined');
+    usernames.push({
+        name: username
+        , id: clientId
+        , browser: browser
+        , bversion: bversion
+      });
   }
   now.pullUser = function(username, clientId){
     users = jQuery('#users').find('.'+clientId);
     if (users.length){
       jQuery(users).detach()
       gAlert(username + ' Has Left');
+    }
+    if (i=usernames.indexOf("clientId")){
+	   usernames.splice(i);
     }
   }
 
@@ -391,6 +961,12 @@ now.ready(function(){
     }
     for(i = 0; i < users.length;i++){
       jQuery('#users').find('ul').append('<li class="'+users[i].id+'">'+users[i].name+'</li>');
+      usernames.push({
+          name: users[i].name
+        , id: users[i].id
+        , browser: users[i].browser
+        , bversion: users[i].bversion
+      });
     }
     paper.view.draw();//refresh canvas
   });	
@@ -555,17 +1131,36 @@ now.ready(function(){
     paper.view.draw();
   }
 
+window.oncontextmenu = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+};
+
   //Select Tool
   var select = new Tool();
   select.onMouseDown = function(event){
+/*	 if (event.event.detail > 1) {
+	        console.log('dblclick', event.event.detail);
+	        // perform your double click...
+	    }
+	if (event.event.button == 2) {
+		console.log('right click',event,event.button);
+		//event.event.preventDefault();  
+		if (event.event.stopPropagation)
+		            event.event.stopPropagation();
+
+		event.event.cancelBubble = true;
+	}  // test code for double click and right mouse button. 
+*/	
     if(select.target){
       select.target.item.selected = false
       jQuery('button').filter('.delete-object').detach();
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
-      var windowPosX = (select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom
-      var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom
+      var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+      var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
       select.target.item.selected = true;
       jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
@@ -615,9 +1210,9 @@ now.ready(function(){
         jQuery('.delete-object').click();
         break;
       case 67:
-        //c for center?
-        jQuery('.tool[value=Center]').click();
-        console.log('center');
+        //c for center?   comment out since command c activates
+       // jQuery('.tool[value=Center]').click();
+       // console.log('center');
         break;
       case 83:
         //s for select?
@@ -686,8 +1281,7 @@ now.ready(function(){
     if(/.*tool.*/.test(cl)){
       switch(t){
         case 'Nav':
-          scrollNav();  
-          _gaq.push(['_trackEvent', 'Nav', 'clicked',name]);    
+          scrollNav();     
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2;
@@ -701,13 +1295,11 @@ now.ready(function(){
           obj.addClass('btn-info');
           c.addClass('crosshair');
           pen.activate();
-          _gaq.push(['_trackEvent', 'Pen', 'clicked',name]);
           break;
         case 'Select':
           obj.addClass('btn-info');
           c.addClass('pointer');
           select.activate();
-          _gaq.push(['_trackEvent', 'Select', 'clicked',name]);
           break;
         case 'Center':
           var l = paper.project.activeLayer.bounds.center;
@@ -719,13 +1311,29 @@ now.ready(function(){
           break;
         case 'Export':
           exportCanvas();
-          _gaq.push(['_trackEvent', 'Export', 'clicked',name]);
           break;
         case 'Show':
           // show powerpoint list
           $('#pptList').modal();
-          //console.log("show PowerPoint")
+          //console.log("show PowerPoint");
           break;
+        case 'Vconf':
+          // start video conference
+          //openCloseVC();
+         // now.sendVideoConf();
+          break;    
+        case 'ShareScreen':
+          // start screen sharing
+           // jQuery('canvas').css({top:160});
+           // jQuery('#videoconf').append('<video id="localVideo"></video><div id="remotes"></div>');
+          //$('#ssdisplay').modal();
+ 
+          //openCloseSS();
+          //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><table style="width: 100%; border-left: 1px solid black;"><tbody><tr><td><section id="local-media-stream"></section></td></tr></tbody></table>');
+          //jQuery('#ssarea').append('<section><h3>Share Your Screen</h3><button id="init-RTCMultiConnection" title="first person click">Open Session</button></section><section id="local-media-stream"></section>');
+          //startSS();   
+            
+          break;    
         case 'Upload':
           // show powerpoint upload modal
           $('#pptUpload').modal();
@@ -783,8 +1391,17 @@ now.ready(function(){
     e.preventDefault();
     var file = e.originalEvent.dataTransfer.files[0];
     processFiles(file);
+    now.actionMeeting(wallId, name, 'goEImg');
   })
   jQuery('.tool[value=Pen]').click();
 });
+
+shareLinkOpen = function(){
+  $('#shareLink').modal();	
+}
+ 
+shareLinkClose = function(){
+	$('#shareLink').modal('hide');
+ }
 
 
