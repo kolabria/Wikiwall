@@ -1,0 +1,10 @@
+extends sharelayout
+
+block localjs
+  script
+    document.getElementById('share-check').onclick = function() {
+      console.log('clicked screen share check button');
+      screen.check();
+    };  
+    master = false;
+    name = 'client x'; 

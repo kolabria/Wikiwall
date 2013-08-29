@@ -1,0 +1,13 @@
+.container
+  .page-header
+    h1 Connected to: #{box.name}
+    br
+    h2  Share with outers with this url:   kolabria.com/s/#{box.oid}
+    br 
+    h2 Your screen 
+    br
+    button#share-screen Share Screen
+    #screens-preview
+    h2 Meeting Participants
+    ul
+      li #{hostName}

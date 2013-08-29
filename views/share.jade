@@ -1,0 +1,16 @@
+.container
+  .page-header
+    h1 Connect to a meeting room screen
+  .span8.offset2
+    .hero-unit
+      form.form-horizontal(action='/share', method='post')
+        .control-group
+          label.control-label(for="id_name") Your Name 
+          .controls
+            input#id_name.input-xlarge(required, name='name', placeholder='Your Name', type='text')
+        .control-group
+          label.control-label(for="id_room") Room Name
+          .controls
+            input#id_room.input-xlarge(required, name='room', placeholder='Case Sensitive', type='text')
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Connect')

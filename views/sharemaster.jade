@@ -1,0 +1,11 @@
+extends sharelayout
+
+
+block localjs
+  script
+    document.getElementById('share-screen').onclick = function() {
+      console.log('clicked screen share button');
+      screen.share('new-screen');
+      this.disabled = true;
+    };
+    master = true; 

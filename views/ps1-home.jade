@@ -1,0 +1,24 @@
+.container
+  .page-header
+    h1 Room Name: #{box.name}
+    br
+    h2  Go to kolabria.com/share and enter room name to connect and share with this display
+    br
+    #screens-preview
+    br
+    .hero-unit
+      h2 Connect to another room
+      form.form-horizontal(action='/ps-join', method='post')
+        .control-group
+          label.control-label(for="id_room") Room
+          .controls
+            input#id_room.input-xlarge(required, name='room', placeholder='Case Sensitive', type='text')
+        .control-group
+          label.control-label(for="id_code") Code
+          .controls
+            input#id_code.input-xlarge(required, name='code', placeholder='4-digit secret code', type='number')
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Connect')
+    script
+      name = "#{box.name}";
+
