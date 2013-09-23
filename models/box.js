@@ -26,7 +26,9 @@ var LocalWall = new Schema({
   , PIN: String
   , shareList: [ShareWall]  
   , pubList: [PublishedWall]
-  , localList: [LocalWall]  
+  , localList: [LocalWall]
+  , accessKey: String
+  , pairCode: String  
  });
 
 boxSchema

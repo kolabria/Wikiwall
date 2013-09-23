@@ -1,7 +1,7 @@
 extends drawlayout
 block toolbar
   li.btn-group.dropup.hints#ShareScreen(data-toggle='tooltip', title='Screen Sharing')
-    button.btn.dropdown-toggle(data-toggle="dropdown")
+    button.btn.dropdown-toggle#ShareScreenDd(data-toggle="dropdown")
       i.icon-fullscreen
       span.caret
     ul.dropdown-menu
@@ -9,8 +9,9 @@ block toolbar
         h4 Minimize
       li.btn#ssCapture(data-value='ssCapture')
         h4 Capture Screen
-  li.btn-group.dropup.hints#shareTo(data-toggle='tooltip', title='Share wtih another room or join with PIN code')
-      button.btn.dropdown-toggle(data-toggle="dropdown")
+  //
+    li.btn-group.dropup.hints#shareTo(data-toggle='tooltip', title='Share wtih another room or join with PIN code')
+      button.btn.dropdown-toggle#shareToDd(data-toggle="dropdown")
         i.icon-share
         span.caret
       ul.dropdown-menu
@@ -21,8 +22,8 @@ block toolbar
           li.btn(data-value='#{sb.boxID}')
             span #{sb.boxName}
             i
-  li.btn-group.dropup.hints#walls(data-toggle='tooltip', title='Shared from another room')
-      button.btn.dropdown-toggle(data-toggle="dropdown")
+    li.btn-group.dropup.hints#walls(data-toggle='tooltip', title='Shared from another room')
+      button.btn.dropdown-toggle#wallsDd(data-toggle="dropdown")
         i.icon-inbox
         span.caret
       ul.dropdown-menu
@@ -30,29 +31,40 @@ block toolbar
           h4 Available Walls
         li.divider
   li.btn-group.dropup.hints#users(data-toggle='tooltip', title='Meeting attendees & Share Link')
-      button.btn.dropdown-toggle(data-toggle="dropdown")
+      button.btn.dropdown-toggle#usersDd(data-toggle="dropdown")
         i.icon-user
         span.caret
       ul.dropdown-menu
+        li.tool.btn(type='button', onclick='javascript:shareLinkOpen();', value='shareLink') Share Wall
+        li.divider
         li
           h4 Active Users
         li.divider
+  if mode == 'slave'
+    li  
+       button.btn.tool.hints#ZoomArea(data-toggle='tooltip', title='Zoom Area',type='button', onclick='', value='ZoomArea')
+         i.icon-zoom-in
 block functions            
   .pull-right
-    a.brand #{wall.name}
+    a.brand #{wall.name} - #{mode}
     nav#functions.nav.btn-group
-      a.settings.btn.hints(data-toggle='tooltip', title='Settings', href='http://localhost:3000/settings')
-        i.icon-wrench
-      a.quit.btn.pull-right.hints(data-toggle='tooltip', title='Exit', href='/host/list')
+      if device == 'HW'
+        a.settings.btn.hints(data-toggle='tooltip', title='Settings', href='http://localhost:3000/settings')
+          i.icon-wrench
+      a.quit.btn.pull-right.hints(id='quit_btn', data-toggle='tooltip', title='Exit')
         i.icon-off
 
 block localjs
   script
-    var wallId = '#{wall.defaultWall_ID}';
-    var name = "#{rbox.name}";
+    var wallId = '#{wall.defaultWall_ID}'; 
     var companyId = '#{wall.company_id}'; //from application 
     var boxID = '#{rbox.id}'; //if name is not unique
+    var mode = '#{mode}';   // master or slave 
+    var device = '#{device}'; // hw or sw controller
+    if (mode == 'slave')
+      var name = "#{rbox.name}"+' - Remote';
+    else
+      var name = "#{rbox.name}";
 
 block localAnalytics
-  script
-   
+

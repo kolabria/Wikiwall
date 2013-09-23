@@ -29,6 +29,8 @@ now.ready(function(){
         }
       }
     });
+
+  
   }
 
   var events = 0;
@@ -38,12 +40,256 @@ now.ready(function(){
   var scribd_doc;
   var usernames = [];  // array of current users on the wall 
   var xOffset = 0;
+  var master = false;
+  var slave = false;
+  var remoteEvent = false;
+  var zoomAreaActive = false;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
     pen.path.add(e.data);
     now.shareUpdateDraw(e.data,paper.project.activeLayer.index);
   }, false);
+
+console.log('viewing mode:',mode);
+console.log('start stuff');
+console.log('View Size heigt: ',paper.view.size.height );
+console.log('view size width: ', paper.view.size.width );
+
+console.log('view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
+console.log('view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+
+//console.log('project heigt: ',paper.project.activeLayer.bounds.height );
+//console.log('project width: ', paper.project.activeLayer.bounds.width );
+//console.log('project top: ',paper.project.activeLayer.bounds.top);
+//console.log('project top: ',paper.project.activeLayer.bounds.right);
+//console.log('project top: ',paper.project.activeLayer.bounds.bottom);
+//console.log('project top: ',paper.project.activeLayer.bounds.left);
+
+if (mode=='slave'){
+  // now.sendMSMsg('connect');
+  setTimeout(function(){now.sendMSMsg('connect');},1000);  // added delay since message sometimes missed on master 
+//  better to to send and wait for response - if don't get response resend 
+}
+
+now.recMSMsg = function(msg,data){
+ console.log('recMSMsg: mode: ',mode ); 
+ if (mode == 'master') {
+	  switch (msg){
+		case 'connect':
+		  console.log('slave connected');
+	  	  var data = { height: paper.view.size.height, width: paper.view.size.width} 
+		  console.log('View Size heigt: ',paper.view.size.height );
+		  console.log('view size width: ', paper.view.size.width );
+		  // send size of master view
+		  now.sendMSMsg('viewSize',data);	
+		break;
+		case 'reqViewSize':
+		  var data = { height: paper.view.size.height, width: paper.view.size.width} 
+		  // send size of master view
+		  now.sendMSMsg('viewSize',data);
+		break;
+		case 'quit':
+		  console.log('recieved quit from slave');
+		  window.location.assign('/host/list');
+		break;
+		case 'select':
+		  console.log('recieved select from slave');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=Select]').click();
+		  //jQuery('.tool[value=Select]').addClass('btn-info');
+		break;
+		case 'pen':
+		  console.log('recieved pen from slave');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=Pen]').click();
+		break;
+		case 'nav':
+		  console.log('recieved nav from slave');
+		  remoteEvent = true; 
+		  jQuery('.btn-info').removeClass('btn-info');
+		  jQuery('.tool[value=Nav]').addClass('btn-info');
+		  //jQuery('.tool[value=Nav]').click();
+		break;
+		case 'color':
+		  console.log('recieved color from slave');
+		  remoteEvent = true; 
+		  jQuery('.btn[title=Colors]').dropdown();
+		  jQuery('.color[value="'+data+'"]').click();
+		break;
+		case 'scroll':
+		  console.log('recieved scroll from slave');
+		  paper.view.scrollBy(data)
+          paper.view.draw();
+		break;
+		case 'zoomin':
+		  console.log('recieved zoomin from  slave');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=ZoomIn]').click();
+		break;
+		case 'zoomout':
+		  console.log('recieved zoomout from  slave');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=ZoomOut]').click();
+		break;
+		case 'showUsers':
+		  console.log('recieved zoomout from  slave');
+		  remoteEvent = true; 
+		  jQuery('#users').click();
+		break;
+		case 'zoomAreaStart':
+		  console.log('Slave has activated zoom area');
+		 // var path = new Path(points);
+	    //path.strokeColor = p.color;
+	    //path.strokeWidth = p.width;
+	    //path.opacity = p.opacity;
+	    //path.name = p._id;
+	      //var from = new Point(20, 20);
+		  //var to = new Point(80, 80);
+		  //var path = new Path.Rectangle(from, to);
+		  var point = new Point(data.x, data.y);
+		  var size = new Size(data.width, data.height);
+		  var path = new Path.Rectangle(point, size);
+		  path.strokeColor = 'grey';
+		  path.dashArray = [10, 4];
+		  path.strokeWidth = 5;
+		  //path.fillColor = 'blue';
+		  //path.opacity = 0.25;
+		  path.name = 'slave';
+		  paper.view.draw();
+		break;
+		case 'zoomAreaStop':
+		  console.log('Slave has deactivated zoom area');
+		  //paper.project.layers[layer].children['slave'].remove();
+		  paper.project.activeLayer.children['slave'].remove();
+		  paper.view.draw();
+		break;
+		case 'zoomAreaMove':
+		  paper.project.activeLayer.children['slave'].remove();  // remove old path and draw new one
+		  var point = new Point(data.x, data.y);
+		  var size = new Size(data.width, data.height);
+		  var path = new Path.Rectangle(point, size);
+		  path.strokeColor = 'grey';
+		  path.dashArray = [10, 4];
+		  path.strokeWidth = 5;
+		  //path.fillColor = 'blue';
+		  //path.opacity = 0.25;
+		  path.name = 'slave';
+		  paper.view.draw();
+		break;
+		case 'users':
+		  console.log('recieved users from slave');
+		  $('#usersDd').dropdown('toggle');
+		break;
+		case 'vconf':
+		  console.log('recieved vconf from slave');
+		  $('#vconfDd').dropdown('toggle');
+		break;
+		case 'sScreen':
+		  console.log('recieved sScreen from slave');
+		  $('#ShareScreenDd').dropdown('toggle');
+		break;
+		case 'openShareLink':
+		  console.log('recieved openShareLink from slave');
+		  $('#shareLink').modal();
+		break;
+		case 'closeShareLink':
+		  console.log('recieved sScreen from slave');
+		  $('#shareLink').modal('hide');
+		break;
+
+	  }  
+  }
+  if (mode == 'slave') {
+	  switch (msg){
+		case 'viewSize':	  	  
+		  console.log('Master View Size height: ',data.height );
+		  console.log('Master view size width: ', data.width );
+		  // adjust view to match master 
+		  console.log('height ratio: ',paper.view.size.height/data.height);
+		  console.log('width ratio: ',paper.view.size.width/data.width);
+		  var rHeight = paper.view.size.height/data.height;
+		  var rWidth = paper.view.size.width/data.width;
+	console.log('scale ratio: height: '+rHeight+' width: '+rWidth);
+		  var scale = Math.min((paper.view.size.height/data.height),(paper.view.size.width/data.width));
+	      paper.view.zoom = paper.view.zoom * scale ;
+	
+	      pan.v = new Point()
+	    console.log('---before ---');
+		console.log('slave:view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
+		console.log('slave:view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+	
+	      console.log('slave: bounds x: ',paper.view.bounds.x);
+          //pan.v.x = (0-paper.view.bounds.x); // / Math.min((paper.view.size.height/data.height),(paper.view.size.width/data.width));
+      
+ console.log('scale: ',scale);
+         if (rHeight >= rWidth) {
+			pan.v.x = (0-paper.view.bounds.x) * scale; 
+	        pan.v.y = 0;
+         }
+         else {
+	        pan.v.x = 0;
+			pan.v.y = (0-paper.view.bounds.y) * scale;     
+         }
+          
+          
+          console.log('scroll by: ',pan.v);
+          paper.view.scrollBy(pan.v)
+          paper.view.draw();
+		console.log('---after ---');
+		console.log('slave:view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
+		console.log('slave:view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+		break;
+		
+		case 'quit':
+		  window.location.assign('/host/list');
+		break;
+		case 'select':
+		  console.log('recieved select from master');
+		  remoteEvent = true; 
+		  //jQuery('.tool[value=Select]').addClass('btn-info');
+		  jQuery('.tool[value=Select]').click();
+		break;
+		case 'pen':
+		  console.log('recieved pen from master');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=Pen]').click();
+		break;
+		case 'nav':
+		  console.log('recieved nav from  master');
+		  remoteEvent = true; 
+		  jQuery('.btn-info').removeClass('btn-info');
+		  jQuery('.tool[value=Nav]').addClass('btn-info');
+		  //jQuery('.tool[value=Nav]').click();
+		break;
+		case 'zoomin':
+		  console.log('recieved zoomin from  master');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=ZoomIn]').click();
+		break;
+		case 'zoomout':
+		  console.log('recieved zoomout from  master');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=ZoomOut]').click();
+		break;
+		case 'color':
+		  console.log('recieved color from  master');
+		  remoteEvent = true; 
+		   jQuery('.btn[title=Colors]').dropdown();
+		  jQuery('.color[value="'+data+'"]').click();
+		break;
+		case 'scroll':
+		  console.log('recieved scroll from  master');
+		  paper.view.scrollBy(data)
+          paper.view.draw();
+		break;
+	  }
+   }  
+}
+
+
+
+
 
   /******** HELPER FUNCTIONS *******/
 
@@ -144,21 +390,21 @@ now.ready(function(){
 
 // debug stuff
 
-//    console.log('windowTop: ', windowTop);
-//    console.log('windowRight: ', windowRight);
-//    console.log('windowBottom: ', windowBottom);
-//    console.log('windowLeft: ', windowLeft);
+    console.log('windowTop: ', windowTop);
+    console.log('windowRight: ', windowRight);
+    console.log('windowBottom: ', windowBottom);
+    console.log('windowLeft: ', windowLeft);
 
-//    console.log('View Size heigt: ',paper.view.size.height );
-//    console.log('view size width: ', paper.view.size.width );
+    console.log('View Size heigt: ',paper.view.size.height );
+    console.log('view size width: ', paper.view.size.width );
 
-//    console.log('PaperTop: ', paperTop);
-//    console.log('PaperRigh: ', paperRight);
-//    console.log('PaperBottom: ', paperBottom);
-//    console.log('PaperLeft: ', paperLeft);
+    console.log('PaperTop: ', paperTop);
+    console.log('PaperRigh: ', paperRight);
+    console.log('PaperBottom: ', paperBottom);
+    console.log('PaperLeft: ', paperLeft);
 
-   // console.log('windowBottom: ', windowBottom);
-  //  console.log('windowLeft: ', windowLeft);
+ console.log('windowBottom: ', windowBottom);
+  console.log('windowLeft: ', windowLeft);
 
 
     jQuery('#view')
@@ -188,6 +434,14 @@ now.ready(function(){
           pan.v.y = offsetTop * rHeight * paper.view.zoom;
           paper.view.scrollBy(pan.v)
           paper.view.draw();
+          if (!zoomAreaActive) {
+            now.sendMSMsg('scroll', pan.v);  // send action to paired screen
+            console.log('sending scroll msg');
+          }
+          else {
+	        var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}
+		    now.sendMSMsg('zoomAreaMove',data);
+          }
         },
         stop: function(event, ui){
           //Clear the original position
@@ -206,6 +460,7 @@ now.ready(function(){
       raster.name = id
       raster.position = position
       paper.view.draw();
+      jQuery('#alerts').children().detach();
       callback();
     }
   }
@@ -973,6 +1228,7 @@ openCloseVC = function (){
         , bversion: users[i].bversion
       });
     }
+  $('#loading').detach();
     paper.view.draw();//refresh canvas
   });	
  
@@ -1065,6 +1321,8 @@ openCloseVC = function (){
   now.tError = function(err){
     alert(err);
   }
+
+
 
 
   /****** Tool Definitions ********/
@@ -1207,7 +1465,15 @@ window.oncontextmenu = function(event) {
       case 80:
         //p for pen?
         jQuery('.tool[value=Pen]').click();
-        break;
+		console.log('View Size heigt: ',paper.view.size.height );
+		console.log('view size width: ', paper.view.size.width );
+
+		console.log('view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
+		console.log('view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+		
+		console.log('view zoom: '+paper.view.zoom);
+
+
       case 46:
         //delete for delete?
         event.preventDefault();
@@ -1219,8 +1485,11 @@ window.oncontextmenu = function(event) {
        // console.log('center');
         break;
       case 83:
-        //s for select?
+        //s for select?  - also to test slave 
         jQuery('.tool[value=Select]').click();
+        slave = true;
+        console.log("Make slave");
+        now.sendMSMsg('connect');
         break;
       case 37: //left
         updateDelete();
@@ -1242,6 +1511,9 @@ window.oncontextmenu = function(event) {
         paper.view.scrollBy({x:0,y:10});
         paper.view.draw();
         break;
+     case 77:
+        master = true;
+        console.log("Make Master");
     }
   });
 
@@ -1265,7 +1537,49 @@ window.oncontextmenu = function(event) {
       now.shareWall(cl);
       li.find('i').addClass('icon-ok')
     }
-  })
+  });
+
+  $("#quit_btn").click(function() {
+    now.sendMSMsg('quit');
+    //console.log('hit quit button 1'); 
+    setTimeout(function(){window.location.assign('/host/list')},1000);  // put a delay since seem to lose message sometimes
+    //window.location.assign('/host/list');
+  });
+
+  jQuery('#users').click(function(e){
+	console.log('Users clicked');
+	now.sendMSMsg('users');
+  });
+
+  jQuery('#vconf').click(function(e){
+	console.log('vconf clicked');
+	now.sendMSMsg('vconf');
+  });
+
+  jQuery('#ShareScreen').click(function(e){
+	console.log('Share Screen clicked');
+	now.sendMSMsg('sScreen');
+  });
+
+  jQuery('#ZoomArea').click(function(e){
+	console.log('ZoomArea clicked');
+	if (!zoomAreaActive){
+	   zoomAreaActive = true;
+	   jQuery('#ZoomArea').addClass('btn-success');
+	   console.log('activate ZoomArea');
+	   var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}
+	   now.sendMSMsg('zoomAreaStart',data);
+	// disconnect pan and zoom messages 
+    }
+    else {
+	   console.log('deactivate ZoomArea');
+	   zoomAreaActive = false;
+	   jQuery('#ZoomArea').removeClass('btn-success');
+	   now.sendMSMsg('zoomAreaStop');
+	   now.sendMSMsg('reqViewSize');
+    }
+	
+  });
 
   //Change tool or color
   jQuery('#toolbar').add('#navWindow').add('#functions').click(function(e){
@@ -1286,24 +1600,75 @@ window.oncontextmenu = function(event) {
       switch(t){
         case 'Nav':
           scrollNav();     
+          if (remoteEvent != true ) { //  send message only when a local event 
+	        if (!zoomAreaActive) {
+              now.sendMSMsg('nav');  // send action to paired screen
+              console.log('sending nav msg');
+            }
+          }
+          else 
+             nw.hide();
+             remoteEvent = false;
           break;
         case 'ZoomOut':
           paper.view.zoom = paper.view.zoom /2;
           scrollNav();
+          if (remoteEvent != true) { //  send message only when a local event 
+	        if (!zoomAreaActive) {
+              now.sendMSMsg('zoomout');  // send action to paired screen
+              console.log('sending zoomout msg');
+            }
+            else {
+              var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}
+              now.sendMSMsg('zoomAreaMove',data);
+              console.log('zoom level: ',paper.view.zoom);
+            }
+          }
+          else 
+             nw.hide();
+             remoteEvent = false;
           break;
         case 'ZoomIn':
           paper.view.zoom = paper.view.zoom * 2;
           scrollNav();
+          if (remoteEvent != true ) { //  send message only when a local event 
+	        if (!zoomAreaActive) {
+              now.sendMSMsg('zoomin');  // send action to paired screen
+              console.log('sending zoomin msg');
+            }
+            else {
+              var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}
+              now.sendMSMsg('zoomAreaMove',data);
+              console.log('zoom level: ',paper.view.zoom);
+            }
+          }
+          else 
+             nw.hide();
+             remoteEvent = false;
           break;
         case 'Pen':
           obj.addClass('btn-info');
           c.addClass('crosshair');
           pen.activate();
+          if (remoteEvent != true) { //  send message only when a local event 
+            now.sendMSMsg('pen');  // send action to paired screen
+            console.log('sending pen msg');
+          }
+          else 
+             remoteEvent = false;
           break;
         case 'Select':
           obj.addClass('btn-info');
           c.addClass('pointer');
           select.activate();
+          if (remoteEvent != true) { //  send message only when a local event 
+            now.sendMSMsg('select');  // send action to paired screen
+            console.log('sending select msg');
+          }
+          else 
+             remoteEvent = false;
+         //$('.dropdown-toggle').dropdown();
+         // jQuery('#color_btn').dropdown();
           break;
         case 'Center':
           var l = paper.project.activeLayer.bounds.center;
@@ -1345,6 +1710,14 @@ window.oncontextmenu = function(event) {
       }
     }else if(/.*color.*/.test(cl)){
       color = t
+      
+      if (remoteEvent != true) { //  send message only when a local event 
+        now.sendMSMsg('color',color);  // send action to paired screen
+        console.log('sending color msg');
+      }
+      else {
+         remoteEvent = false;
+      }
       jQuery('.tool[value=Pen]').click();
     }else if(/.*share.*/.test(cl)){
       switch(t){
@@ -1355,6 +1728,7 @@ window.oncontextmenu = function(event) {
           //no longer needed handled via CSS, call kept incase of additional functionality
           break;
         case 'Users':
+          console.log('clicked on users');
           //no longer needed handled via CSS, call kept incase of additional functionality
           break;
       }
@@ -1366,11 +1740,15 @@ window.oncontextmenu = function(event) {
       }
     }
   });
+
+
   //functional with hit testing and everything
   //progress meter of some sort required
   function processFiles(file){
     if(file && typeof FileReader !== "undefined"){
       if((/image/i).test(file.type)){
+	    // show message while loading image
+	    jQuery('<div class="alert fade in">Loading Image <img src="../img/ajax-loader.gif"></div>').appendTo('#alerts');
         var reader = new FileReader();
         reader.onload = function(e){          
           file.src = e.target.result;
@@ -1383,6 +1761,8 @@ window.oncontextmenu = function(event) {
     }
   }
   now.receiveFilesCanvas = function(layer, file, position, name){
+    // show message while loading image
+    jQuery('<div class="alert fade in">Loading Image <img src="../img/ajax-loader.gif"></div>').appendTo('#alerts');
     var image = document.createElement('img');
     image.src = file
     nposition = {x:position._x, y:position._y}
@@ -1401,10 +1781,12 @@ window.oncontextmenu = function(event) {
 });
 
 shareLinkOpen = function(){
+  now.sendMSMsg('openShareLink');
   $('#shareLink').modal();	
 }
  
 shareLinkClose = function(){
+	now.sendMSMsg('closeShareLink');
 	$('#shareLink').modal('hide');
  }
 

@@ -153,6 +153,29 @@ app_open.listen(open_port);
 console.log("Express open server listening on port %d in %s mode", open_port, app_open.settings.env);
 console.log("hostname: ",hostname);
 
+
+/**
+* Helper Functions
+**/
+
+function getBoxFromUA(ua){
+	if ((i = ua.search("WWA")) > 0) {
+		BoxID = ua.substr(i);
+		return BoxID;
+	}
+	return null;
+}
+
+// Wall PIN generator 
+function newPIN(){
+	return Math.floor(Math.random() * 9000) + 1000;
+}
+
+function uploadFile(){
+
+}
+
+
 /**
 * Middleware
 **/
@@ -218,6 +241,36 @@ function requiresSysLogin(req,res,next){
   }
 };
 
+function requiresBoxAuth(req,res,next){
+  //bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+  bid = getBoxFromUA(req.headers['user-agent'])
+ // console.log('BoxAuth: bid: '+bid);
+ // console.log('BoxAuth: session: ',req.session.box_id);
+  if (bid) {
+  	// hardware controller
+    req.currentBoxId = bid;
+    req.currentMode = 'master';
+    req.currentDevice = 'HW';
+    next();
+  }
+  else if (req.session.box_id) {
+    // valid session from software controller login
+    req.currentBoxId = req.session.box_id;
+    if (req.session.mode == 'slave'){
+	   req.currentMode = 'slave';
+	   req.currentDevice = 'NA';
+    } 
+    else {
+	  req.currentMode = 'master';
+	  req.currentDevice = 'SW';
+    } 
+    next();
+  }
+  else {
+	// no valid session and no bid so go to software controller login page. 
+    res.redirect('/room');
+  }
+};
 
 function requiresBoxID(req,res,next){
 	console.log('BoxAuth - User-Agent: ' + req.headers['user-agent']);
@@ -235,27 +288,6 @@ function requiresBoxID(req,res,next){
     res.redirect('/login');
   }
 };
-
-/**
-* Helper Functions
-**/
-
-function getBoxFromUA(ua){
-	if (i = ua.search("WWA")) {
-		BoxID = ua.substr(i);
-		return BoxID;
-	}
-	return null;
-}
-
-// Wall PIN generator 
-function newPIN(){
-	return Math.floor(Math.random() * 9000) + 1000;
-}
-
-function uploadFile(){
-
-}
 
 /**
 * Tests Routes
@@ -735,6 +767,7 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 				    b.id = req.body.box_id;
 				    b.defaultWall_ID = w.id; 
 				    b.PIN = w.PIN;
+				    b.pairCode = newPIN();
 				    //console.log('default wall id: ',b.defaultWall_ID);
 					function boxSaveFailed() {
 				      console.log('New box add  failed');
@@ -767,6 +800,40 @@ app.post('/controllers.:format?', requiresLogin, function(req,res){
 	});
 });
 
+// add new box
+app.post('/swcontrollers.:format?', requiresLogin, function(req,res){
+	Box.findOne({name: req.body.box_name}, function(err, box) {
+		if (box) {
+                 req.flash('error',"Controller Name already used.  Chose a different name");
+		}
+		else {
+		 	var b = new Box();
+			var w = new Iwall();
+			w.company_id = req.session.user_id;
+			w.PIN = newPIN();
+			w.name = req.body.box_name;
+			b.name = req.body.box_name;
+		    b.company_id = req.session.user_id;
+		    b.id = 'SW'+newPIN();
+		    b.defaultWall_ID = w.id; 
+		    b.PIN = w.PIN;
+		    b.accessKey = req.body.box_accessKey;
+		    b.pairCode = newPIN();
+		    //console.log('default wall id: ',b.defaultWall_ID);
+			function boxSaveFailed() {
+		      console.log('New box add  failed');
+		      res.redirect('/controllers');
+		    }
+			w.save(function(err) {
+			  if (err) console.log('New wall add failed');
+			});
+			b.save(function(err) {
+			  if (err) return boxSaveFailed();
+			});	
+		}
+	});
+    res.redirect('/controllers');
+});
 
 
 
@@ -1378,8 +1445,9 @@ app.post('/acct-upgrade', requiresLogin, function(req,res){
 /**
 * Controller list of published walls 
 **/
-app.get('/host/list', function(req,res){
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+app.get('/host/list',requiresBoxAuth, function(req,res){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
@@ -1387,7 +1455,7 @@ app.get('/host/list', function(req,res){
 		  if (box) {
 			res.local('layout', 'boxlayout'); 
 			res.render('boxwalls',{ 
-			  	title: 'Host Wall"', box: box, ie: false
+			  	title: 'Host Wall', box: box, ie: false, mode: req.currentMode, device: req.currentDevice
 		    });
 		  } 
 		  else {    //	box not found  
@@ -1396,12 +1464,13 @@ app.get('/host/list', function(req,res){
 		    res.render('apperror',{ bid: bid});
 		  }
 	  });	
-	}
+//	}
 });
 
 // remove published wall from box
-app.delete('/published/:id.:format?/', function(req,res){
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+app.delete('/published/:id.:format?/',requiresBoxAuth, function(req,res){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
@@ -1431,15 +1500,17 @@ app.delete('/published/:id.:format?/', function(req,res){
 					}
 		    	}
 		      });
-		   }  
+		   }
+		   nowjs.getGroup('b'+box.id).now.reload();
 		   res.redirect('/host/list/');  
 	  });	
-	}
+//	}
 });
 
 // create a new wall on the box
-app.get('/host/list/new', function(req,res){
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+app.get('/host/list/new',requiresBoxAuth, function(req,res){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		console.log('create new wall for - Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
@@ -1467,7 +1538,7 @@ app.get('/host/list/new', function(req,res){
 			box.save(function(err){
 				if(err) console.log('Could not save new local wall to box',err);
 			});			
-			
+			nowjs.getGroup('b'+box.id).now.reload();
 		    res.redirect('/host/list/');
 		  }
 		  else {
@@ -1476,12 +1547,13 @@ app.get('/host/list/new', function(req,res){
 			res.render('apperror',{ bid: bid});
 	      }
 	  });	
-	}
+//	}
 });
 
 // remove local wall from box
-app.delete('/host/list/:id.:format?/', function(req,res){
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+app.delete('/host/list/:id.:format?/',requiresBoxAuth, function(req,res){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
@@ -1504,14 +1576,16 @@ app.delete('/host/list/:id.:format?/', function(req,res){
 				deleteWall(req.params.id);
 			  });
 		   }  
+		   nowjs.getGroup('b'+box.id).now.reload();
 		   res.redirect('/host/list/');  
 	  });	
-	}
+//	}
 });
 //  Assign local wall to a user
 // remove local wall from box
-app.post('/host/list/:id.:format?/assign', function(req,res){
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+app.post('/host/list/:id.:format?/assign',requiresBoxAuth, function(req,res){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 	//	console.log('Box ID: ',bid);
 		Box.findOne({ id: bid} , function(err, box) {
 		//	console.log(box);
@@ -1552,6 +1626,7 @@ app.post('/host/list/:id.:format?/assign', function(req,res){
 								break;
 						      }
 						    }
+						    nowjs.getGroup('b'+box.id).now.reload();
 						    res.redirect('/host/list/');  
 						}
 						else{
@@ -1566,12 +1641,13 @@ app.post('/host/list/:id.:format?/assign', function(req,res){
 		   }  
 		   
 	  });	
-	}
+//	}
 });
 
-app.post('/host/list/:id.:format?/rename', function(req,res){
+app.post('/host/list/:id.:format?/rename',requiresBoxAuth, function(req,res){
 	console.log('rename local wall- wallid:',req.params.id,' new name: ',req.body.wallName);
-	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	bid = req.currentBoxId;
+//	if (bid = getBoxFromUA(req.headers['user-agent'])){
 		Box.findOne({ id: bid} , function(err, box) {
 		  if(err) console.log(err);
 		  if (box){	
@@ -1594,17 +1670,19 @@ app.post('/host/list/:id.:format?/rename', function(req,res){
 				}
 			  });
 	      }
+	    nowjs.getGroup('b'+box.id).now.reload();
 	    res.redirect('/host/list/'); 
 	    });
-    }
+//    }
 });
 
 //  draw from list of walls on box 
 
-app.get('/published/:id.:format?/draw', function(req,res){  
+app.get('/published/:id.:format?/draw', requiresBoxAuth, function(req,res){  
   res.local('layout', 'publishdraw'); 
   res.local('title', 'Published Wall'); 
-  bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
+  bid = req.currentBoxId;
+//  bid = req.headers['user-agent'].substr(req.headers['user-agent'].search("WWA"));
 //	console.log('Box ID: ',bid);
   Box.findOne({ id: bid}, function(err, rbox) {
     if (err) console.log(err)
@@ -1612,15 +1690,16 @@ app.get('/published/:id.:format?/draw', function(req,res){
     Iwall.findOne({ _id: req.params.id}, function(err, wall) {
 	    if (err) console.log(err)
 	    if (wall) {
-		  	//console.log('wall: ',wall);
+		  	console.log('Draw published wall: ',wall.name);
 		    wall.lastOpened = new Date();
 		    wall.timesOpened = wall.timesOpened +1;
 			wall.save(function(err) {
 			  if (err) console.log('New wall add failed: ',err);
 			});
 			joinMeeting(wall.id,rbox.name,'box');
+			
 		    res.render('draw',{
-		    	 wall: wall , rbox: rbox , ie: false, jslibcomp: jslibcomp
+		    	 wall: wall , rbox: rbox , ie: false, jslibcomp: jslibcomp, mode: req.currentMode, device: req.currentDevice
 	    	});
     	}
         else {
@@ -1630,6 +1709,95 @@ app.get('/published/:id.:format?/draw', function(req,res){
     });		
   });
 });
+
+// **********  software controller views *********
+
+app.get('/room', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Software Controller Login')
+  res.render('swclogin', {
+  });
+});
+
+app.post('/room', function(req, res){
+	console.log("Controller Login: "+req.body.RoomName+" access Key: "+req.body.AccessKey);
+	// check if good access key for box
+	// if yes then show list
+	// if not send message and go back to login 
+	Box.findOne({name: req.body.RoomName}, function(err,box) {
+		if(err) console.log(err);
+		if (box){
+			if (box.accessKey == req.body.AccessKey){
+				req.session.box_id = box.id;
+				req.session.mode = 'master' ;
+				res.redirect('/host/list');
+			//	res.local('layout', 'boxlayout'); 
+			//	res.render('boxwalls',{ 
+			//	  	title: 'Host Wall"', box: box, ie: false
+			  //  });
+			}
+			else{
+				req.flash('error','Invalid Access Key');
+				res.redirect('/room');
+			}
+		}
+		else {
+			req.flash('error','Invalid Name');
+			res.redirect('/room');
+		}
+		
+	});
+});
+
+app.get('/sdestroy-room', function(req, res){
+  if (req.session) {
+    req.session.destroy(function() {});
+  }
+  res.redirect('/room');
+});
+
+// ********** Pair views *********
+
+app.get('/pair', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Pair ')
+  res.render('pair', {
+  });
+});
+
+app.post('/pair', function(req, res){
+	console.log("Controller Login: "+req.body.RoomName+" access Key: "+req.body.PairCode);
+	// check if good pair key for box
+	// if yes then show list
+	// if not send message and go back to login 
+	Box.findOne({name: req.body.RoomName}, function(err,box) {
+		if(err) console.log(err);
+		if (box){
+			if (box.pairCode == req.body.PairCode){
+				req.session.box_id = box.id;
+				req.session.mode = 'slave' ;
+				res.redirect('/host/list');
+			}
+			else{
+				req.flash('error','Invalid Pair Code');
+				res.redirect('/room')
+			}
+		}
+		else {
+			req.flash('error','Invalid Name');
+			res.redirect('/room')
+		}	
+	});
+});
+
+app.get('/sdestroy-pair', function(req, res){
+  if (req.session) {
+    req.session.destroy(function() {});
+  }
+  res.redirect('/pair');
+});
+
+
 
 //  ********  sys admin view *********
 app.get('/sysadmin', requiresSysLogin, function(req,res){	
@@ -2210,6 +2378,90 @@ app.get('/sdestroy', function(req, res){
   }
   res.redirect('/ulogin');
 });
+/**
+*  presentation sharing views
+**/
+
+
+/**
+* PS Controller default 
+**/
+app.get('/ps1', function(req,res){
+	if (bid = getBoxFromUA(req.headers['user-agent'])){
+	//	console.log('Box ID: ',bid);
+		Box.findOne({ id: bid} , function(err, box) {
+		//	console.log(box);
+		  if(err) console.log(err);
+		  if (box) {
+			res.local('layout', 'sharelayout'); 
+			res.render('ps1-home',{ 
+			  	title: 'Display Controller', box: box
+		    });
+		  } 
+		  else {    //	box not found  
+            console.log("Bad BID: ", bid);
+		    res.local('layout', false); 
+		    res.render('apperror',{ bid: bid});
+		  }
+	  });	
+	}
+});
+
+app.post('/ps-join', function(req,res){
+	
+});
+
+app.get('/share', function(req,res){
+  res.local('layout', 'boxlayout');
+  res.local('title', 'Kolabria - Share')
+  res.render('share',{
+    
+  });
+});
+
+
+app.post('/share', function(req,res){
+   // check if room (box) name is entered and valid
+   // check browser type - must be chrome
+   // get box id and use as unique id to share screeen 
+
+   //var chrome = useragent.is(req.headers['user-agent']).chrome;  ???? 
+  //  console.log('/join - user agent: ', req.headers['user-agent']);
+  //  console.log('/join - ie: '+ie+' version: '+useragent.is(req.headers['user-agent']).version);
+   console.log('name: '+req.body.room+' Name: '+req.body.name);
+  
+   Box.findOne({name: req.body.room}, function(err, box) {
+     if(err) console.log(err);
+     if(!box) {
+		req.flash('error',"Invalid Room Name");
+		res.redirect('/share');  
+     }
+	 else {
+		res.local('layout', 'sharemaster'); 
+		res.render('connected',{ 
+			title: 'Kolabria Connected', box: box, hostName: req.body.name
+		});
+
+	 }
+   });	
+});
+
+app.get('/s/:id.:format?', function(req,res){  
+  console.log('Box ID: ',req.params.id);
+  Box.findById(req.params.id, function(err, box) {
+    if (err) console.log(err)
+    //console.log("wall name: ",req.params.id);
+    if (box){
+		res.local('layout', 'shareclient'); 
+		res.render('connect',{ 
+			title: 'Kolabria Connect', box: box 
+		});
+    }
+    else {
+	  res.redirect('/');
+    }	
+  });
+});
 
 
 
@@ -2217,6 +2469,26 @@ app.get('/sdestroy', function(req, res){
 
 var nowjs = require("now");
 var everyone = nowjs.initialize(app, {port: port});
+
+everyone.now.sendShareJoin = function(n){
+  console.log('sendShareJoin - name: ',n);
+  everyone.now.recShareJoin(n);
+}
+
+everyone.now.sendShareLeave = function(n){
+	everyone.now.recShareLeave(n);
+}
+
+everyone.now.sendShareStart = function(){
+	console.log('sendShareEnd - userid: ');
+	everyone.now.recShareStart();
+}
+
+
+everyone.now.sendShareEnd = function(uid){
+	console.log('sendShareEnd - userid: ',uid);
+	everyone.now.recShareEnd(uid);
+}
 
 
 //Functions
@@ -2553,13 +2825,13 @@ everyone.now.sendImage = function(src,player, position, callback){
   });
 }
 
-nowjs.on('disconnect', function(){
+//nowjs.on('disconnect', function(){
 //	console.log('now disconnect');
 	
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
-  delete boxes[this.now.boxID];
-  leaveMeeting(this.now.wallId,this.now.name);
-});
+//  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
+//  delete boxes[this.now.boxID];
+//  leaveMeeting(this.now.wallId,this.now.name);
+//});
 
 everyone.now.serverLog = function(msg){
 	var name = this.now.name;
@@ -2594,6 +2866,13 @@ everyone.now.sendVideoConf = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.videoConf();
 }
 
+//  test messages for master -slave
+everyone.now.sendMSMsg = function(msg,data){
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.recMSMsg(msg,data);
+  console.log('MS message: '+msg+' data: '+data);
+}
+
+
 everyone.now.actionMeeting = function(wallId, name, action){
 //	console.log('ActionMeeting- wId: '+wallId+' name: '+name+' Action:'+action);	
 	Meeting.find({wallId: wallId})
@@ -2624,3 +2903,23 @@ everyone.now.actionMeeting = function(wallId, name, action){
 		}
 	});	
 }
+
+everyone.now.mslink = function(mode){
+	console.log('mslink: Joined: '+this.user.clientId+' in '+mode+' mode');
+  var client = this.user.clientId;
+  var boxId = this.now.boxId;
+  
+
+    //add this user to a group      
+  nowjs.getGroup('b'+this.now.boxId).addUser(client);
+	
+}
+
+everyone.now.sendChar = function(id,c) {
+  nowjs.getGroup('b'+this.now.boxId).exclude(this.user.clientId).now.recChar(id,c);
+};
+
+
+everyone.now.sendGoDraw = function(wallId){
+  nowjs.getGroup('b'+this.now.boxId).exclude(this.user.clientId).now.recGoDraw(wallId);	
+};

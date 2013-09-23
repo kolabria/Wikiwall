@@ -20,7 +20,7 @@ html
               li.btn-group.dropup.pen
                 button.btn.tool.hints(data-toggle='tooltip', title='Draw Tool',type='button', onclick='', value='Pen')
                   i.icon-pencil   
-                button.btn.dropdown-toggle.hints(data-toggle='tooltip', title='Colors',data-toggle="dropdown")       
+                button.btn.dropdown-toggle.hints(id='color_btn', data-toggle='tooltip', title='Colors',data-toggle="dropdown")       
                   span.caret
                 ul.dropdown-menu.pull-right
                   li
@@ -41,7 +41,7 @@ html
                 //- button.btn.tool(type='button', onclick='', value='Show')
                   //- i.icon-play-circle 
               li.btn-group.dropup.hints#vconf(data-toggle='tooltip', title='Video Conference')
-                button.btn.dropdown-toggle(data-toggle="dropdown")
+                button.btn.dropdown-toggle#vconfDd(data-toggle="dropdown")
                   i.icon-facetime-video
                   span.caret
                 ul.dropdown-menu
@@ -66,6 +66,8 @@ html
           button.btn.tool(type='button', onclick='', value='ZoomOut')
             i.icon-minus
       #alerts
+        .alert.fade.in#loading  WikiWall Loading      
+          img(src ='../img/ajax-loader.gif')
     #ssdisplay.modal.hide.fade
       .modal-body
         section
@@ -97,7 +99,6 @@ html
         h4 #{base}/suw/#{wall.shareURL}
       .modal-footer
         a.btn(onclick='javascript:shareLinkClose();') Close
-      
     block upmodal
     #pptShow.modal.hide.fade
       .modal-header

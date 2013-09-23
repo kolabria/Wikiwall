@@ -7,11 +7,13 @@
       h3 Controller List:
       br
       if (!user.freeAcct)
+        h2 Hardware Controllers:
         table.table
           thead
             tr
               th.hints(data-toggle='tooltip', title='Unique ID for contoller - found on bottom') Controller ID
               th.hints(data-toggle='tooltip', title='Unique name you give to identify meeting room') Controller Name
+              th.hints(data-toggle='tooltip', title='Key used to authenticate meeting room computer') Access Key
               th.hints(data-toggle='tooltip', title='Change name and configure room sharing') Edit
               th.hints(data-toggle='tooltip', title='Permanently delete controller') Remove
           tbody
@@ -19,6 +21,7 @@
               tr
                 td #{box.id}
                 td #{box.name}
+                td #{box.accessKey}
                 td
                   a.btn(href='/controllers/#{box.id}/edit') edit
                 td
@@ -26,11 +29,26 @@
                     input(type="hidden", name="_method", value="delete")
                     input.btn(type="submit", value='remove')
             tr
+              td Add Hardware Controller
+            tr
               form.form-horizontal(action='/controllers', method='POST')
                 td
                   input#id_box_id(type='text', name='box_id', placeholder='Found on bottom of controller')
                 td
                   input#id_box_name(type='text', name='box_name', placeholder='Name to identify meeting room')
+                td
+                td
+                  input.btn.btn-primary(type='submit', value='Add')
+                td
+            tr
+              td Add Software Controller
+            tr
+              form.form-horizontal(action='/swcontrollers', method='POST')
+                td
+                td
+                  input#id_box_name(type='text', name='box_name', placeholder='Name to identify meeting room')
+                td
+                  input#id_box_id(type='text', name='box_accessKey', placeholder='Access Key to login')
                 td
                   input.btn.btn-primary(type='submit', value='Add')
                 td

@@ -1,6 +1,8 @@
 .container
   .page-header
     h1 Controller:  #{box.name}
+    if mode == 'master'
+      h3.pull-right Pair Code: #{box.pairCode}
   .row-fluid
       br
       h3 Published WikiWalls:
@@ -16,7 +18,7 @@
             tr 
               td #{wall.wallName}
               td
-                a.btn(href='/published/#{wall.wallID}/draw') Draw
+                a.btn(onclick="goDraw('#{wall.wallID}')") Draw
               td
                 form(method="post", action='/published/#{wall.wallID}/')
                   input(type="hidden", name="_method", value="delete")
@@ -39,17 +41,17 @@
                   script 
                     this.VKI_size=5;
                     this.VKI_showVersion= false;
-                  input.keyboardInput#id_email(type='text', name='wallName',value='#{lw.wallName}')
+                  input.keyboardInput(id='N#{lw.wallID}', type='text', name='wallName',value='#{lw.wallName}')
                   input.btn.btn-primary(type='submit', value='Rename')
               td
                 form.form-horizontal(action='/host/list/#{lw.wallID}/assign', method='POST')
                   script 
                     this.VKI_size=5;
                     this.VKI_showVersion= false;
-                  input.keyboardInput#id_email(type='text', name='email',placeholder='bob@acme.com')
+                  input.keyboardInput(id='O#{lw.wallID}', type='text', name='email',placeholder='bob@acme.com')
                   input.btn.btn-primary(type='submit', value='Assign')
-              td
-                a.btn(href='/published/#{lw.wallID}/draw') Draw
+              td                
+                a.btn(onclick="goDraw('#{lw.wallID}')") Draw
               td
                 form(method="post", action='/host/list/#{lw.wallID}/')
                   input(type="hidden", name="_method", value="delete")
@@ -57,5 +59,13 @@
           br 
           tr
             td
-              a.btn.btn-primary(href='/host/list/new') New Wall
-
+              a.btn.btn-primary(onclick='newWall()') New Wall 
+    if mode == 'slave' 
+      a.btn.btn-primary.pull-right(href='/sdestroy-pair') Disconnect
+    if mode == 'master' && device == 'SW'
+      a.btn.btn-primary.pull-right(href='/sdestroy-room') Logout
+block localjs
+  script
+    var mode = '#{mode}';
+    var device = '#{device}'; 
+    var boxId = '#{box.id}';
