@@ -1,0 +1,17 @@
+.container
+  .page-header
+    h1 Pair to Controller
+  .span8.offset2
+    .hero-unit
+      p You can pair when local
+      form.form-horizontal.users(name='pair', action='/pair', method='post')
+        .control-group
+          label.control-label(for="id_name") Meeting Room Name: 
+          .controls
+            input#id_name.input-xlarge(required, name='RoomName', placeholder='Name', type='text')
+        .control-group
+          label.control-label(for="id_pairCode") Pair Code: 
+          .controls
+            input#id_name.input-xlarge(required, name='PairCode', placeholder='', type='text')
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Connect')

@@ -15,6 +15,7 @@ now.ready(function(){
   now.companyId = companyId;
   now.browser = $.ua.browser.name; 
   now.bversion = $.ua.browser.version;
+  now.mode = mode;
   if(typeof boxID != 'undefined'){
     now.boxID = boxID
     now.register(function(shared,shares){
@@ -29,7 +30,8 @@ now.ready(function(){
         }
       }
     });
-
+    // register for master-slave connection
+   now.mslink(mode);
   
   }
 
@@ -132,6 +134,11 @@ now.recMSMsg = function(msg,data){
 		  remoteEvent = true; 
 		  jQuery('.tool[value=ZoomOut]').click();
 		break;
+		case 'center':
+		  console.log('recieved center from  slave');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=Center]').click();
+		break;
 		case 'showUsers':
 		  console.log('recieved zoomout from  slave');
 		  remoteEvent = true; 
@@ -196,6 +203,30 @@ now.recMSMsg = function(msg,data){
 		case 'closeShareLink':
 		  console.log('recieved sScreen from slave');
 		  $('#shareLink').modal('hide');
+		break;
+		case 'startVC':
+		  console.log('recieved start VC from slave');
+		  jQuery('#vconf li').click();
+		break;
+		case 'stopVC':
+		  console.log('recieved stop VC from slave');
+		  jQuery('#vconf li').click();
+		break;
+		case 'startSS':
+		  console.log('recieved start SS from slave');
+		  jQuery('#ShareScreen li').click();
+		break;
+		case 'stopSS':
+		  console.log('recieved stop SS from slave');
+		  jQuery('#ShareScreen li').click();
+		break;
+		case 'sizeSS':
+		  console.log('recieved size SS from slave');
+		  jQuery("#ShareScreen li[data-value='ssSize']").click();
+		break;
+		case 'captureSS':
+		  console.log('recieved capture SS from slave');
+		  jQuery("#ShareScreen li[data-value='ssCapture']").click();
 		break;
 
 	  }  
@@ -271,6 +302,11 @@ now.recMSMsg = function(msg,data){
 		  console.log('recieved zoomout from  master');
 		  remoteEvent = true; 
 		  jQuery('.tool[value=ZoomOut]').click();
+		break;
+		case 'center':
+		  console.log('recieved center from  master');
+		  remoteEvent = true; 
+		  jQuery('.tool[value=Center]').click();
 		break;
 		case 'color':
 		  console.log('recieved color from  master');
@@ -358,12 +394,12 @@ now.recMSMsg = function(msg,data){
     //Get current Viewport bounds
     var windowTop = paper.view.bounds.top;
     var windowRight = paper.view.bounds.right;
-    var windowBottom = paper.view.bounds.bottom;
+    var windowBottom = paper.view.bounds.bottom; // - (55 / paper.view.zoom);
     var windowLeft = paper.view.bounds.left;
     //Get Active Paper bounds (drawn objects)
     var paperTop = Math.floor(paper.project.activeLayer.bounds.top)-20;
     var paperRight = Math.ceil(paper.project.activeLayer.bounds.right)+20;
-    var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom)+20;
+    var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom); //- (55 / paper.view.zoom))+20;
     var paperLeft = Math.floor(paper.project.activeLayer.bounds.left)-20;
     //Calculate bounds of viewable area (viewport + paper)
     var navTop = Math.min(windowTop,paperTop);
@@ -372,14 +408,14 @@ now.recMSMsg = function(msg,data){
     var navLeft = Math.min(windowLeft, paperLeft);
     //Get current width and height of viewport
     var windowLength = paper.view.bounds.width;
-    var windowHeight = paper.view.bounds.height
+    var windowHeight = paper.view.bounds.height; // - (55 / paper.view.zoom);  // to adjust for the tool bar at bottom of window
     //Get the width and height of viewable area
-    var navLength = navRight - navLeft
-    var navHeight = navBottom - navTop
-    //Calculate ratios for view square and movement calculations
-    var rLength = navLength / 200;
-    var rHeight = navHeight / 150;           
-    var canvas
+    var navLength = navRight - navLeft;
+    var navHeight = navBottom - navTop;
+    //Calculate ratios for view square and movement calculations  200 & 150 are size of navWindow in wall.css
+    var rLength = navLength / 200;    
+    var rHeight = navHeight / 150;     
+    var canvas;
               
     //Set the original position of the drag event. 
     //The Drag event doesn't record previous position, just original, this is need to keep track of last position.
@@ -390,21 +426,26 @@ now.recMSMsg = function(msg,data){
 
 // debug stuff
 
-    console.log('windowTop: ', windowTop);
-    console.log('windowRight: ', windowRight);
-    console.log('windowBottom: ', windowBottom);
-    console.log('windowLeft: ', windowLeft);
+    console.log('Window: ('+paper.view.bounds.left+','+paper.view.bounds.top+') - ('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+    console.log('Active Layer:('+paper.project.activeLayer.bounds.left+','+paper.project.activeLayer.bounds.top+') - ('+paper.project.activeLayer.bounds.width+','+paper.project.activeLayer.bounds.height+')' );
 
-    console.log('View Size heigt: ',paper.view.size.height );
-    console.log('view size width: ', paper.view.size.width );
+   console.log('Bottom: '+paper.view.bounds.bottom+' Height: '+paper.view.size.height);
 
-    console.log('PaperTop: ', paperTop);
-    console.log('PaperRigh: ', paperRight);
-    console.log('PaperBottom: ', paperBottom);
-    console.log('PaperLeft: ', paperLeft);
+   // console.log('windowTop: ', windowTop);
+   // console.log('windowRight: ', windowRight);
+   // console.log('windowBottom: ', windowBottom);
+  //  console.log('windowLeft: ', windowLeft);
 
- console.log('windowBottom: ', windowBottom);
-  console.log('windowLeft: ', windowLeft);
+  //  console.log('View Size heigt: ',paper.view.size.height );
+  //  console.log('view size width: ', paper.view.size.width );
+
+  //  console.log('PaperTop: ', paperTop);
+  //  console.log('PaperRigh: ', paperRight);
+  //  console.log('PaperBottom: ', paperBottom);
+  //  console.log('PaperLeft: ', paperLeft);
+
+// console.log('windowBottom: ', windowBottom);
+//  console.log('windowLeft: ', windowLeft);
 
 
     jQuery('#view')
@@ -436,10 +477,10 @@ now.recMSMsg = function(msg,data){
           paper.view.draw();
           if (!zoomAreaActive) {
             now.sendMSMsg('scroll', pan.v);  // send action to paired screen
-            console.log('sending scroll msg');
+            //console.log('sending scroll msg');
           }
           else {
-	        var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}
+	        var data = { x: paper.view.bounds.left, y: paper.view.bounds.top, height: (paper.view.size.height - (55 / paper.view.zoom)), width: paper.view.size.width}; // 55 is height of the tool bar
 		    now.sendMSMsg('zoomAreaMove',data);
           }
         },
@@ -568,7 +609,7 @@ function ssFront(){  // move whiteboard down for screen sharing view
 var isScreenShareInitiator = false;
 var screenShareActive = false;
 var screenSession;
-var screenFull = false; 
+var screenFull = true; 
 var screenCapture = false;
 var screenStream;
 var screenSizeX = 200;
@@ -579,7 +620,8 @@ screenConnection.session = 'only-screen';
 screenConnection.direction = 'one-way';
 // screenConnection.firebase = 'kolabria;
 
-screenConnection.onNewSession = function (session) {      
+screenConnection.onNewSession = function (session) { 
+	if (mode != 'slave') {      
       console.log('onNewSession-screen: ', session); 
        if (!isScreenShareInitiator) {
 	     //jQuery('canvas').css({top:500});
@@ -596,9 +638,11 @@ screenConnection.onNewSession = function (session) {
        }
        //document.getElementById('open-screen').innerHTML="View Screen"; 
        screenSession = session;
+    }
 };
 
 screenConnection.onstream = function (stream) {
+ if (mode != 'slave') { 
    console.log('Screen onstream:',stream);
    var screen = document.createElement('div');
    screen.className = 'screen-container';
@@ -624,20 +668,24 @@ screenConnection.onstream = function (stream) {
    }
    ssMax();   
    screenFull = true;
+ }
 };
 
 screenConnection.onUserLeft = function(userid) {
+  if (mode != 'slave') { 
 	console.log('Left - userid: ',userid);
 	jQuery('#ssarea').empty();
     jQuery('canvas').css({top:0+'px'});   
     screenShareActive = false;
     jQuery('#ssShare').html('<h4>Share Screen</h4>');
+  }
 };
+
 jQuery('#ShareScreen li').click(function(e){
  // e.stopImmediatePropagation(); //Two clicks are fired, this is a patch, need to find reason why.
   var li = jQuery(this);
   cl = li.attr('data-value');
-  //console.log('clicked vconf button cl: ',cl);
+  console.log('clicked vconf button cl: ',cl);
   switch(cl){
       case 'ssShare':  
         if (!screenShareActive){  // open screen share session
@@ -646,7 +694,7 @@ jQuery('#ShareScreen li').click(function(e){
 	        console.log('usernames length: ',usernames.length);
 	        for (i=0; i < usernames.length; i++){
 		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
-		      if (usernames[i].browser != "Chrome") {
+		      if (usernames[i].browser != "Chrome" && usernames[i].mode == 'master') {
 			    browserNotChrome = true; 
 			    badPeople = badPeople+usernames[i].name+' , ';
 		      }
@@ -655,19 +703,25 @@ jQuery('#ShareScreen li').click(function(e){
 		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
 		     break; 
         	}
-          console.log('Open Screen');
-          //jQuery('canvas').css({top:500});
-          jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1300" height="731"></canvas></div>');
-          var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-          //jQuery('canvas').css({top:newTop+'px'});       
-          screenConnection.open(wallId+'screen');  
-          isScreenShareInitiator = true;  
+          if (mode != 'slave'){
+            console.log('Open Screen');
+            //jQuery('canvas').css({top:500});
+            jQuery('#ssarea').append('<section id="screen-container"></section><div id="container" style="border:none"><canvas id="imageView" style="display:none; left: 0; top: 0; z-index: 0;border:none" width="1300" height="731"></canvas></div>');
+            var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+            //jQuery('canvas').css({top:newTop+'px'});       
+            screenConnection.open(wallId+'screen');  
+            isScreenShareInitiator = true;  
+            
+            now.actionMeeting(wallId, name, 'goSS');
+          }
+          else {
+	         now.sendMSMsg('startSS');
+          }
           screenShareActive = true;
           jQuery('#ssShare').html('<h4>Close</h4>');
-          now.actionMeeting(wallId, name, 'goSS');
         }
         else {  // close screen share session
-          
+          if ( mode != 'slave') { 
           screenConnection.leave();
           ssBack();
           jQuery('#ssarea').empty();
@@ -677,39 +731,70 @@ jQuery('#ShareScreen li').click(function(e){
          
           //screenConnection = new RTCMultiConnection(wallId+'screen');
           //isScreenShareInitiator = false;        
+          
+          }
+          else {
+            now.sendMSMsg('stopSS');
+          }
           screenShareActive = false;
           jQuery('#ssShare').html('<h4>Share Screen</h4>');
         }
         
         break;
      case 'ssSize':  //  resize screen size
-        if (screenFull) {
-	      //ssMin();
-	      ssBack();
-          jQuery('#ssSize').html('<h4>Show</h4>');
-          screenFull = false;
+        if (mode != 'slave'){
+          if (screenFull) {
+	        //ssMin();
+	        ssBack();
+            jQuery('#ssSize').html('<h4>Show</h4>');
+            screenFull = false;
+          }
+          else {
+            //ssMax();
+            ssFront();
+            jQuery('#ssSize').html('<h4>Hide</h4>');
+            screenFull = true; 
+          }
         }
         else {
-          //ssMax();
-          ssFront();
-          jQuery('#ssSize').html('<h4>Hide</h4>');
-          screenFull = true; 
+          if (screenFull) {
+            jQuery('#ssSize').html('<h4>Show</h4>');
+            screenFull = false;
+          }
+          else {
+            jQuery('#ssSize').html('<h4>Hide</h4>');
+            screenFull = true; 
+          }
+	      now.sendMSMsg('sizeSS');
         }
         break;
      case 'ssCapture':   // capture screen image to whiteboard 
-        if (!screenCapture) {
-	      ssBack();
-	      ssCapture();
-          jQuery('#ssCapture').html('<h4>Release</h4>');
-          screenCapture = true;
-          now.sendScreenCapture('capture');
-          now.actionMeeting(wallId, name, 'goSSCapture');
+        if (mode != 'slave'){
+          if (!screenCapture) {
+	        ssBack();
+	        ssCapture();
+            jQuery('#ssCapture').html('<h4>Release</h4>');
+            screenCapture = true;
+            now.sendScreenCapture('capture');
+            now.actionMeeting(wallId, name, 'goSSCapture');
+          }
+          else {
+	        ssFront();
+	        jQuery('#ssCapture').html('<h4>Capture</h4>');
+	        screenCapture = false; 
+	        now.sendScreenCapture('release');
+          }
         }
         else {
-	      ssFront();
-	      jQuery('#ssCapture').html('<h4>Capture</h4>');
-	      screenCapture = false; 
-	      now.sendScreenCapture('release');
+          if (!screenCapture) {
+            jQuery('#ssCapture').html('<h4>Release</h4>');
+            screenCapture = true;
+          }
+          else {
+	        jQuery('#ssCapture').html('<h4>Capture</h4>');
+	        screenCapture = false; 
+          }
+	      now.sendMSMsg('captureSS');
         }
         break;
   }
@@ -717,15 +802,17 @@ jQuery('#ShareScreen li').click(function(e){
 
 
 now.screenCapture = function(cmd){
-  if (cmd == 'capture'){
-    ssBack();
-    jQuery('#ssCapture').html('<h4>Release</h4>');
-    screenCapture = true;
-  }
-  else if (cmd == 'release'){
-     ssFront();
-     jQuery('#ssCapture').html('<h4>Capture</h4>');
-     screenCapture = false;
+  if (mode != 'slave') { 
+    if (cmd == 'capture'){
+      ssBack();
+      jQuery('#ssCapture').html('<h4>Release</h4>');
+      screenCapture = true;
+    }
+    else if (cmd == 'release'){
+       ssFront();
+       jQuery('#ssCapture').html('<h4>Capture</h4>');
+       screenCapture = false;
+    }
   }
 }
 
@@ -846,69 +933,74 @@ sizeVideo = function() {
     }	
 }
 
-VCConnection.onNewSession = function (session) {      
-      console.log('onNewSession-VC: ', session); 
-       if (!isVCInitiator) {
-	     //jQuery('canvas').css({top:500, left:200});  //160
-	     //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
-         jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+VCConnection.onNewSession = function (session) {  
+	 if (mode != 'slave') {    
+        console.log('onNewSession-VC: ', session); 
+         if (!isVCInitiator) {
+         //jQuery('canvas').css({top:500, left:200});  //160
+        //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
+           jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
 	    
-         var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-         //jQuery('canvas').css({top:newTop+'px'});
-         var middle = $(window).width()/2;
-         jQuery('canvas').css({left:middle});
+           var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+           //jQuery('canvas').css({top:newTop+'px'});
+           var middle = $(window).width()/2;
+           jQuery('canvas').css({left:middle});
+           VCSession = session;
+           VCConnection.join(session);
+           //setVCControls();
+           VCActive = true;
+           jQuery('#vcCall').html('<h4>HangUp</h4>');
+         }
+         //document.getElementById('open-screen').innerHTML="View Screen"; 
          VCSession = session;
-         VCConnection.join(session);
-         //setVCControls();
-         VCActive = true;
-         jQuery('#vcCall').html('<h4>HangUp</h4>');
-       }
-       //document.getElementById('open-screen').innerHTML="View Screen"; 
-       VCSession = session;
+      }
 };
 
 VCConnection.onstream = function (stream) {
-	console.log('Video onstream:',stream);
-	var video = document.createElement('div');
-	video.className = 'video-container';
-	video.id = stream.userid; 
-	console.log('stream id: ',stream.userid);
-	video.appendChild(stream.mediaElement);
-    if (stream.type === 'local') {
-        localStream = stream;
-       document.getElementById('local-video-container').appendChild(video);
-        //document.getElementById('local-video-container').appendChild(stream.mediaElement);
-        var middle = $(window).width()/2;
-        stream.mediaElement.width = middle/2 ;  
-		stream.mediaElement.height = middle/2/1.7778;
-		stream.mediaElement.muted = true; 
-		sizeVideo();
-		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-        //jQuery('canvas').css({top:newTop+'px'});
-    }
-    if (stream.type === 'remote') {
-        remoteVCStreams.push(stream);
-        var remoteVideosContainer = document.getElementById('remote-videos-container');
-        remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
-        //remoteVideosContainer.appendChild(stream.mediaElement, remoteVideosContainer.firstChild);
-        var videosize = ($(window).width()/2*3)/4;
-		stream.mediaElement.width = videosize ;
-		stream.mediaElement.height = videosize/1.7778;
+	if (mode != 'slave') {
+	  console.log('Video onstream:',stream);
+	  var video = document.createElement('div');
+      video.className = 'video-container';
+      video.id = stream.userid; 
+      console.log('stream id: ',stream.userid);
+      video.appendChild(stream.mediaElement);
+      if (stream.type === 'local') {
+          localStream = stream;
+          document.getElementById('local-video-container').appendChild(video);
+          //document.getElementById('local-video-container').appendChild(stream.mediaElement);
+          var middle = $(window).width()/2;
+          stream.mediaElement.width = middle/2 ;  
+		  stream.mediaElement.height = middle/2/1.7778;
+		  stream.mediaElement.muted = true; 
+		  sizeVideo();
+		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+          //jQuery('canvas').css({top:newTop+'px'});
+      }
+      if (stream.type === 'remote') {
+          remoteVCStreams.push(stream);
+          var remoteVideosContainer = document.getElementById('remote-videos-container');
+          remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+          //remoteVideosContainer.appendChild(stream.mediaElement, remoteVideosContainer.firstChild);
+          var videosize = ($(window).width()/2*3)/4;
+	 	  stream.mediaElement.width = videosize ;
+		  stream.mediaElement.height = videosize/1.7778;
 		 
-		sizeVideo();
-        //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
-		//stream.mediaElement.height = remoteVideoSize ;
-		var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+		  sizeVideo();
+          //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
+	      //stream.mediaElement.height = remoteVideoSize ;
+		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
         //jQuery('canvas').css({top:newTop+'px'});
- 
+      }
     }
 };
 
 
 VCConnection.onUserLeft = function(userid) {
-	console.log('Left - userid: ',userid);
-	var video = document.getElementById(userid);
-	if(video) video.parentNode.removeChild(video);
+	if (mode != 'slave') {
+	  console.log('Left - userid: ',userid);
+	  var video = document.getElementById(userid);
+	  if(video) video.parentNode.removeChild(video);
+    }
 };
 
 function setVCControls() {
@@ -961,7 +1053,7 @@ jQuery('#vconf li').click(function(e){
 	        console.log('usernames length: ',usernames.length);
 	        for (i=0; i < usernames.length; i++){
 		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
-		      if (usernames[i].browser != "Chrome") {
+		      if (usernames[i].browser != "Chrome"  && usernames[i].mode == 'master') {
 			    browserNotChrome = true; 
 			    badPeople = badPeople+usernames[i].name+' , ';
 		      }
@@ -970,32 +1062,42 @@ jQuery('#vconf li').click(function(e){
 		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
 		     break; 
         	}
-	      	console.log('Open VC');
-	        //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
-	        jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+            if (mode != 'slave') {
+	      	  console.log('Open VC');
+	          //jQuery('#videoconf').append('<p>Local<button id="lv-plus">+</button> <button id="lv-minus">-</button> Remote   <button id="rv-plus">+</button> <button id="rv-minus">-</button><section id="remote-videos-container"></section><section id="local-video-container"></section>');
+	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
 
-	        var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-	        //jQuery('canvas').css({top:newTop+'px'});
-	        // by default split screen in two - video - whiteboard
-	        var middle = $(window).width()/2;
-	        xOffset = middle;
-	        jQuery('canvas').css({left:middle});
+	          var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+	          //jQuery('canvas').css({top:newTop+'px'});
+	          // by default split screen in two - video - whiteboard
+	          var middle = $(window).width()/2;
+	          xOffset = middle;
+	          jQuery('canvas').css({left:middle});
 	        //setVCControls();         
-	        VCConnection.open(wallId+'VC');  
-	        isVCInitiator = true;  
-	        VCActive = true;
-	        jQuery('#vcCall').html('<h4>HangUp</h4>');
-	        now.actionMeeting(wallId, name, 'goVC');
+	          VCConnection.open(wallId+'VC');  
+	          isVCInitiator = true;  	          
+	          now.actionMeeting(wallId, name, 'goVC');
+            }
+            else {
+	          now.sendMSMsg('startVC');
+            }
+            VCActive = true;
+            jQuery('#vcCall').html('<h4>HangUp</h4>');
         }
         else {
-	        jQuery('canvas').css({top:0, left:0});
-	        jQuery('#videoconf').empty();
-	        VCConnection.leave();
-	        //VCConnection = new RTCMultiConnection(wallId+'VC');
-	        //isVCInitiator = false;        
+	        if (mode != 'slave') {
+	          jQuery('canvas').css({top:0, left:0});
+	          jQuery('#videoconf').empty();
+	          VCConnection.leave();
+	          //VCConnection = new RTCMultiConnection(wallId+'VC');
+	          //isVCInitiator = false;        
+	          xOffset = 0;
+	        }
+	        else {
+		      now.sendMSMsg('stopVC');
+	        }
 	        VCActive = false;
 	        jQuery('#vcCall').html('<h4>Call</h4>');
-	        xOffset = 0;
         }
         break;
      case 'vcFull':
@@ -1226,6 +1328,7 @@ openCloseVC = function (){
         , id: users[i].id
         , browser: users[i].browser
         , bversion: users[i].bversion
+        , mode: users[i].mode
       });
     }
   $('#loading').detach();
@@ -1677,6 +1780,12 @@ window.oncontextmenu = function(event) {
           view.scrollBy(p);
           view.draw(); 
           scrollNav();
+          if (remoteEvent != true) { //  send message only when a local event 
+            now.sendMSMsg('center');  // send action to paired screen
+            console.log('sending center msg');
+          }
+          else 
+             remoteEvent = false;
           break;
         case 'Export':
           exportCanvas();

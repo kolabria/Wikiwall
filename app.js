@@ -2058,7 +2058,7 @@ app.post('/suw', function(req,res){
 		joinMeeting(wall.id,req.body.name,'url');
 		res.render('draw',
 		   	{ 
-			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie, jslibcomp: jslibcomp 
+			title: 'Kolabria', wall: wall, userName: req.body.name, ie: ie, jslibcomp: jslibcomp
 	      });
 	  }
 	  else console.log("can't find wall");
@@ -2646,6 +2646,7 @@ everyone.now.initWall = function(callback){
   var wallId = this.now.wallId;
   var browser = this.now.browser;
   var bversion = this.now.bversion; 
+  var mode = this.now.mode;
   var usernames = [];
   
     //add this user to a group      
@@ -2660,7 +2661,7 @@ everyone.now.initWall = function(callback){
 	  });
   }
 
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client, browser, bversion);
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).now.pushUser(name, client, browser, bversion, mode);
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(client).getUsers(function(users){
     async.forEach(users, function(item, callback){
       nowjs.getClient(item, function(){
@@ -2669,6 +2670,7 @@ everyone.now.initWall = function(callback){
             , id: this.user.clientId
             , browser: this.now.browser
             , bversion: this.now.bversion
+            , mode: this.now.mode
           });
         callback();
       })
@@ -2866,11 +2868,7 @@ everyone.now.sendVideoConf = function(){
   nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.videoConf();
 }
 
-//  test messages for master -slave
-everyone.now.sendMSMsg = function(msg,data){
-  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.recMSMsg(msg,data);
-  console.log('MS message: '+msg+' data: '+data);
-}
+
 
 
 everyone.now.actionMeeting = function(wallId, name, action){
@@ -2905,21 +2903,27 @@ everyone.now.actionMeeting = function(wallId, name, action){
 }
 
 everyone.now.mslink = function(mode){
-	console.log('mslink: Joined: '+this.user.clientId+' in '+mode+' mode');
+	console.log('mslink: Joined: '+this.user.clientId+' in '+mode+' mode'+'group: b'+this.now.boxID);
   var client = this.user.clientId;
-  var boxId = this.now.boxId;
+  var boxID = this.now.boxID;
   
 
     //add this user to a group      
-  nowjs.getGroup('b'+this.now.boxId).addUser(client);
+  nowjs.getGroup('b'+this.now.boxID).addUser(client);
 	
 }
 
 everyone.now.sendChar = function(id,c) {
-  nowjs.getGroup('b'+this.now.boxId).exclude(this.user.clientId).now.recChar(id,c);
+  nowjs.getGroup('b'+this.now.boxID).exclude(this.user.clientId).now.recChar(id,c);
 };
 
 
 everyone.now.sendGoDraw = function(wallId){
-  nowjs.getGroup('b'+this.now.boxId).exclude(this.user.clientId).now.recGoDraw(wallId);	
+  nowjs.getGroup('b'+this.now.boxID).exclude(this.user.clientId).now.recGoDraw(wallId);	
 };
+
+//  test messages for master -slave
+everyone.now.sendMSMsg = function(msg,data){
+  nowjs.getGroup('b'+this.now.boxID).exclude(this.user.clientId).now.recMSMsg(msg,data);
+  console.log('MS message: '+msg+' data: '+data+' group: b'+this.now.boxID);
+}

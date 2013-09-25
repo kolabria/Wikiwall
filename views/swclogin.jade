@@ -1,0 +1,19 @@
+.container
+  .page-header
+    h1 Software Controller Login
+  .span8.offset2
+    .hero-unit
+      p Login to your WikiWall software controller
+      form.form-horizontal.users(name='login', action='/room', method='post')
+        .control-group
+          label.control-label(for="id_name") Meeting Room Name: 
+          .controls
+            input#id_name.input-xlarge(required, name='RoomName', placeholder='Name', type='text')
+        .control-group
+          label.control-label(for="id_ak") Access Key: 
+          .controls
+            input#id_name.input-xlarge(required, name='AccessKey', placeholder='', type='text')
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Log In')
+        .control-group
+          a.pull-right(href='/pair') Pair to Controller
