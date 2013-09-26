@@ -2827,13 +2827,13 @@ everyone.now.sendImage = function(src,player, position, callback){
   });
 }
 
-//nowjs.on('disconnect', function(){
-//	console.log('now disconnect');
+nowjs.on('disconnect', function(){
+	//console.log('now disconnect');
 	
-//  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
-//  delete boxes[this.now.boxID];
-//  leaveMeeting(this.now.wallId,this.now.name);
-//});
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.pullUser(this.now.name, this.user.clientId);
+  delete boxes[this.now.boxID];
+  leaveMeeting(this.now.wallId,this.now.name);
+});
 
 everyone.now.serverLog = function(msg){
 	var name = this.now.name;
@@ -2903,7 +2903,7 @@ everyone.now.actionMeeting = function(wallId, name, action){
 }
 
 everyone.now.mslink = function(mode){
-	console.log('mslink: Joined: '+this.user.clientId+' in '+mode+' mode'+'group: b'+this.now.boxID);
+//	console.log('mslink: Joined: '+this.user.clientId+' in '+mode+' mode'+'group: b'+this.now.boxID);
   var client = this.user.clientId;
   var boxID = this.now.boxID;
   
@@ -2925,5 +2925,5 @@ everyone.now.sendGoDraw = function(wallId){
 //  test messages for master -slave
 everyone.now.sendMSMsg = function(msg,data){
   nowjs.getGroup('b'+this.now.boxID).exclude(this.user.clientId).now.recMSMsg(msg,data);
-  console.log('MS message: '+msg+' data: '+data+' group: b'+this.now.boxID);
+ // console.log('MS message: '+msg+' data: '+data+' group: b'+this.now.boxID);
 }

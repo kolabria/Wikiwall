@@ -74,6 +74,9 @@ if (mode=='slave'){
 //  better to to send and wait for response - if don't get response resend 
 }
 
+
+
+
 now.recMSMsg = function(msg,data){
  console.log('recMSMsg: mode: ',mode ); 
  if (mode == 'master') {
@@ -387,6 +390,9 @@ now.recMSMsg = function(msg,data){
     jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
   }
 
+  debugShowRect = function(itemName,item){
+	console.log(itemName+': ('+item.left+','+item.top+') - ('+item.width+','+item.height+')');
+  }
   scrollNav = function(){
 	console.log('scrollNav');
     c.addClass('nav');
@@ -394,7 +400,7 @@ now.recMSMsg = function(msg,data){
     //Get current Viewport bounds
     var windowTop = paper.view.bounds.top;
     var windowRight = paper.view.bounds.right;
-    var windowBottom = paper.view.bounds.bottom; // - (55 / paper.view.zoom);
+    var windowBottom = paper.view.bounds.bottom - (55 / paper.view.zoom);
     var windowLeft = paper.view.bounds.left;
     //Get Active Paper bounds (drawn objects)
     var paperTop = Math.floor(paper.project.activeLayer.bounds.top)-20;
@@ -402,13 +408,13 @@ now.recMSMsg = function(msg,data){
     var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom); //- (55 / paper.view.zoom))+20;
     var paperLeft = Math.floor(paper.project.activeLayer.bounds.left)-20;
     //Calculate bounds of viewable area (viewport + paper)
-    var navTop = Math.min(windowTop,paperTop);
-    var navRight = Math.max(windowRight, paperRight);
-    var navBottom = Math.max(windowBottom, paperBottom);
-    var navLeft = Math.min(windowLeft, paperLeft);
+    var navTop = Math.min(windowTop,paperTop) *1.25;   // scale to make bounds bigger than paper.  
+    var navRight = Math.max(windowRight, paperRight) * 1.25;
+    var navBottom = Math.max(windowBottom, paperBottom) * 1.25;
+    var navLeft = Math.min(windowLeft, paperLeft) *1.25 ;
     //Get current width and height of viewport
     var windowLength = paper.view.bounds.width;
-    var windowHeight = paper.view.bounds.height; // - (55 / paper.view.zoom);  // to adjust for the tool bar at bottom of window
+    var windowHeight = paper.view.bounds.height - (55 / paper.view.zoom);  // to adjust for the tool bar at bottom of window
     //Get the width and height of viewable area
     var navLength = navRight - navLeft;
     var navHeight = navBottom - navTop;
@@ -425,7 +431,8 @@ now.recMSMsg = function(msg,data){
     }
 
 // debug stuff
-
+   debugShowRect('Window',paper.view.bounds);
+   debugShowRect('Active Layer',paper.project.activeLayer.bounds);
     console.log('Window: ('+paper.view.bounds.left+','+paper.view.bounds.top+') - ('+paper.view.bounds.width+','+paper.view.bounds.height+')');
     console.log('Active Layer:('+paper.project.activeLayer.bounds.left+','+paper.project.activeLayer.bounds.top+') - ('+paper.project.activeLayer.bounds.width+','+paper.project.activeLayer.bounds.height+')' );
 
@@ -1485,12 +1492,30 @@ openCloseVC = function (){
 
   //Pan Tool
   var pan = new Tool();
+  var panDeltaX;
+  var panDeltaY;
+  var panCnt;
+
+  pan.onMouseDown = function (event){
+    panDeltaX = 0;
+    panDeltaY = 0;	
+    panCnt = 0;
+
+  }
   pan.onMouseDrag = function(event){
-    pan.v = new Point()
-    pan.v.x = -event.delta.x;
-    pan.v.y = -event.delta.y;
-    paper.view.scrollBy(pan.v);
-    
+    pan.v = new Point();
+    panDeltaX += event.delta.x;
+    panDeltaY += event.delta.y;
+    panCnt += (Math.abs(event.delta.x) + Math.abs(event.delta.y))
+
+    if (panCnt >= 20) {
+      pan.v.x = -panDeltaX;
+      pan.v.y = -panDeltaY;
+      panDeltaX = 0;
+      panDeltaY = 0;
+      panCnt=0;
+      paper.view.scrollBy(pan.v);
+    }  
   }
   pan.onMouseUp = function(event){
     paper.view.draw();
@@ -1501,6 +1526,23 @@ window.oncontextmenu = function(event) {
     event.stopPropagation();
     return false;
 };
+
+// Create a point-text item at {x: 30, y: 30}:   for dubug purposes only 
+//var circle = new Path.Circle(new Point(30, 30), 10);
+//circle.strokeColor = 'purple';
+//circle.fillColor = 'purple';
+//var text = new PointText(new Point(30, 30));
+//text.fillColor = 'black';
+//text.strokeColor = 'black';
+//text.strikeWidth = 3;
+//text.content = 'Move your mouse over the view, to see its position';
+//text.characterStyle = {
+  //       fontSize: 14,
+    //     font: 'Lobster Two',
+  //       fillColor: 'black',
+  //       justification: 'left'
+  //    };
+//text.selected = true;
 
   //Select Tool
   var select = new Tool();
@@ -1557,6 +1599,17 @@ window.oncontextmenu = function(event) {
       now.updatePath(select.target.item.name,raster,data);
     }
   }
+ // select.onMouseMove = function(event) {    // this was for debug purposes only
+	// Each time the mouse is moved, set the content of
+	// the point text to describe the position of the mouse:
+	//text.position = event.point;
+//	circle.position = event.point;
+//	text.bounds.x = event.point.x;
+//	text.bounds.y = event.point.y;
+	//console.log('text location: ('+text.position.x+','+text.position.y+')');
+    //debugShowRect('text',text.bounds);
+//	text.content = 'Your position is: ' + event.point.toString()+' zoom: '+paper.view.zoom.toString();
+//  }
 
   /******** Event listeners ******/
   //File Drag
@@ -1568,15 +1621,16 @@ window.oncontextmenu = function(event) {
       case 80:
         //p for pen?
         jQuery('.tool[value=Pen]').click();
-		console.log('View Size heigt: ',paper.view.size.height );
-		console.log('view size width: ', paper.view.size.width );
+//		console.log('View Size heigt: ',paper.view.size.height );
+//		console.log('view size width: ', paper.view.size.width );
 
-		console.log('view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
-		console.log('view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
+//		console.log('view origin:('+paper.view.bounds.x+','+paper.view.bounds.y+')');
+//		console.log('view bottom right:('+paper.view.bounds.width+','+paper.view.bounds.height+')');
 		
 		console.log('view zoom: '+paper.view.zoom);
 
-
+ 	   debugShowRect('Window',paper.view.bounds);
+	   debugShowRect('Active Layer',paper.project.activeLayer.bounds);
       case 46:
         //delete for delete?
         event.preventDefault();
@@ -1714,7 +1768,7 @@ window.oncontextmenu = function(event) {
              remoteEvent = false;
           break;
         case 'ZoomOut':
-          paper.view.zoom = paper.view.zoom /2;
+          paper.view.zoom = paper.view.zoom /1.25;
           scrollNav();
           if (remoteEvent != true) { //  send message only when a local event 
 	        if (!zoomAreaActive) {
@@ -1732,7 +1786,7 @@ window.oncontextmenu = function(event) {
              remoteEvent = false;
           break;
         case 'ZoomIn':
-          paper.view.zoom = paper.view.zoom * 2;
+          paper.view.zoom = paper.view.zoom * 1.25;
           scrollNav();
           if (remoteEvent != true ) { //  send message only when a local event 
 	        if (!zoomAreaActive) {
