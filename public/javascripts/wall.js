@@ -408,10 +408,10 @@ now.recMSMsg = function(msg,data){
     var paperBottom = Math.ceil(paper.project.activeLayer.bounds.bottom); //- (55 / paper.view.zoom))+20;
     var paperLeft = Math.floor(paper.project.activeLayer.bounds.left)-20;
     //Calculate bounds of viewable area (viewport + paper)
-    var navTop = Math.min(windowTop,paperTop) *1.25;   // scale to make bounds bigger than paper.  
-    var navRight = Math.max(windowRight, paperRight) * 1.25;
-    var navBottom = Math.max(windowBottom, paperBottom) * 1.25;
-    var navLeft = Math.min(windowLeft, paperLeft) *1.25 ;
+    var navTop = Math.min(windowTop,paperTop) * 1.5;   // scale to make bounds bigger than paper.  
+    var navRight = Math.max(windowRight, paperRight) * 1.5;
+    var navBottom = Math.max(windowBottom, paperBottom) * 1.5;
+    var navLeft = Math.min(windowLeft, paperLeft) * 1.5 ;
     //Get current width and height of viewport
     var windowLength = paper.view.bounds.width;
     var windowHeight = paper.view.bounds.height - (55 / paper.view.zoom);  // to adjust for the tool bar at bottom of window
