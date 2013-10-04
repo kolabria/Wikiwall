@@ -13,9 +13,12 @@ now.ready(function(){
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
-  now.browser = $.ua.browser.name; 
+  now.browser = 'chrome'; //$.ua.browser.name;   set to chrome for testing
   now.bversion = $.ua.browser.version;
   now.mode = mode;
+
+
+
   if(typeof boxID != 'undefined'){
     now.boxID = boxID
     now.register(function(shared,shares){
@@ -52,6 +55,7 @@ now.ready(function(){
     pen.path.add(e.data);
     now.shareUpdateDraw(e.data,paper.project.activeLayer.index);
   }, false);
+
 
 console.log('viewing mode:',mode);
 console.log('start stuff');
@@ -566,14 +570,42 @@ function ssMax(){
       screenHeight = screenStream.mediaElement.height;
       console.log('window w:h - ',window.innerWidth,":",window.innerHeight);
       console.log('toobar: ',jQuery('header').height());
-      screenStream.mediaElement.width = window.innerWidth;  
+      //screenStream.mediaElement.width = window.innerWidth; 
+      screenStream.mediaElement.width = 400;  
       var sh = window.innerHeight - jQuery('header').height()-4;  // give a 4px buffer 
       console.log('new screen h',sh);
-      screenStream.mediaElement.height = sh;
+      //screenStream.mediaElement.height = sh;
+      screenStream.mediaElement.height = 280;
       var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
       // jQuery('canvas').css({top:newTop+'px'});	
-      jQuery('canvas').css('z-index','-1');	
+      //jQuery('canvas').css('z-index','-1');	
       jQuery('screen-container').css('left','100'); 
+      
+      //jQuery('#screen-video').resizable().draggable();
+      jQuery('#screen-video').resizable();
+	
+	  jQuery('#ssarea').append('<div id="resizable" ><div class="vidInfo"><h4 class="screenInfo">Bobsscreen</h4><button id="videoSnap" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div></div>');
+      jQuery('#videoSnap').click(function(e){
+	    //console.log('clicked video capture');
+	    ssCapture();
+      });
+
+	  $( "#resizable" ).resizable({
+	      alsoResize: '#screen-video'
+	    }).draggable(	{
+			    drag: function (e, ui) {
+			        $("#screen-video").css({
+			            'top': ui.position.top,
+			            'left': ui.position.left
+			        });
+			    }
+			});
+	  $("#resizable").css('z-index','90');
+	  //jQuery('canvas').css('z-index','-1');
+	  
+      //screenStream.mediaElement.draggable = true;
+      //screenStream.mediaElement.drag = function (event) {screenStream.mediaElement.top = };
+      
     }
     else {
 	  console.log('start ss with VC active');
@@ -589,7 +621,8 @@ function ssMax(){
       //screenStream.mediaElement.style.left="200px";
       jQuery('canvas').css('z-index','-1');	
       jQuery('#screen-content').css({left:window.innerWidth/3}); //css({left:vWidth+10})
-
+      jQuery('#ssarea').append('<div id="resizable" class="ui-widget-content"><h3 class="ui-widget-header" >Resizable</h3></div>');
+      $( "#resizable" ).resizable().draggable();
     }
 }
 

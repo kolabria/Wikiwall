@@ -37,5 +37,27 @@ video {
 .screen-container{
   position:fixed;
   top:0px;
+  width: 410px;
+  height: 300px;
   z-index:1;
+}
+
+#resizable {
+  top: 0px;
+  width: 410px; 
+  height: 290px;
+  padding:2px; 
+  position:fixed; 
+  border:10px solid;
+}
+.screenInfo {
+    position:absolute;
+	text-align:center;
+	bottom: 0px;
+	right:100px;
+}
+.vidInfo {
+	position:absolute;
+	bottom: 0px;
+	right:40px;
 }

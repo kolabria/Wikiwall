@@ -53,6 +53,7 @@ canvas{
   position:absolute;
   bottom:56px;
   left:0;
+  z-index: 90;
 }
 
 #navWindow .btn-group{

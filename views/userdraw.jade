@@ -1,14 +1,11 @@
 extends drawlayout
 block toolbar
-  li.btn-group.dropup.hints#ShareScreen(data-toggle='tooltip', title='Screen Sharing')
+  // li.btn-group.dropup.hints#ShareScreen(data-toggle='tooltip', title='Screen Sharing')
+  li.btn-group.dropup#ShareScreen
     button.btn.dropdown-toggle(data-toggle="dropdown")
       i.icon-fullscreen
       span.caret
     ul.dropdown-menu
-      li.btn#ssSize(data-value='ssSize')
-        h4 Hide
-      li.btn#ssCapture(data-value='ssCapture')
-        h4 Capture Screen
       li.btn#ssShare(data-value='ssShare')
         h4 Share Screen
   li.btn-group.dropup.hints#users(data-toggle='tooltip', title='Meeting attendees & Share Link')
