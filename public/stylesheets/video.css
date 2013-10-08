@@ -42,7 +42,7 @@ video {
   z-index:1;
 }
 
-#resizable {
+.resizable {
   top: 0px;
   width: 410px; 
   height: 290px;
@@ -50,6 +50,7 @@ video {
   position:fixed; 
   border:10px solid;
 }
+
 .screenInfo {
     position:absolute;
 	text-align:center;
@@ -61,3 +62,31 @@ video {
 	bottom: 0px;
 	right:40px;
 }
+.audiolist {
+  top: 0px;
+  width: 200px; 
+  padding:2px; 
+  position:fixed; 
+  border:2px solid;
+  background: grey;
+}
+
+.videocontainer {
+  top: 0px;
+  padding:2px; 
+  position:fixed; 
+  border:3px solid;
+  z-index:90;
+}
+
+.imageView {
+  display: none;	
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border:none; 
+}
+
+
+
+

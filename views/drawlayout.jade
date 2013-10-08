@@ -10,10 +10,14 @@ html
     link(rel='stylesheet', href='//'+base+'/stylesheets/wall.css')
     link(rel='stylesheet', href='//'+base+'/stylesheets/fileuploader.css')
     link(rel='stylesheet', href='//'+base+'/stylesheets/video.css')   
-    link(rel='stylesheet', href='//'+base+'/stylesheets/jquery-ui.css')  
+    link(rel='stylesheet', href='//'+base+'/stylesheets/jquery-ui.css')
+    //link(rel='stylesheet', href='//'+base+'/stylesheets/font-awesome.min.css')  
   body.background
     #videoconf
     #ssarea
+    #audioconf
+    #audioParticipants
+      //ul#audioNames
     .canvas
       header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar
@@ -41,7 +45,11 @@ html
               //- li  
                 //- button.btn.tool(type='button', onclick='', value='Show')
                   //- i.icon-play-circle 
-              li.btn-group.dropup.hints#vconf(data-toggle='tooltip', title='Video Conference')
+              //li.btn-group.dropup.hints#vconf(data-toggle='tooltip', title='Video Conference')
+              li
+                button.btn#audioCall(data-toggle="dropdown")
+                  img(src='/img/icon-phone.png')
+              li.btn-group.dropup#vconf
                 button.btn.dropdown-toggle#vconfDd(data-toggle="dropdown")
                   i.icon-facetime-video
                   span.caret
@@ -100,6 +108,24 @@ html
         h4 #{base}/suw/#{wall.shareURL}
       .modal-footer
         a.btn(onclick='javascript:shareLinkClose();') Close
+    #audioCallModal.modal.hide.fade
+      .modal-header
+        h3 Conference Call - 3 Ways to Join
+      .modal-body
+        ul(style='list-style-type:none;')
+          li(style='margin-bottom: 10px;')
+            a.btn(onclick="makeAudioCall();") Web Call
+          li(style='margin-bottom: 10px;')
+            input#callMeNumber(type='text', name='callMeNumber',placeholder='Number to call you at - coming soon')
+            a.btn(onclick="callMe();") Call Me
+          li(style='margin-bottom: 10px;')
+            p Call 1-800-555-1212 (coming soon)
+      .modal-footer 
+        a.btn(onclick="closeAudioModal();") Cancel
+    #endAudioCallModal.modal.hide.fade
+      .modal-body
+        a.btn(onclick="hangUpAudio();") Hang Up
+        a.btn(onclick="closeEndAudioModal();") Cancel
     block upmodal
     #pptShow.modal.hide.fade
       .modal-header
@@ -126,8 +152,8 @@ html
     script(src='//www.scribd.com/javascripts/scribd_api.js')
     
     script(src='//'+base+'/javascripts/ua-parser.min.js')
-    script(src='//'+base+'/javascripts/RTCMultiConnection-v1.2.js')
-    //script(src='//'+base+'/javascripts/RTCMultiConnection-v1.4.js')
+    //script(src='//'+base+'/javascripts/RTCMultiConnection-v1.2.js')
+    script(src='//'+base+'/javascripts/RTCMultiConnection-v1.4.js')
     script(src='//'+base+'/javascripts/firebase.js')
     script(src='//'+base+'/javascripts/fluidgrid.js')
     
