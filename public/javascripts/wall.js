@@ -567,53 +567,43 @@ function ssCapture(i) {
 }
 function ssMax(i){
 	  var screenWidth, screenHeight;
-      console.log("toolbar height: ",jQuery('header').css("height"));
-      screenWidth = screenStream[i].mediaElement.width;
-      console.log('width:'+screenStream[i].mediaElement.width+' : '+screenWidth);
-      screenHeight = screenStream[i].mediaElement.height;
-      console.log('window w:h - ',window.innerWidth,":",window.innerHeight);
-      console.log('toobar: ',jQuery('header').height());
+       $('#screen-content'+i ).show();
+
+      screenStream[i].mediaElement.width = 500;  
+      screenStream[i].mediaElement.height = 282;
  
-      screenStream[i].mediaElement.width = 400;  
-      var sh = window.innerHeight - jQuery('header').height()-4;  // give a 4px buffer 
-      console.log('new screen h',sh);
+      console.log('ssMax - video height: '+$('#screen-video'+i).height()+' width: '+$('#screen-video'+i).width());
 
-      screenStream[i].mediaElement.height = 280;
-   
-
-     // jQuery('screen-container'+i).css('left','100'); 
-      
-      jQuery('#screen-video'+i).resizable();
-      jQuery('#screen-video'+i).css({
-	        top : 10,
-	        left: 10
-	      })
-	  
-	  jQuery('#ssarea'+i).prepend('<div id="resizable'+i+'" class="resizable" ><div class="vidInfo"><h4 class="screenInfo">'+screenName[i]+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div></div>');
+	  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+screenName[i]+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div>');
       jQuery('#videoSnap'+1).click(function(e){
-	    //console.log('clicked video capture');
+	     console.log('clicked video capture');
 	    ssCapture(i);
       });
       x=jQuery('#screen-video'+i).position();
       console.log('ssMax - screen-video position: top: '+x.top+' left: '+x.left);
+      //$('#screen-content1').addClass('resizable');
 
-	  $( '#resizable'+i ).resizable({
+	  $( '#screen-content'+i ).resizable({
 	      alsoResize: '#screen-video'+i,
 	      aspectRatio: 16 / 9
 	    }).draggable(	{
 			    drag: function (e, ui) {
-			        $('#screen-video'+i).css({
-			            'top': ui.position.top,
-			            'left': ui.position.left
-			        });
+			        //$('#screen-video'+i).css({
+			          //  'top': ui.position.top,
+			           // 'left': ui.position.left
+			        //});
 			    }
 			});
-	  $('#resizable'+i).css('z-index','90');
-	  $('#resizable'+i).css({
-	        top : jQuery('#screen-video'+i).css('top'),
-	        left: jQuery('#screen-video'+i).css('left')
-	      });
+	  $('#screen-content'+i ).css('z-index','90');
+	 
+	
 
+	//  $('#screen-content'+i).css({
+	  //      top : jQuery('#screen-video'+i).css('top'),
+	    //    left: jQuery('#screen-video'+i).css('left')
+	   //  });
+      myVid=document.getElementById('screen-video'+i);
+	  myVid.controls=false;
 }
 
 function ssBack(){  // put the screen sharing behind the whiteboard
@@ -628,8 +618,6 @@ function ssFront(){  // move whiteboard down for screen sharing view
 var screenStream =[];
 var screenName =[];
 
-var screenSizeX = 400;  // used to initially size window.
-var screenSizeY = 280;  
 
 var isScreenShareInitiator = [];
 isScreenShareInitiator[1] = false;
@@ -657,8 +645,8 @@ screenConnection1.onNewSession = function (session) {
 	if (mode != 'slave') {      
       console.log('onNewSession-screen 1: ', session); 
        if (!isScreenShareInitiator[1]) {
-       
-         jQuery('#ssarea1').append('<section id="screen-container1"></section><div id="container1" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
+         
+         jQuery('#ssarea1').append('<div id="screen-content1"></div><div id="captureArea" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
          screenName[1] = session.extra.name;
          screenConnection1.join(session);
        }
@@ -673,24 +661,12 @@ screenConnection1.onstream = function (stream) {
  if (mode != 'slave') { 
    ssConnections++;   //increment number of active connections
    console.log('Screen onstream 1:',stream);
-   var screen = document.createElement('div');
-   screen.className = 'screen-container';
-   screen.id = 'screen-content1';
-   screen.appendChild(stream.mediaElement);
+   $('#screen-content1').append(stream.mediaElement);
+   screenStream[1] = stream;
    stream.mediaElement.id = 'screen-video1';
    screenName[1] = stream.extra.name;
-   if (stream.type === 'local') {
-      screenStream[1] = stream;
-      document.getElementById('screen-container1').appendChild(screen);
-      stream.mediaElement.width = screenSizeX;  
-      stream.mediaElement.height = screenSizeY;
-   }
-   if (stream.type === 'remote') {
-      screenStream[1] = stream;
-      document.getElementById('screen-container1').appendChild(screen);
-      stream.mediaElement.width = screenSizeX ;  
-      stream.mediaElement.height = screenSizeY ;
-   }
+
+
    ssMax(1);   
  }
 };
@@ -700,8 +676,7 @@ screenConnection1.onstreamended = function(e) {
 	if (mode != 'slave') {
 	  ssConnections--;  //  reduce number of active connections 
 	  console.log('ss stream ended 1: share screen ended');
-	  jQuery('#ssarea1').empty();  //I need to remove more than just parent but what?
-      screenShareActive = false;
+	  jQuery('#ssarea1').empty();  
     }
 };
 
@@ -730,7 +705,7 @@ screenConnection2.onNewSession = function (session) {
       console.log('onNewSession-screen 2: ', session); 
        if (!isScreenShareInitiator[2]) {
          console.log('onNewSession-screen 2: step 2'); 
-         jQuery('#ssarea2').append('<section id="screen-container2"></section><div id="container2" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
+         jQuery('#ssarea2').append('<div id="screen-content2"></div><div id="captureArea" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
          screenName[2] = session.extra.name;
          screenConnection2.join(session);
        }
@@ -741,28 +716,17 @@ screenConnection2.onNewSession = function (session) {
     }
 };
 
+
 screenConnection2.onstream = function (stream) {
  if (mode != 'slave') { 
    ssConnections++;   //increment number of active connections
    console.log('Screen onstream 2:',stream);
-   var screen = document.createElement('div');
-   screen.className = 'screen-container';
-   screen.id = 'screen-content2';
-   screen.appendChild(stream.mediaElement);
+   $('#screen-content2').append(stream.mediaElement);
+   screenStream[2] = stream;
    stream.mediaElement.id = 'screen-video2';
    screenName[2] = stream.extra.name;
-   if (stream.type === 'local') {
-      screenStream[2] = stream;
-      document.getElementById('screen-container2').appendChild(screen);
-      stream.mediaElement.width = screenSizeX;  
-      stream.mediaElement.height = screenSizeY;
-   }
-   if (stream.type === 'remote') {
-      screenStream[2] = stream;
-      document.getElementById('screen-container2').appendChild(screen);
-      stream.mediaElement.width = screenSizeX ;  
-      stream.mediaElement.height = screenSizeY ;
-   }
+
+
    ssMax(2);   
  }
 };
@@ -773,7 +737,6 @@ screenConnection2.onstreamended = function(e) {
 	  ssConnections--;  //  reduce number of active connections 
 	  console.log('ss stream ended 2: share screen ended');
 	  jQuery('#ssarea2').empty();  //I need to remove more than just parent but what?
-      screenShareActive = false;
     }
 };
 
@@ -800,10 +763,12 @@ jQuery('#ShareScreen li').click(function(e){
 		     break; 
         	}
           if (mode != 'slave'){
-	        if (ssConnections <= 2) {
+	        if (ssConnections < 2) {
                console.log('Open Screen - index: ',ssConnections);
                var i = myssConnection = ssConnections+1;
-               jQuery('#ssarea'+i).append('<section id="screen-container'+i+'"></section><div id="container'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
+               jQuery('#ssarea'+i).append('<div id="screen-content'+i+'"></div><div id="captureArea" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
+              // jQuery('#ssarea'+i).append('<section id="screen-container'+i+'"></section><div id="container'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
+               $('#screen-content'+i ).hide();
                switch (myssConnection){
 	             case 1:
 	                 screenConnection1.extra = {
@@ -821,17 +786,23 @@ jQuery('#ShareScreen li').click(function(e){
                 isScreenShareInitiator[myssConnection] = true;  
             
                now.actionMeeting(wallId, name, 'goSS');  // log action on server 
+               screenShareActive = true;
+	           jQuery('#ssShare').html('<h4>Close</h4>');
+            }
+            else {
+	           console.log("maximum number of ss reached: connections",ssConnections);
+	           alert('Maximum number of screens have already been shared');
             }
           }
           else {
 	         now.sendMSMsg('startSS');
+	         screenShareActive = true;
+             jQuery('#ssShare').html('<h4>Close</h4>');
           }
-          screenShareActive = true;
-          jQuery('#ssShare').html('<h4>Close</h4>');
         }
         else {  // close screen share session
           if ( mode != 'slave') { 
-	        console.log('close Screen');
+	        console.log('close Screen',myssConnection);
 	        switch (myssConnection){
 	           case 1:
                    screenConnection1.leave();
@@ -843,6 +814,7 @@ jQuery('#ShareScreen li').click(function(e){
 	               break;
             }
             isScreenShareInitiator[myssConnection] = false;
+            screenShareActive = false;
           }
           else {
             now.sendMSMsg('stopSS');
@@ -1182,7 +1154,7 @@ audioConnection.onstream = function(e) {
         console.log('local stream');
      if (e.type === 'remote')
 	    console.log('remote stream');
-     console.log(e.userid+' has joined');
+     console.log(e.userid+' has joined audio conf: ',e.type);
      jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
  };
 
@@ -1236,7 +1208,7 @@ makeAudioCall = function(){
 	audioConnection.extra = {
 	    name: name,
 	};
-	jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist"><ul id="audioNames" style="list-style-type:circle">Audio Call Participants<li style="list-style-type:none"><hr></li></ul></div>');
+	jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist"><ul id="audioNames" style="list-style-type:circle">Conference Call Participants<li style="list-style-type:none"><hr></li></ul></div>');
 
 	  $( "#audioarea" ).draggable(	{
 			    drag: function (e, ui) {

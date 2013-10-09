@@ -42,15 +42,36 @@ video {
   z-index:1;
 }
 
-.resizable {
+#screen-content1 {
+  width: 500px; 
+  height: 300px;
+  padding:2px; 
+  position:absolute; 
+  border:5px solid;
+  border-color: #100870;
+  z-index: 90;
+  background-color: #E0E0E0;
+}
+#screen-content2 {
+  width: 500px; 
+  height: 300px;
+  padding:2px; 
+  position:absolute; 
+  border:5px solid;
+  border-color: #580000 ;
+  z-index: 90;
+  background-color: #E0E0E0;
+}
+#resizable {
   top: 0px;
-  width: 400px; 
+  width: 410px; 
   height: 290px;
   padding:2px; 
   position:fixed; 
   border:10px solid;
+  border-color: red;
+  z-index: 90;
 }
-
 .screenInfo {
     position:absolute;
 	text-align:center;
@@ -68,7 +89,7 @@ video {
   padding:2px; 
   position:fixed; 
   border:2px solid;
-  background: grey;
+  background: #FFCCCC;
 }
 
 .videocontainer {
