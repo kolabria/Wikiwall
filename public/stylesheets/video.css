@@ -62,6 +62,16 @@ video {
   z-index: 90;
   background-color: #E0E0E0;
 }
+#screen-content3 {
+  width: 500px; 
+  height: 300px;
+  padding:2px; 
+  position:absolute; 
+  border:5px solid;
+  border-color: #105010 ;
+  z-index: 90;
+  background-color: #E0E0E0;
+}
 #resizable {
   top: 0px;
   width: 410px; 
@@ -96,7 +106,8 @@ video {
   top: 0px;
   padding:2px; 
   position:fixed; 
-  border:3px solid;
+  border:5px solid;
+  background-color: #E0E0E0;
   z-index:90;
 }
 

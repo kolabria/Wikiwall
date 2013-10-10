@@ -13,7 +13,7 @@ now.ready(function(){
   now.wallId = wallId;
   now.name = name;
   now.companyId = companyId;
-  now.browser = 'chrome'; //$.ua.browser.name;   set to chrome for testing
+  now.browser = $.ua.browser.name; //$.ua.browser.name;   set to chrome for testing
   now.bversion = $.ua.browser.version;
   now.mode = mode;
 
@@ -44,7 +44,6 @@ now.ready(function(){
   var width = 6;
   var scribd_doc;
   var usernames = [];  // array of current users on the wall 
-  var xOffset = 0;
   var master = false;
   var slave = false;
   var remoteEvent = false;
@@ -78,7 +77,9 @@ if (mode=='slave'){
 //  better to to send and wait for response - if don't get response resend 
 }
 
-
+if ($.ua.browser.name != 'Chrome' && mode != 'slave'){
+	alert("Google Chrome is required for for all features to function correctly. Please switch browers for an optimal experience. ");
+}
 
 
 now.recMSMsg = function(msg,data){
@@ -389,7 +390,7 @@ now.recMSMsg = function(msg,data){
   }
   
   updateDelete = function(){
-    var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+    var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom);
     var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
     jQuery('button').filter('.delete-object').css({left:windowPosX,top:windowPosY});
   }
@@ -575,7 +576,7 @@ function ssMax(i){
       console.log('ssMax - video height: '+$('#screen-video'+i).height()+' width: '+$('#screen-video'+i).width());
 
 	  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+screenName[i]+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div>');
-      jQuery('#videoSnap'+1).click(function(e){
+      jQuery('#videoSnap'+i).click(function(e){
 	     console.log('clicked video capture');
 	    ssCapture(i);
       });
@@ -596,14 +597,7 @@ function ssMax(i){
 			});
 	  $('#screen-content'+i ).css('z-index','90');
 	 
-	
 
-	//  $('#screen-content'+i).css({
-	  //      top : jQuery('#screen-video'+i).css('top'),
-	    //    left: jQuery('#screen-video'+i).css('left')
-	   //  });
-      myVid=document.getElementById('screen-video'+i);
-	  myVid.controls=false;
 }
 
 function ssBack(){  // put the screen sharing behind the whiteboard
@@ -622,6 +616,8 @@ var screenName =[];
 var isScreenShareInitiator = [];
 isScreenShareInitiator[1] = false;
 isScreenShareInitiator[2] = false;
+isScreenShareInitiator[2] = false;
+var maxNumSS = 3;
 var screenShareActive = false;
 
 var screenFull = true;   // get rid of when remove other button stuff 
@@ -629,9 +625,6 @@ var screenCapture = false;  // dito
 
 var ssConnections = 0;  // index to screen connections
 var myssConnection = 0;  //  connection intiaited by this client
-
-
-
 
 var screenConnection1 = new RTCMultiConnection();
 screenConnection1.session = {
@@ -646,7 +639,7 @@ screenConnection1.onNewSession = function (session) {
       console.log('onNewSession-screen 1: ', session); 
        if (!isScreenShareInitiator[1]) {
          
-         jQuery('#ssarea1').append('<div id="screen-content1"></div><div id="captureArea" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
+         jQuery('#ssarea1').append('<div id="screen-content1"></div><div id="captureArea1" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
          screenName[1] = session.extra.name;
          screenConnection1.join(session);
        }
@@ -664,9 +657,8 @@ screenConnection1.onstream = function (stream) {
    $('#screen-content1').append(stream.mediaElement);
    screenStream[1] = stream;
    stream.mediaElement.id = 'screen-video1';
+   stream.mediaElement.controls = false;
    screenName[1] = stream.extra.name;
-
-
    ssMax(1);   
  }
 };
@@ -679,17 +671,6 @@ screenConnection1.onstreamended = function(e) {
 	  jQuery('#ssarea1').empty();  
     }
 };
-
-//screenConnection.onclose = function(e) {
-//	if (mode != 'slave') {
-//	  console.log('ssclose: share screen close');
-//	  if (isScreenShareInitiator) {
-    //    screenShareActive = false;
-  //      jQuery('#ssShare').html('<h4>Share Screen</h4>');
-   //   }
-//	  jQuery('#ssarea1').empty();  
-//    }
-//};
 
 
 var screenConnection2 = new RTCMultiConnection();
@@ -705,7 +686,7 @@ screenConnection2.onNewSession = function (session) {
       console.log('onNewSession-screen 2: ', session); 
        if (!isScreenShareInitiator[2]) {
          console.log('onNewSession-screen 2: step 2'); 
-         jQuery('#ssarea2').append('<div id="screen-content2"></div><div id="captureArea" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
+         jQuery('#ssarea2').append('<div id="screen-content2"></div><div id="captureArea2" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
          screenName[2] = session.extra.name;
          screenConnection2.join(session);
        }
@@ -724,9 +705,8 @@ screenConnection2.onstream = function (stream) {
    $('#screen-content2').append(stream.mediaElement);
    screenStream[2] = stream;
    stream.mediaElement.id = 'screen-video2';
+   stream.mediaElement.controls = false;
    screenName[2] = stream.extra.name;
-
-
    ssMax(2);   
  }
 };
@@ -741,6 +721,52 @@ screenConnection2.onstreamended = function(e) {
 };
 
 
+var screenConnection3 = new RTCMultiConnection();
+screenConnection3.session = {
+    screen: true
+};
+screenConnection3.direction = 'one-way';
+screenConnection3.enableSessionReinitiation = false;
+screenConnection3.firebase = 'kolabria';
+
+screenConnection3.onNewSession = function (session) { 
+	if (mode != 'slave') {      
+      console.log('onNewSession-screen 3: ', session); 
+       if (!isScreenShareInitiator[3]) {
+         
+         jQuery('#ssarea3').append('<div id="screen-content3"></div><div id="captureArea3" style="border:none"><canvas id="imageView3" class="imageView" width="1000" height="560"></canvas></div>');
+         screenName[3] = session.extra.name;
+         screenConnection3.join(session);
+       }
+       else{
+	     screenShareActive = true;
+         jQuery('#ssShare').html('<h4>Close</h4>');
+       }
+    }
+};
+
+screenConnection3.onstream = function (stream) {
+ if (mode != 'slave') { 
+   ssConnections++;   //increment number of active connections
+   console.log('Screen onstream 1:',stream);
+   $('#screen-content3').append(stream.mediaElement);
+   screenStream[3] = stream;
+   stream.mediaElement.id = 'screen-video3';
+   stream.mediaElement.controls = false;
+   screenName[3] = stream.extra.name;
+   ssMax(3);   
+ }
+};
+
+// remove video if someone leaves
+screenConnection3.onstreamended = function(e) {
+	if (mode != 'slave') {
+	  ssConnections--;  //  reduce number of active connections 
+	  console.log('ss stream ended 3: share screen ended');
+	  jQuery('#ssarea3').empty();  
+    }
+};
+
 jQuery('#ShareScreen li').click(function(e){
  // e.stopImmediatePropagation(); //Two clicks are fired, this is a patch, need to find reason why.
   var li = jQuery(this);
@@ -752,8 +778,8 @@ jQuery('#ShareScreen li').click(function(e){
 	        var badPeople = " ";
 	        console.log('usernames length: ',usernames.length);
 	        for (i=0; i < usernames.length; i++){
-		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser);
-		      if (usernames[i].browser != "Chrome" && usernames[i].mode == 'master') {
+		      console.log('name: '+usernames[i].name+' browser: '+usernames[i].browser+' mode: '+usernames[i].mode);
+		      if (usernames[i].browser != "Chrome" && usernames[i].mode == 'master') { 
 			    browserNotChrome = true; 
 			    badPeople = badPeople+usernames[i].name+' , ';
 		      }
@@ -763,10 +789,10 @@ jQuery('#ShareScreen li').click(function(e){
 		     break; 
         	}
           if (mode != 'slave'){
-	        if (ssConnections < 2) {
+	        if (ssConnections < maxNumSS) {
                console.log('Open Screen - index: ',ssConnections);
                var i = myssConnection = ssConnections+1;
-               jQuery('#ssarea'+i).append('<div id="screen-content'+i+'"></div><div id="captureArea" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
+               jQuery('#ssarea'+i).append('<div id="screen-content'+i+'"></div><div id="captureArea'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
               // jQuery('#ssarea'+i).append('<section id="screen-container'+i+'"></section><div id="container'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
                $('#screen-content'+i ).hide();
                switch (myssConnection){
@@ -781,6 +807,12 @@ jQuery('#ShareScreen li').click(function(e){
 				       name: name,
 				     };     
 	                 screenConnection2.open('screen2');
+	               break;
+	               case 3:
+	                 screenConnection3.extra = {
+				       name: name,
+				     };     
+	                 screenConnection3.open('screen3');
 	               break;
                }
                 isScreenShareInitiator[myssConnection] = true;  
@@ -808,10 +840,14 @@ jQuery('#ShareScreen li').click(function(e){
                    screenConnection1.leave();
                    screenConnection1.close();
 	               break;
-	            case 2:
+	           case 2:
                   screenConnection2.leave();
                   screenConnection2.close();
-	               break;
+	              break;
+	           case 3:
+                  screenConnection3.leave();
+                  screenConnection3.close();
+	              break;
             }
             isScreenShareInitiator[myssConnection] = false;
             screenShareActive = false;
@@ -899,6 +935,7 @@ now.screenCapture = function(cmd){
 
 screenConnection1.connect('screen1');
 screenConnection2.connect('screen2');
+screenConnection3.connect('screen3');
 
 /*************** video conferencing functions *************/
 var isVCInitiator = false;
@@ -949,7 +986,6 @@ sizeVideo = function() {
 	  }
 	  localStream.mediaElement.width = vWidth/2;  
 	  localStream.mediaElement.height =vHeight/2;
-	  xOffset = vWidth+10;
 	  jQuery('#videoconf').width(vWidth);
 	  //jQuery('canvas').css({left:vWidth+10});  // readjust canvas positioning so don't have wasted space 
     }	
@@ -961,7 +997,7 @@ VCConnection.onNewSession = function (session) {
          if (!isVCInitiator) {
            jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
            $("#videoconf").addClass("videocontainer")
-               .width($(window).width()/2)
+               .width($(window).width()/3)
                .draggable();
          
            //var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
@@ -995,6 +1031,8 @@ VCConnection.onstream = function (stream) {
           stream.mediaElement.width = middle/2 ;  
 		  stream.mediaElement.height = middle/2/1.7778;
 		  stream.mediaElement.muted = true; 
+		  stream.mediaElement.controls = false;
+		
 		  sizeVideo();
 		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
          
@@ -1007,6 +1045,7 @@ VCConnection.onstream = function (stream) {
           var videosize = ($(window).width()/2*3)/4;
 	 	  stream.mediaElement.width = videosize ;
 		  stream.mediaElement.height = videosize/1.7778;
+		  stream.mediaElement.controls = false;
 		 
 		  sizeVideo();
           //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
@@ -1066,18 +1105,13 @@ jQuery('#vconf li').click(function(e){
 	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
 
 			  $("#videoconf").addClass("videocontainer")
-			      .width($(window).width()/2)
+			      .width($(window).width()/3)
 			      .draggable();
-                  
-
-		      
-
-
+			
 	          var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
 	     
 	          var middle = $(window).width()/2;
-	          xOffset = middle;
-	          //jQuery('canvas').css({left:middle});
+
 	       
 	          VCConnection.open('video');  
 	          isVCInitiator = true;  	          
@@ -1094,8 +1128,6 @@ jQuery('#vconf li').click(function(e){
 	          $("#videoconf").removeClass("videocontainer");
 	          jQuery('#videoconf').empty();
 	          VCConnection.leave();
-
-	          xOffset = 0;
 	        }
 	        else {
 		      now.sendMSMsg('stopVC');
@@ -1644,7 +1676,7 @@ window.oncontextmenu = function(event) {
     }
     select.target = project.hitTest(event.point, {stroke:true,segments:true,tolerance:2});
     if(select.target){
-      var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom)+xOffset;
+      var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom);
       var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
       select.target.item.selected = true;
       jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
