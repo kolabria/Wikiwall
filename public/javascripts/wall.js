@@ -218,6 +218,7 @@ now.recMSMsg = function(msg,data){
 		break;
 		case 'stopVC':
 		  console.log('recieved stop VC from slave');
+		  remoteVCStop = true; 
 		  jQuery('#vconf li').click();
 		break;
 		case 'startSS':
@@ -236,8 +237,60 @@ now.recMSMsg = function(msg,data){
 		  console.log('recieved capture SS from slave');
 		  jQuery("#ShareScreen li[data-value='ssCapture']").click();
 		break;
-
-	  }  
+		case 'SSControlSnap':
+		   jQuery('#videoSnap'+data).click();
+		break;
+        case 'SSControlDrag':
+           //console.log('recieved ssControlDrag: index: '+data.index+' top: '+data.top+' left: '+data.left);
+           $('#screen-content'+ data.index).css({
+              'top': data.top,
+              'left': data.left
+            });
+        break; 
+        case 'SSControlResize':
+        //   console.log('recieved ssControlResize: index: '+data.index+' width: '+data.width+' heigh: '+data.height);
+            $('#screen-content'+ data.index).width(data.width);
+            $('#screen-content'+ data.index).height(data.height);
+            $('#screen-video'+ data.index).width(data.width);
+            $('#screen-video'+ data.index).height(data.height);
+        break;
+        case 'audioCallClicked':
+             audioRemoteClick = true;
+             $('#audioCall').click();
+             break;
+        case 'audioControlDrag':
+             $("#audioarea").css({
+               'top': data.top,
+               'left': data.left
+             });
+             break;
+        case 'makeAudioCall':
+             console.log('recieved makeAudioCall from slave');
+             remoteMakeAudioCall = true;
+             makeAudioCall();
+             break;
+        case 'HangUpAudioCall':
+             console.log('recieved HangUpAudioCall from slave' );
+             remoteHangUpAudio = true;
+             hangUpAudio();
+             break;
+        case 'addPeopleAudio':
+            console.log('recieved addPeopleAudio');
+            remoteAddPeopleAudio = true;
+            audioAddPeople();
+            break;
+        case 'addPersonAudio':
+            console.log('recieved addPersonAudio');
+            remoteAddPersonAudio = true;
+            audioAddPerson();
+            break;
+        case 'videoControlDrag':
+                $("#videoconf").css({
+                  'top': data.top,
+                  'left': data.left
+                });
+            break;
+     }
   }
   if (mode == 'slave') {
 	  switch (msg){
@@ -327,6 +380,123 @@ now.recMSMsg = function(msg,data){
 		  paper.view.scrollBy(data)
           paper.view.draw();
 		break;
+		case 'initSSControl':
+		  console.log('recieved initSSControl from master');
+		  var i = data.index; 
+		  jQuery('#ssarea1').append('<div id="screen-content'+i+'"></div>');
+		
+		  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+data.name+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div>');
+	      jQuery('#videoSnap'+i).click(function(e){
+		     console.log('clicked video capture');
+		    // send capture message to master
+		     now.sendMSMsg('SSControlSnap',i);
+	      });
+		  $( '#screen-content'+i ).resizable({  
+			  // need to send message on resize to master
+		      aspectRatio: 16 / 9
+		    }).draggable(	{
+				    drag: function (e, ui) {
+					   // send message to master on move 
+					   //console.log('top: '+ui.position.top+' left: '+ui.position.left);
+					     var data = {index: i, top: ui.position.top, left: ui.position.left};
+					     now.sendMSMsg('SSControlDrag',data);
+				    }
+				});
+			$( '#screen-content'+i ).bind({
+				    resize: function(e,ui) {
+					     //console.log('resizing: ui ',);
+					     var data = {index: i, width: ui.size.width, height: ui.size.height};
+					     now.sendMSMsg('SSControlResize',data);
+				       }
+			});		
+		  $('#screen-content'+i ).css('z-index','90');
+		break;
+        case 'SSControlDrag':
+           //console.log('recieved ssControlDrag: index: '+data.index+' top: '+data.top+' left: '+data.left);
+           $('#screen-content'+ data.index).css({
+              'top': data.top,
+              'left': data.left
+            });
+        break; 
+        case 'SSControlResize':
+        //   console.log('recieved ssControlResize: index: '+data.index+' width: '+data.width+' heigh: '+data.height);
+            $('#screen-content'+ data.index).width(data.width);
+            $('#screen-content'+ data.index).height(data.height);
+
+        break;
+        case 'endSSControl':
+             console.log('recieved endSSControl index: ',data);
+             jQuery('#ssarea'+data).empty(); 
+        break;
+        case 'audioCallClicked':
+              audioRemoteClick = true;
+              $('#audioCall').click();
+        break;
+        case 'audioControlDrag':
+             $("#audioarea").css({
+               'top': data.top,
+               'left': data.left
+             });
+             break;
+        case 'makeAudioCall':
+             console.log('recieved makeAudioCall ');
+             remoteMakeAudioCall = true;
+             makeAudioCall();
+             break;
+        case 'HangUpAudioCall':
+             console.log('recieved HangUpAudioCall' );
+             remoteHangUpAudio = true;
+             hangUpAudio();
+             break;
+        case 'addPeopleAudio':
+            console.log('recieved addPeopleAudio');
+            remoteAddPeopleAudio = true;
+            audioAddPeople();
+            break;
+        case 'addPersonAudio':
+            console.log('recieved addPersonAudio');
+            remoteAddPersonAudio = true;
+            audioAddPerson();
+            break;
+        case 'videoControlDrag':
+                $("#videoconf").css({
+                  'top': data.top,
+                  'left': data.left
+                });
+            break;
+        case 'videoControlResize':
+               console.log('recieved video control resize: ',data);
+               $('#videoconf').width(data.width);
+               $('#videoconf').height(data.height);
+            break;
+        case 'recRemoteVideoCall':
+              $("#videoconf").addClass("videocontainer")
+                  .width($(window).width()/3)
+                  .draggable({
+                    drag: function (e, ui) {
+                       var data = {top: ui.position.top, left: ui.position.left};
+                       now.sendMSMsg('videoControlDrag',data);
+                     }
+                 });
+                 jQuery('#vcCall').html('<h4>HangUp</h4>');
+                 VCActive = true;
+            break;
+		case 'stopVC':
+		  console.log('recieved stop VC from master');
+		  remoteVCStop = true; 
+		  jQuery('#vconf li').click();
+		  break;
+		case 'audioCallAddParticipant':
+		      $('#audioTable tr:last').after('<tr class="user '+data.streamid+'"><td style="font-weight:bold">'+data.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+		   break;
+		case 'audioCallDelParticipant':
+		   caller = jQuery('#audioarea').find('.'+data.streamid);
+	       if (caller.length){
+	         jQuery(caller).detach()
+	       }
+		   break;
+
+		
 	  }
    }  
 }
@@ -589,14 +759,22 @@ function ssMax(i){
 	      aspectRatio: 16 / 9
 	    }).draggable(	{
 			    drag: function (e, ui) {
-			        //$('#screen-video'+i).css({
-			          //  'top': ui.position.top,
-			           // 'left': ui.position.left
-			        //});
+				     var data = {index: i, top: ui.position.top, left: ui.position.left};
+				     now.sendMSMsg('SSControlDrag',data);
 			    }
 			});
+		$( '#screen-content'+i ).bind({
+			    resize: function(e,ui) {
+				     //console.log('resizing: ui ',);
+				     var data = {index: i, width: ui.size.width, height: ui.size.height};
+				     now.sendMSMsg('SSControlResize',data);
+			       }
+		});
 	  $('#screen-content'+i ).css('z-index','90');
-	 
+	  
+	// send info to set up ss control on slave
+	  var data = {index: i, name:screenName[i], width: 500, height: 282, top: x.top, left: x.left }; 
+	  now.sendMSMsg('initSSControl',data);
 
 }
 
@@ -669,6 +847,7 @@ screenConnection1.onstreamended = function(e) {
 	  ssConnections--;  //  reduce number of active connections 
 	  console.log('ss stream ended 1: share screen ended');
 	  jQuery('#ssarea1').empty();  
+	  now.sendMSMsg('endSSControl',1);
     }
 };
 
@@ -717,6 +896,7 @@ screenConnection2.onstreamended = function(e) {
 	  ssConnections--;  //  reduce number of active connections 
 	  console.log('ss stream ended 2: share screen ended');
 	  jQuery('#ssarea2').empty();  //I need to remove more than just parent but what?
+	  now.sendMSMsg('endSSControl',2);
     }
 };
 
@@ -764,6 +944,7 @@ screenConnection3.onstreamended = function(e) {
 	  ssConnections--;  //  reduce number of active connections 
 	  console.log('ss stream ended 3: share screen ended');
 	  jQuery('#ssarea3').empty();  
+	  now.sendMSMsg('endSSControl',3);
     }
 };
 
@@ -944,6 +1125,7 @@ var VCSession;
 var localVCStream;
 var remoteVCStreams = new Array();
 var remoteVideoSize = 200;
+var remoteVCStop = false;
 
 var VCSizeX = 200;
 var VCSizeY = 200; 
@@ -989,6 +1171,8 @@ sizeVideo = function() {
 	  jQuery('#videoconf').width(vWidth);
 	  //jQuery('canvas').css({left:vWidth+10});  // readjust canvas positioning so don't have wasted space 
     }	
+    var data = {width: $('#videoconf').width() , height: $('#videoconf').height()};
+    now.sendMSMsg('videoControlResize',data);
 }
 
 VCConnection.onNewSession = function (session) {  
@@ -998,17 +1182,19 @@ VCConnection.onNewSession = function (session) {
            jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
            $("#videoconf").addClass("videocontainer")
                .width($(window).width()/3)
-               .draggable();
+               .draggable(	{
+					    drag: function (e, ui) {
+						     var data = {top: ui.position.top, left: ui.position.left};
+						     now.sendMSMsg('videoControlDrag',data);
+					    }
+					});
          
-           //var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-
-           //var middle = $(window).width()/2;
-           //jQuery('canvas').css({left:middle});
            VCSession = session;
            VCConnection.join(session);
 
            VCActive = true;
            jQuery('#vcCall').html('<h4>HangUp</h4>');
+           now.sendMSMsg('recRemoteVideoCall');
          }
  
          VCSession = session;
@@ -1099,20 +1285,18 @@ jQuery('#vconf li').click(function(e){
 		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
 		     break; 
         	}
+              $("#videoconf").addClass("videocontainer")
+			      .width($(window).width()/3)
+			      .draggable({
+					    drag: function (e, ui) {
+						     var data = {top: ui.position.top, left: ui.position.left};
+						     now.sendMSMsg('videoControlDrag',data);
+					    }
+					});
             if (mode != 'slave') {
 	      	  console.log('Open VC');
 	          
-	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
-
-			  $("#videoconf").addClass("videocontainer")
-			      .width($(window).width()/3)
-			      .draggable();
-			
-	          var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
-	     
-	          var middle = $(window).width()/2;
-
-	       
+	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');			       
 	          VCConnection.open('video'+wallId);  
 	          isVCInitiator = true;  	          
 	          now.actionMeeting(wallId, name, 'goVC');
@@ -1124,16 +1308,22 @@ jQuery('#vconf li').click(function(e){
             jQuery('#vcCall').html('<h4>HangUp</h4>');
         }
         else {
-	        if (mode != 'slave') {
-	          $("#videoconf").removeClass("videocontainer");
+
+	        if (mode != 'slave') {          
 	          jQuery('#videoconf').empty();
 	          VCConnection.leave();
 	        }
-	        else {
-		      now.sendMSMsg('stopVC');
-	        }
+		    
+	        $("#videoconf").removeClass("videocontainer");
 	        VCActive = false;
 	        jQuery('#vcCall').html('<h4>Call</h4>');
+		    if (remoteVCStop) {	     
+		       remoteVCStop = false; 
+		    }
+		    else {
+		  	  now.sendMSMsg('stopVC');
+	        }
+	
         }
         break;
      case 'vcFull':
@@ -1169,11 +1359,24 @@ addAudioUI = function(){
     $( "#audioarea" ).draggable().css('z-index','90');
 }
 
-$( "#audioarea" ).draggable().css('z-index','90');
+$( "#audioarea" ).draggable({
+	    drag: function (e, ui) {
+		     var data = {top: ui.position.top, left: ui.position.left};
+		     now.sendMSMsg('audioControlDrag',data);
+	    }
+	});
+
+$( "#audioarea" ).css('z-index','90');
+
 $('#audioStopCtl').hide();
 $('#audioAddPeople').hide();
 $('#confCallAdd').hide();
 
+var audioRemoteClick = false; 
+var remoteMakeAudioCall = false;
+var remoteHangUpAudio = false;
+var remoteAddPersonAudio = false;
+var remoteAddPeopleAudio = false;
 var audioUIVisible = false;
 var audioFistClick = true;
 var audioCallActive = false;
@@ -1207,42 +1410,40 @@ audioConnection.onNewSession = function (session) {
 
 
 audioConnection.onstream = function(e) {
-	console.log('audioConnection on Stream');
-     audioContainer.insertBefore(e.mediaElement, audioContainer.firstChild);
-     if (e.type === 'local')
-        console.log('local stream');
-     if (e.type === 'remote')
-	    console.log('remote stream');
-     console.log(e.userid+' has joined audio conf: ',e.type);
-     $('#audioTable tr:last').after('<tr class="user '+e.streamid+'"><td style="font-weight:bold">'+e.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
-     //jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
+	if (mode != 'slave') { 
+       console.log('audioConnection on Stream');
+       audioContainer.insertBefore(e.mediaElement, audioContainer.firstChild);
+       if (e.type === 'local')
+          console.log('local stream');
+       if (e.type === 'remote')
+         console.log('remote stream');
+       console.log(e.userid+' has joined audio conf: ',e.type);
+       $('#audioTable tr:last').after('<tr class="user '+e.streamid+'"><td style="font-weight:bold">'+e.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+        //jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
+       var data = {streamid: e.streamid, userid: e.userid};
+       now.sendMSMsg('audioCallAddParticipant',data);
+     }
  };
 
 audioConnection.onstreamended = function(e) {
-	console.log('audioConnection stream ended');
-     if (e.mediaElement.parentNode) {
-         e.mediaElement.parentNode.removeChild(e.mediaElement); 
-     }
-     caller = jQuery('#audioarea').find('.'+e.streamid);
-     if (caller.length){
-       jQuery(caller).detach()
-     }
-     users = jQuery('#audioarea').find('.user');
-     if (users.length < 1 ){
-	    // remove audio area div
-	//    jQuery('#audioParticipants').empty();
+	if (mode != 'slave') { 
+       console.log('audioConnection stream ended');
+       if (e.mediaElement.parentNode) {
+           e.mediaElement.parentNode.removeChild(e.mediaElement); 
+       }
+       caller = jQuery('#audioarea').find('.'+e.streamid);
+       if (caller.length){
+         jQuery(caller).detach()
+       }
+       var data = {streamid: e.streamid};
+       now.sendMSMsg('audioCallDelParticipant',data);
      }
  };
 
 
 
 jQuery('#audioCall').click(function(e){
-	console.log("clickme");
-//	if (audioFistClick) {
-//	   addAudioUI();
-//	   audioFistClick = false;
-//	}
-//	else {
+	  console.log("clickme");
       if (!audioUIVisible) {
 	    jQuery('#audioarea').show();
 	    audioUIVisible = true;
@@ -1251,12 +1452,12 @@ jQuery('#audioCall').click(function(e){
 	    jQuery('#audioarea').hide();
 	    audioUIVisible = false;
 	  }
-	
-//	addAudioUI();
-//	if (!audioCallActive)
-  //     $('#audioCallModal').modal();
-    //else
-      // $('#endAudioCallModal').modal();
+	  if (audioRemoteClick) {	     
+	     audioRemoteClick = false; 
+	  }
+	  else {
+		now.sendMSMsg('audioCallClicked');
+      }
 });
 
 closeAudioModal = function(){
@@ -1272,38 +1473,61 @@ callMe = function(){
 
 hangUpAudio = function(){
 	console.log("call ended");
-	audioCallActive = false;
-	audioConnection.leave();
+	if (mode != 'slave') { 
+	  audioCallActive = false;
+	  audioConnection.leave();
+    }
 	$('#audioCall').removeClass('btn-success');
 	$('#audioStopCtl').hide();
 	$('#audioStartCtl').show();
+    $('#confCallAdd').hide();
+    $('#audioAddPeople').hide();
+	if (!remoteHangUpAudio){
+      now.sendMSMsg('HangUpAudioCall');
+      remoteHangUpAudio = false;
+	}
 }
 makeAudioCall = function(){
-	//  start a web call with other participants -  later have this phone conference bridge 
-	console.log("start call");
-	//$('#audioCallModal').modal('hide');
-	audioCallActive = true;
-	audioConnection.extra = {
-	    name: name,
-	};
-	//addAudioUI();
-	audioConnection.open('audio'+wallId); 
-	isAudioInitiator = true;
-	$('#audioCall').addClass('btn-success');
-	$('#audioStartCtl').hide();
-	$('#audioStopCtl').show();
-	$('#confCallAdd').show();
+	if (mode != 'slave') { 
+	  //  start a web call with other participants -  later have this phone conference bridge 
+      console.log("start call");
+      //$('#audioCallModal').modal('hide');
+      audioCallActive = true;
+      audioConnection.extra = {
+         name: name,
+      };
+    //addAudioUI();
+      audioConnection.open('audio'+wallId); 
+      isAudioInitiator = true;
+
+    }
+    if (!remoteMakeAudioCall) {
+      now.sendMSMsg('makeAudioCall');
+      remoteMakeAudioCall = false;
+    }
+    $('#audioCall').addClass('btn-success');
+    $('#audioStartCtl').hide();
+    $('#audioStopCtl').show();
+    $('#confCallAdd').show();
 }
 
 audioAddPeople = function(){
     $('#audioAddPeople').show();
     $('#confCallAdd').hide();
+    if (!remoteAddPeopleAudio){
+      now.sendMSMsg('addPeopleAudio');
+      remoteAddPeopleAudio = false;
+   }
 }
 
 audioAddPerson = function() {
   $('#audioAddPeople').hide(); 
   $('#confCallAdd').show();
   $('#audioTable tr:last').after('<tr class="user123"><td style="font-weight:bold">Bob</td><td>Calling</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+  if (!remoteAddPersonAudio){
+	  now.sendMSMsg('addPersonAudio');
+      remoteAddPersonAudio = false;
+   }
 }
 
 audioConnection.connect('audio'+wallId);
