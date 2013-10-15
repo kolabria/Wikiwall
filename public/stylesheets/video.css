@@ -95,11 +95,13 @@ video {
 }
 .audiolist {
   top: 0px;
-  width: 200px; 
-  padding:2px; 
+  width: 350px; 
+  padding:5px; 
   position:fixed; 
-  border:2px solid;
+  border:5px solid;
   background: #FFCCCC;
+  border-radius: 15px;
+  display: none;
 }
 
 .videocontainer {
@@ -118,7 +120,4 @@ video {
   z-index: 0;
   border:none; 
 }
-
-
-
 

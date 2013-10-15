@@ -19,7 +19,43 @@ html
     #ssarea3
     #audioconf
     #audioParticipants
-      //ul#audioNames
+      #audioarea.audiolist
+        h3(align='center') Conference Call
+        hr
+        p Participants
+        table#audioTable(cellpadding='10', cellspacing='3')
+          tr
+            th Name
+            th Status
+        br
+        div#audioStartCtl
+          hr
+          h4(align='center') Join Call
+          hr
+          table
+            tr
+              td
+              td
+                a#AudioMakeCall.btn(onclick='makeAudioCall()' ) Web Call 
+            tr
+              td
+                input#callMeNumber(type='text', name='callMeNumber', placeholder='Number to call you at - coming soon')
+              td
+                a.btn(onclick='callMe()') Call Me
+            tr
+              td
+                p  Call 1-800-555-1212 (Coming Soon)
+        div#audioStopCtl
+          a#AudioEndCall.btn(onclick='hangUpAudio()', style='float: right;') Hang Up
+          hangUpAudio
+        br
+        br
+        button.btn.btn-small.btn-success.hints#confCallAdd(data-toggle='tooltip', title='Add Participants',type='button', onclick='audioAddPeople()' )
+          i.icon-plus
+        div#audioAddPeople
+          input#personToAdd(type='text', name='personToAdd', placeholder='Enter name or number of person')
+          a.btn(onclick='audioAddPerson()') Call
+          
     .canvas
       header.navbar.navbar-fixed-bottom 
         nav#toolbar.toolbar

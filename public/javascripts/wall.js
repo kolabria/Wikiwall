@@ -800,19 +800,19 @@ jQuery('#ShareScreen li').click(function(e){
 	                 screenConnection1.extra = {
 				       name: name,
 				     };     
-	                 screenConnection1.open('screen1');
+	                 screenConnection1.open('screen1'+wallId);
 	               break;
 	              case 2:
 	                 screenConnection2.extra = {
 				       name: name,
 				     };     
-	                 screenConnection2.open('screen2');
+	                 screenConnection2.open('screen2'+wallId);
 	               break;
 	               case 3:
 	                 screenConnection3.extra = {
 				       name: name,
 				     };     
-	                 screenConnection3.open('screen3');
+	                 screenConnection3.open('screen3'+wallId);
 	               break;
                }
                 isScreenShareInitiator[myssConnection] = true;  
@@ -933,9 +933,9 @@ now.screenCapture = function(cmd){
   }
 }
 
-screenConnection1.connect('screen1');
-screenConnection2.connect('screen2');
-screenConnection3.connect('screen3');
+screenConnection1.connect('screen1'+wallId);
+screenConnection2.connect('screen2'+wallId);
+screenConnection3.connect('screen3'+wallId);
 
 /*************** video conferencing functions *************/
 var isVCInitiator = false;
@@ -1113,7 +1113,7 @@ jQuery('#vconf li').click(function(e){
 	          var middle = $(window).width()/2;
 
 	       
-	          VCConnection.open('video');  
+	          VCConnection.open('video'+wallId);  
 	          isVCInitiator = true;  	          
 	          now.actionMeeting(wallId, name, 'goVC');
             }
@@ -1144,9 +1144,38 @@ jQuery('#vconf li').click(function(e){
         break;
   }
 });
-VCConnection.connect('video');
+VCConnection.connect('video'+wallId);
 
 /**************  audio conference call stuff *********/
+
+addAudioUI = function(){
+    //jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist"><ul id="audioNames" style="list-style-type:circle">Audio Call Participants<li style="list-style-type:none"><hr></li></ul></div>');
+    jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist">
+     <h3 align="center">Conference Call</h3>
+    <hr>
+    <table id="audioTable" cellpadding="10" cellspacing="3">
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+        </tr>
+    </table>
+    <br>
+    <div><a onclick="makeAudioCall()" class="btn" id="AudioMakeCall" style="float:right" >Web Call </a> </div>
+    <input id="callMeNumber" type="text" name="callMeNumber" placeholder="Number to call you at - coming soon"> 
+    <a onclick="callMe()" class="btn">Call Me</a>
+    <p> Call 1-800-555-1212 (Coming Soon)</p>
+    <a class="btn" style="float:right">Add Participants </a>
+   </div>');
+    $( "#audioarea" ).draggable().css('z-index','90');
+}
+
+$( "#audioarea" ).draggable().css('z-index','90');
+$('#audioStopCtl').hide();
+$('#audioAddPeople').hide();
+$('#confCallAdd').hide();
+
+var audioUIVisible = false;
+var audioFistClick = true;
 var audioCallActive = false;
 var isAudioInitiator = false;
 var audioContainer = document.getElementById('audioconf');
@@ -1167,13 +1196,11 @@ audioConnection.onNewSession = function (session) {
          if (!isAudioInitiator) {
            audioConnection.join(session);
            audioCallActive = true;
-           jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist"><ul id="audioNames" style="list-style-type:circle">Audio Call Participants<li style="list-style-type:none"><hr></li></ul></div>');
-
-		  $( "#audioarea" ).draggable(	{
-				    drag: function (e, ui) {
-				    }
-				});
-		  $("#audioarea").css('z-index','90');
+           jQuery('#audioarea').show();
+           $('#audioStartCtl').hide();
+           $('#audioStopCtl').show();
+           audioUIVisible = true;
+           $('#audioCall').addClass('btn-success');
          }
       }
 };
@@ -1187,7 +1214,8 @@ audioConnection.onstream = function(e) {
      if (e.type === 'remote')
 	    console.log('remote stream');
      console.log(e.userid+' has joined audio conf: ',e.type);
-     jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
+     $('#audioTable tr:last').after('<tr class="user '+e.streamid+'"><td style="font-weight:bold">'+e.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+     //jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
  };
 
 audioConnection.onstreamended = function(e) {
@@ -1202,17 +1230,33 @@ audioConnection.onstreamended = function(e) {
      users = jQuery('#audioarea').find('.user');
      if (users.length < 1 ){
 	    // remove audio area div
-	    jQuery('#audioParticipants').empty();
+	//    jQuery('#audioParticipants').empty();
      }
  };
 
 
 
 jQuery('#audioCall').click(function(e){
-	if (!audioCallActive)
-       $('#audioCallModal').modal();
-    else
-       $('#endAudioCallModal').modal();
+	console.log("clickme");
+//	if (audioFistClick) {
+//	   addAudioUI();
+//	   audioFistClick = false;
+//	}
+//	else {
+      if (!audioUIVisible) {
+	    jQuery('#audioarea').show();
+	    audioUIVisible = true;
+	  }
+      else {
+	    jQuery('#audioarea').hide();
+	    audioUIVisible = false;
+	  }
+	
+//	addAudioUI();
+//	if (!audioCallActive)
+  //     $('#audioCallModal').modal();
+    //else
+      // $('#endAudioCallModal').modal();
 });
 
 closeAudioModal = function(){
@@ -1229,30 +1273,40 @@ callMe = function(){
 hangUpAudio = function(){
 	console.log("call ended");
 	audioCallActive = false;
-	$('#endAudioCallModal').modal('hide');
 	audioConnection.leave();
+	$('#audioCall').removeClass('btn-success');
+	$('#audioStopCtl').hide();
+	$('#audioStartCtl').show();
 }
 makeAudioCall = function(){
 	//  start a web call with other participants -  later have this phone conference bridge 
 	console.log("start call");
-	$('#audioCallModal').modal('hide');
+	//$('#audioCallModal').modal('hide');
 	audioCallActive = true;
 	audioConnection.extra = {
 	    name: name,
 	};
-	jQuery('#audioParticipants').append('<div id="audioarea" class="audiolist"><ul id="audioNames" style="list-style-type:circle">Conference Call Participants<li style="list-style-type:none"><hr></li></ul></div>');
-
-	  $( "#audioarea" ).draggable(	{
-			    drag: function (e, ui) {
-			        
-			    }
-			});
-	  $("#audioarea").css('z-index','90');
-	audioConnection.open('audio'); 
+	//addAudioUI();
+	audioConnection.open('audio'+wallId); 
 	isAudioInitiator = true;
+	$('#audioCall').addClass('btn-success');
+	$('#audioStartCtl').hide();
+	$('#audioStopCtl').show();
+	$('#confCallAdd').show();
 }
 
-audioConnection.connect('audio');
+audioAddPeople = function(){
+    $('#audioAddPeople').show();
+    $('#confCallAdd').hide();
+}
+
+audioAddPerson = function() {
+  $('#audioAddPeople').hide(); 
+  $('#confCallAdd').show();
+  $('#audioTable tr:last').after('<tr class="user123"><td style="font-weight:bold">Bob</td><td>Calling</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+}
+
+audioConnection.connect('audio'+wallId);
 
 /************ PPT viewer functions ********/
 
