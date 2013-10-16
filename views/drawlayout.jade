@@ -207,6 +207,8 @@ html
       $(document).ready(function(){
         wallInit = true; 
         $('.hints').tooltip({delay: { show: 750, hide: 100 }});
+        $('.hints').tooltip('disable');  //  disable for now since problems
+        
       });
     - if (ie)
       script(src='//'+base+'/javascripts/iewall.js', canvas='myCanvas', type="text/paperscript");
@@ -230,3 +232,4 @@ html
         if ( orientation == 0 || orientation == 180) {
           window.scrollTo(0,1);
       }};
+    
