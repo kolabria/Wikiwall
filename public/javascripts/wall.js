@@ -48,6 +48,7 @@ now.ready(function(){
   var slave = false;
   var remoteEvent = false;
   var zoomAreaActive = false;
+  var masterSlaveScale;
 
   var worker = new Worker('/javascripts/worker.js');
   worker.addEventListener('message', function(e){
@@ -381,6 +382,8 @@ now.recMSMsg = function(msg,data){
           paper.view.draw();
 		break;
 		case 'initSSControl':
+		  masterSlaveScale = Math.min(data.wiw /window.innerWidth,data.wih/window.innerHeight); //  need to scale to window size some time.
+		  
 		  console.log('recieved initSSControl from master');
 		  var i = data.index; 
 		  jQuery('#ssarea1').append('<div id="screen-content'+i+'"></div>');
@@ -773,7 +776,8 @@ function ssMax(i){
 	  $('#screen-content'+i ).css('z-index','90');
 	  
 	// send info to set up ss control on slave
-	  var data = {index: i, name:screenName[i], width: 500, height: 282, top: x.top, left: x.left }; 
+		
+	  var data = {index: i, name:screenName[i], width: 500, height: 282, top: x.top, left: x.left, wiw: window.innerWidth , wih: window.innerHeight }; 
 	  now.sendMSMsg('initSSControl',data);
 
 }
