@@ -752,6 +752,7 @@ function ssMax(i){
       jQuery('#videoSnap'+i).click(function(e){
 	     console.log('clicked video capture');
 	    ssCapture(i);
+		gAlert('Screen Image Captured');
       });
       x=jQuery('#screen-video'+i).position();
       console.log('ssMax - screen-video position: top: '+x.top+' left: '+x.left);
@@ -1961,7 +1962,7 @@ window.oncontextmenu = function(event) {
       var windowPosX = ((select.target.item.bounds.topLeft.x-paper.view.bounds.topLeft.x+select.target.item.bounds.width)*paper.view.zoom);
       var windowPosY = (select.target.item.bounds.topLeft.y-paper.view.bounds.topLeft.y)*paper.view.zoom;
       select.target.item.selected = true;
-      jQuery('canvas').after('<button onClick="" class="close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
+      jQuery('canvas').after('<button onClick="" class="d-obj-close delete-object" style="position:absolute;left:'+windowPosX+'px;top:'+windowPosY+'px;">&times;</button>');
     }
   }
   select.onMouseDrag = function(event){

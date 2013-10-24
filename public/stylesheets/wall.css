@@ -82,3 +82,14 @@ canvas{
 .delete-object {
 	z-index: 1;
 }
+
+.d-obj-close {
+  float: right;
+  font-size: 43px;
+  font-weight: bold;
+  line-height: 18px;
+  color: #000000;
+  text-shadow: 0 1px 0 #ffffff;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+}
