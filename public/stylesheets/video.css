@@ -121,3 +121,7 @@ video {
   border:none; 
 }
 
+.videoSnapBtn {
+	position:relative;
+	z-index: 95;
+}

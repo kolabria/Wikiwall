@@ -388,9 +388,10 @@ now.recMSMsg = function(msg,data){
 		  var i = data.index; 
 		  jQuery('#ssarea1').append('<div id="screen-content'+i+'"></div>');
 		
-		  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+data.name+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div>');
+		  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+data.name+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-large videoSnapBtn" ><i class="icon-camera"></i></button></div>');
 	      jQuery('#videoSnap'+i).click(function(e){
 		     console.log('clicked video capture');
+			 
 		    // send capture message to master
 		     now.sendMSMsg('SSControlSnap',i);
 	      });
@@ -743,12 +744,18 @@ function ssMax(i){
 	  var screenWidth, screenHeight;
        $('#screen-content'+i ).show();
 
-      screenStream[i].mediaElement.width = 500;  
-      screenStream[i].mediaElement.height = 282;
+     // screenStream[i].mediaElement.width = 500;  
+     // screenStream[i].mediaElement.height = 282;
+      screenStream[i].mediaElement.width = $(window).width()/4;
+      screenStream[i].mediaElement.height = ($(window).width()/4)/1.77;  // have 16:9 aspect ratio
  
       console.log('ssMax - video height: '+$('#screen-video'+i).height()+' width: '+$('#screen-video'+i).width());
+      
+	  
+      jQuery('#screen-content'+i).width($(window).width()/4);
+      jQuery('#screen-content'+i).height(($(window).width()/4)/1.77);  // have 16:9 aspect ratio
 
-	  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+screenName[i]+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini " ><i class="icon-camera"></i></button></div>');
+	  jQuery('#screen-content'+i).append('<div class="srceen-background"></div><div class="vidInfo"><h4 class="screenInfo">'+screenName[i]+'</h4><button id="videoSnap'+i+'" type="button value="snap" class="btn-mini videoSnapBtn" ><i class="icon-camera"></i></button></div>');
       jQuery('#videoSnap'+i).click(function(e){
 	     console.log('clicked video capture');
 	    ssCapture(i);
@@ -775,6 +782,7 @@ function ssMax(i){
 			       }
 		});
 	  $('#screen-content'+i ).css('z-index','90');
+	  
 	  
 	// send info to set up ss control on slave
 		
