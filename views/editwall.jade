@@ -1,15 +1,15 @@
 .container
   .page-header
-      h1 WikiWall - Details
+      h3 Whiteboard Details
   .row-fluid
         br
-        h2 Wall Info
+        h2 Whiteboard Info
         br
         table.table
           thead
             tr
               th Name
-              th Update Wall Name
+              th Update Whiteboard Name
               th
           tbody
             tr
@@ -22,7 +22,7 @@
                 td
                   input.btn.btn-primary(type='submit', value='Update')
   .row-fluid
-      h2 Current users sharing wall
+      h2 Current users sharing whiteboard
       table.table
         thead
           tr
@@ -40,13 +40,13 @@
             form.form-horizontal(action='/userwalls/#{wall.id}/share', method='post')
               input(type="hidden", name="_method", value="put")
               td
-                label(for="id_data") Add registed user to share wall
+                label(for="id_data") Add registed user to share whiteboard
               td
                 input#id_data(type='text', placeholder='User email', name='data')
               td
                 input.btn.btn-primary(type='submit', value='Add')
   .row-fluid
-      h2 List of rooms wall is published to
+      h2 List of rooms whiteboard is published to
       table.table
         thead
           tr
@@ -64,7 +64,7 @@
             form.form-horizontal(action='/userwalls/#{wall.id}/publish', method='post')
               input(type="hidden", name="_method", value="put")
               td
-                label(for="id_data") Add name of room to publish too
+                label(for="id_data") Add name of room to publish to
               td
                 input#id_data(type='text', placeholder='Room Name', name='data')
               td

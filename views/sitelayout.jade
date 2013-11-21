@@ -38,34 +38,7 @@ body
   header.container
     != messages()
     ul.nav.nav-tabs.language.pull-right
-      li.dropdown
-        a.dropdown-toggle(href='#', data-toggle='dropdown')
-          i.icon-globe
-          |  Change Language
-          b.caret
-        ul.dropdown-menu.pull-right
-          li
-            a(href='#')
-              i.flag.flag-ca
-              | English
-      li.dropdown
-        a.dropdown-toggle(href='#', data-toggle='dropdown')
-          i.icon-edit
-          |  Join Meeting
-          b.caret
-        #signin-dropdown.dropdown-menu.pull-right
-          form.form-vertical(action='/join', method='post')
-            //TODO remove inline styles
-            div(style='display: none;') 
-              //TODO needs to be randomly generated and verified
-              input(type='hidden', name='csrfmiddlewaretoken', value='e49fb64f716e93e7bd6ba16774c14a28') 
-            label(for='id_name') Name
-            input#id_name.span3(required, name='name', placeholder='Your Name', type='text')
-            label(for='id_room') Room
-            input#id_room.span3(required, name='room', placeholder='Room Name', type='text')
-            label(for='id_code') Room Code
-            input#id_code.span3(required, name='code', placeholder='4-digit secret code', type='number')
-            input.btn.btn-primary.pull-right(type='submit', value='Join')
+
       block login
         li.dropdown
           a.dropdown-toggle(href='#', data-toggle='dropdown')

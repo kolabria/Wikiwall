@@ -1,9 +1,9 @@
 .container
   .page-header
-      h1 WikiWall - Details
+      h1 Meeting Room Details
   .row-fluid
         br
-        h2 Device Info
+        h2 Room Info
         br
         table.table
           thead
@@ -24,30 +24,31 @@
                 td
                   input.btn.btn-primary(type='submit', value='Update')
   .row-fluid
-      h2 Devices on Quick Share List
-      table.table
-        thead
-          tr
-            th Box ID
-            th Room Name
-            th
-        tbody
-          each sb in shareList
+      //
+        h2 Devices on Quick Share List
+        table.table
+          thead
             tr
-              td #{sb.boxID}
-              td #{sb.boxName}
-              td
-                form(method="post", action='/controllers/#{box.id}/unshare/#{sb.boxID}/')
-                  input(type="hidden", name="_method", value="delete")
-                  input.btn(type="submit", value='remove')
-          tr
-            form.form-horizontal(action='/controllers/#{box.id}/share', method='post')
-              input(type="hidden", name="_method", value="put")
-              td
-                label(for="id_data") Add Box to Quick Share List
-              td
-                input#id_data(type='text', placeholder='Controller Name', name='data')
-              td
-                input.btn.btn-primary(type='submit', value='Add')
+              th Box ID
+              th Room Name
+              th
+          tbody
+            each sb in shareList
+              tr
+                td #{sb.boxID}
+                td #{sb.boxName}
+                td
+                  form(method="post", action='/controllers/#{box.id}/unshare/#{sb.boxID}/')
+                    input(type="hidden", name="_method", value="delete")
+                    input.btn(type="submit", value='remove')
+            tr
+              form.form-horizontal(action='/controllers/#{box.id}/share', method='post')
+                input(type="hidden", name="_method", value="put")
+                td
+                  label(for="id_data") Add Box to Quick Share List
+                td
+                  input#id_data(type='text', placeholder='Controller Name', name='data')
+                td
+                  input.btn.btn-primary(type='submit', value='Add')
       a.btn(href='/controllers/') Back
       br

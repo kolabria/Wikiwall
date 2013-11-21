@@ -29,6 +29,9 @@ var UserSchema = new Schema({
   , SharedWithMe: [SharedWall]
   , freeAcct: Boolean
   , numWalls: Number 
+  , company: String
+  , phone: String
+  , beta: Boolean
 });
 
 

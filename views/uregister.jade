@@ -16,20 +16,28 @@
         .control-group
           label.control-label(for="password") Password:
           .controls
-            input.input-xlarge#password(required, name='user[password]', value=user.password || '', type='password', placeholder="Password")
+            input.input-xlarge#password(required, name='user[password]', value=user.password || '', type='password', placeholder="password")
+        //
+          .control-group
+            label.control-label Plan Type:
+            .controls
+              input(type='radio',name='accttype',value='free')
+              |   Free
+              br
+              input(type='radio', name='accttype', value='paid')
+              |   Paid
+          .control-group
+            label.control-label(for="auth") Authentication Code:
+            .controls
+              input.input-xlarge#password( name='authcode', placeholder="paid accounts only")
         .control-group
-          label.control-label Plan Type:
+          label.control-label(for="company") Company:
           .controls
-            input(type='radio',name='accttype',value='free')
-            |   Free
-            br
-            input(type='radio', name='accttype', value='paid')
-            |   Paid
+            input.input-xlarge#company( name='company', value=user.company || '', placeholder="Acme Ltd")
         .control-group
-          label.control-label(for="auth") Authentication Code:
+          label.control-label(for="phone") Telephone Number:
           .controls
-            input.input-xlarge#password( name='authcode', placeholder="paid accounts only")
-
+            input.input-xlarge#company( name='phone', value=user.phone || '', placeholder="555-1212")
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Register')
         .control-group

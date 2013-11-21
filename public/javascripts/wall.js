@@ -765,10 +765,12 @@ function ssMax(i){
       console.log('ssMax - screen-video position: top: '+x.top+' left: '+x.left);
       //$('#screen-content1').addClass('resizable');
 
-	  $( '#screen-content'+i ).resizable({
+	  $( '#screen-content'+i )
+	    .resizable({
 	      alsoResize: '#screen-video'+i,
 	      aspectRatio: 16 / 9
-	    }).draggable(	{
+	    })
+		.draggable(	{
 			    drag: function (e, ui) {
 				     var data = {index: i, top: ui.position.top, left: ui.position.left};
 				     now.sendMSMsg('SSControlDrag',data);
@@ -782,6 +784,7 @@ function ssMax(i){
 			       }
 		});
 	  $('#screen-content'+i ).css('z-index','90');
+
 	  
 	  
 	// send info to set up ss control on slave
@@ -1494,7 +1497,7 @@ hangUpAudio = function(){
 	$('#audioStopCtl').hide();
 	$('#audioStartCtl').show();
     $('#confCallAdd').hide();
-    $('#audioAddPeople').hide();
+   // $('#audioAddPeople').hide();
 	if (!remoteHangUpAudio){
       now.sendMSMsg('HangUpAudioCall');
       remoteHangUpAudio = false;
@@ -1521,7 +1524,7 @@ makeAudioCall = function(){
     $('#audioCall').addClass('btn-success');
     $('#audioStartCtl').hide();
     $('#audioStopCtl').show();
-    $('#confCallAdd').show();
+    //$('#confCallAdd').show();
 }
 
 audioAddPeople = function(){

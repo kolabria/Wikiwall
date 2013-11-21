@@ -1,20 +1,20 @@
 
 .container
   .page-header
-    h1 User:  #{user.name}
+    // h1 User:  #{user.name}
   .row-fluid
       br
-      h3 Controller List:
+      h3 Meeting Rooms:
       br
       if (!user.freeAcct)
         table.table
           thead
             tr
-              th.hints(data-toggle='tooltip', title='Unique ID for contoller - found on bottom') Controller ID
-              th.hints(data-toggle='tooltip', title='Unique name you give to identify meeting room') Controller Name
+              th.hints(data-toggle='tooltip', title='Unique ID for Room ') ID
+              th.hints(data-toggle='tooltip', title='Unique name you give to identify meeting room')  Name
               th.hints(data-toggle='tooltip', title='Key used to authenticate meeting room computer') Access Key
               th.hints(data-toggle='tooltip', title='Change name and configure room sharing') Edit
-              th.hints(data-toggle='tooltip', title='Permanently delete controller') Remove
+              th.hints(data-toggle='tooltip', title='Permanently delete room') Remove
           tbody
             each box in boxes
               tr
@@ -27,20 +27,21 @@
                   form(method="post", action='/controllers/#{box.id}/')
                     input(type="hidden", name="_method", value="delete")
                     input.btn(type="submit", value='remove')
+            //
+              tr
+                td Add Meeting Room
+              tr
+                form.form-horizontal(action='/controllers', method='POST')
+                  td
+                    input#id_box_id(type='text', name='box_id', placeholder='Found on bottom of controller')
+                  td
+                    input#id_box_name(type='text', name='box_name', placeholder='Name to identify meeting room')
+                  td
+                  td
+                    input.btn.btn-primary(type='submit', value='Add')
+                  td
             tr
-              td Add Hardware Controller
-            tr
-              form.form-horizontal(action='/controllers', method='POST')
-                td
-                  input#id_box_id(type='text', name='box_id', placeholder='Found on bottom of controller')
-                td
-                  input#id_box_name(type='text', name='box_name', placeholder='Name to identify meeting room')
-                td
-                td
-                  input.btn.btn-primary(type='submit', value='Add')
-                td
-            tr
-              td Add Software Controller
+              td Add Meeting Room 
             tr
               form.form-horizontal(action='/swcontrollers', method='POST')
                 td

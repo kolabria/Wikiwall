@@ -30,21 +30,26 @@ html
         br
         div#audioStartCtl
           hr
-          h4(align='center') Join Call
-          hr
-          table
+          a#AudioMakeCall.btn(onclick='makeAudioCall()', style='float: right;' ) Call 
+          //
+            hr
+          
+            h4(align='center') Join Call
+            hr
+            table
             tr
               td
               td
-                a#AudioMakeCall.btn(onclick='makeAudioCall()' ) Web Call 
-            tr
-              td
-                input#callMeNumber(type='text', name='callMeNumber', placeholder='Number to call you at - coming soon')
-              td
-                a.btn(onclick='callMe()') Call Me
-            tr
-              td
-                p  Call 1-800-555-1212 (Coming Soon)
+                a#AudioMakeCall.btn(onclick='makeAudioCall()', style='float: right;' ) Call 
+            
+              tr
+                td
+                  input#callMeNumber(type='text', name='callMeNumber', placeholder='Number to call you at - coming soon')
+                td
+                  a.btn(onclick='callMe()') Call Me
+              tr
+                td
+                  p  Call 1-800-555-1212 (Coming Soon)
         div#audioStopCtl
           a#AudioEndCall.btn(onclick='hangUpAudio()', style='float: right;') Hang Up
           hangUpAudio

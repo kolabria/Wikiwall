@@ -518,7 +518,8 @@ app.post('/uregister.:format?', function(req, res){
     });
   }
   else {
-    if (req.body.authcode == 'MapleLeaf') {
+    //if (req.body.authcode == 'MapleLeaf') {
+		user.beta = true; 
 		user.freeAcct = false;
 	    user.save(function(err) {
 	      if (err) return userSaveFailed();
@@ -536,11 +537,11 @@ app.post('/uregister.:format?', function(req, res){
 	        	break;
 	      }
 	    });
-    }
-    else {
-	   req.flash('error', 'Invalid authentication code');
-	   res.redirect('/uregister');
-    }
+	//}
+//    else {
+//	   req.flash('error', 'Invalid authentication code');
+//	   res.redirect('/uregister');
+  //  }
   }
 });
 
@@ -1009,7 +1010,8 @@ app.get('/userwalls', requiresLogin, function(req,res){
 				  w.PIN = newPIN();
 				  w.name = user.name+newPIN();
 			      w.defaultWall_ID = w.id;
-			      w.shareURL = (Math.random() * 1000 << 1000);
+			      //w.shareURL = (Math.random() * 1000 << 1000);
+				  w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
 			      w.createdOn = new Date();
 			      w.timesOpened = 0;
 				  w.save(function(err) {
@@ -1053,7 +1055,8 @@ app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	w.PIN = newPIN();
 	w.name = req.body.wall_name;
     w.defaultWall_ID = w.id;
-    w.shareURL = (Math.random() * 1000 << 1000);
+    //w.shareURL = (Math.random() * 1000 << 1000);
+	w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
     w.createdOn = new Date();
     w.timesOpened = 0;
 	w.save(function(err) {
@@ -1525,7 +1528,8 @@ app.get('/host/list/new',requiresBoxAuth, function(req,res){
 			//w.name = box.name+' - '+d.toUTCString();  // 
 			w.name = box.name+'-'+d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()+'-'+(Math.floor((Math.random()*100)+1));   
 		    w.defaultWall_ID = w.id;
-		    w.shareURL = (Math.random() * 1000 << 1000);
+		    //w.shareURL = (Math.random() * 1000 << 1000);
+			w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
 		    w.createdOn = new Date();
 		    w.timesOpened = 0;
 		   // console.log('new wall ID: ',w.id);
