@@ -33,11 +33,11 @@
         .control-group
           label.control-label(for="company") Company:
           .controls
-            input.input-xlarge#company( name='company', value=user.company || '', placeholder="Acme Ltd")
+            input.input-xlarge#company( name='user[company]', value=user.company || '', placeholder="Acme Ltd")
         .control-group
           label.control-label(for="phone") Telephone Number:
           .controls
-            input.input-xlarge#company( name='phone', value=user.phone || '', placeholder="555-1212")
+            input.input-xlarge#company( name='user[phone]', value=user.phone || '', placeholder="555-1212")
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Register')
         .control-group

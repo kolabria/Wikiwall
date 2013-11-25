@@ -489,7 +489,8 @@ app.get('/uregister', function(req,res){
 
 app.post('/uregister.:format?', function(req, res){
   var user = new User(req.body.user);
-
+  console.log('body.user: ',req.body.user);
+  console.log("added user: ",user);
   function userSaveFailed() {
     req.flash('warn', 'Account creation failed');
     console.log('account creation failed for: ',req.body.user.Email);

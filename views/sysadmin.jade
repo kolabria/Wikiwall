@@ -10,7 +10,10 @@
           tr
             th  User Name
             th  email
+            th  Company
+            th  Phone
             th  Free Account
+            th  Beta
             th  # Walls
             th  Details
             th  Remove
@@ -23,8 +26,13 @@
             tr 
               td #{user.name}
               td #{user.Email}
+              td #{user.company}
+              td #{user.phone}
               td 
                 if (user.freeAcct)
+                  i.icon-ok
+              td 
+                if (user.beta)
                   i.icon-ok
               td #{user.numWalls}
               td
