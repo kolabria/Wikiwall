@@ -1408,7 +1408,7 @@ audioConnection.firebase = 'kolabria';
 //audioConnection.session = "audio";
 
 audioConnection.userid = name;
-audioConnection.preferSCTP = false; 
+//audioConnection.preferSCTP = false; 
 
 audioConnection.onNewSession = function (session) {  
 	 if (mode != 'slave') {    
