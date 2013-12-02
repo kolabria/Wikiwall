@@ -1012,7 +1012,7 @@ app.get('/userwalls', requiresLogin, function(req,res){
 				  w.name = user.name+newPIN();
 			      w.defaultWall_ID = w.id;
 			      //w.shareURL = (Math.random() * 1000 << 1000);
-				  w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+				  w.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
 			      w.createdOn = new Date();
 			      w.timesOpened = 0;
 				  w.save(function(err) {
@@ -1057,7 +1057,7 @@ app.post('/userwalls.:format?', requiresLogin, function(req,res){
 	w.name = req.body.wall_name;
     w.defaultWall_ID = w.id;
     //w.shareURL = (Math.random() * 1000 << 1000);
-	w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+	w.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
     w.createdOn = new Date();
     w.timesOpened = 0;
 	w.save(function(err) {
@@ -1530,7 +1530,7 @@ app.get('/host/list/new',requiresBoxAuth, function(req,res){
 			w.name = box.name+'-'+d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()+'-'+(Math.floor((Math.random()*100)+1));   
 		    w.defaultWall_ID = w.id;
 		    //w.shareURL = (Math.random() * 1000 << 1000);
-			w.shareURL = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+			w.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
 		    w.createdOn = new Date();
 		    w.timesOpened = 0;
 		   // console.log('new wall ID: ',w.id);
