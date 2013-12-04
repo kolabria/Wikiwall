@@ -1177,7 +1177,7 @@ if (!!navigator.webkitGetUserMedia) {
 }
 */
 
-VCConnection.iceServers = iceServers;
+//VCConnection.iceServers = iceServers;
 VCConnection.direction = 'many-to-many'
 VCConnection.enableSessionReinitiation = false;
 VCConnection.firebase = 'kolabria';
