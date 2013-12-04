@@ -592,12 +592,8 @@
                         }
                     }
 
-                    if (response.closeEntireSession) {
-						root.leave();
-						
-						if(root.sessions[response.sessionid]) 
-							delete root.sessions[response.sessionid];
-					}
+                    if (response.closeEntireSession)
+                        clearSession();
                     else if (socket) {
                         socket.send({
                             left: true,
@@ -757,8 +753,7 @@
             var alert = {
                 left: true,
                 extra: root.extra,
-                userid: self.userid,
-				sessionid: self.sessionid
+                userid: self.userid
             };
 
             if (isbroadcaster) {
@@ -811,8 +806,8 @@
         function initDefaultSocket() {
             defaultSocket = root.openSignalingChannel({
                 onmessage: function(response) {
-                    if (response.userid == self.userid) return;
-						
+                    if (response.userid == self.userid)
+                        return;
                     if (isAcceptNewSession && response.sessionid && response.userid) {
                         root.session = session = response.session;
                         config.onNewSession(response);
@@ -878,15 +873,14 @@
             if (root.direction == 'one-to-one') root.maxParticipantsAllowed = 1;
             if (root.direction == 'one-to-many') root.session.broadcast = true;
             if (root.direction == 'many-to-many') {
+                // root.session.oneway = false;
+                // root.session.broadcast = false;
                 root.maxParticipantsAllowed = 256;
             }
         }
 
         // open new session
         this.initSession = function() {
-			that.isOwnerLeaving = false;
-            root.isInitiator = true;
-				
             setDirections();
             session = root.session;
 
@@ -898,7 +892,7 @@
             this.isOwnerLeaving = isAcceptNewSession = false;
 
             (function transmit() {
-                if (getLength(participants) < root.maxParticipantsAllowed && !that.isOwnerLeaving) {
+                if (getLength(participants) < root.maxParticipantsAllowed) {
                     defaultSocket && defaultSocket.send({
                         sessionid: self.sessionid,
                         userid: root.userid,
@@ -964,30 +958,17 @@
 
         // leave session
         this.leave = function(userid) {
-			clearSession(userid);
-			
-			if (isbroadcaster) {
-                that.isOwnerLeaving = true;
-                root.isInitiator = false;
-            }
-			
-			// to stop/remove self streams
-			for(var i = 0; i < root.attachStreams.length; i++) {
-				root.attachStreams[i].stop();
-			}
-			root.attachStreams = [];
-			
-			// to allow capturing of identical streams
-			currentUserMediaRequest = {
-				streams: [],
-				mutex: false,
-				queueRequests: []
-			};
+            clearSession(userid);
 
             if (!userid) {
                 // self.userid = root.userid = root.token();
                 root.joinedARoom = self.joinedARoom = isbroadcaster = false;
-				isAcceptNewSession = true;
+                isAcceptNewSession = true;
+            }
+
+            if (isbroadcaster) {
+                this.isOwnerLeaving = true;
+                root.isInitiator = false;
             }
 
             root.busy = false;
@@ -1357,13 +1338,6 @@
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
-			
-		var dataChannelDict = {
-            
-        // protocol: 'text/chat',
-        // preset: true,
-        // stream: 16
-        };
 
         var STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -1568,6 +1542,13 @@
             channel = peer.createDataChannel(options.channel || 'data-channel', dataChannelDict);
             setChannelEvents();
         }
+
+        var dataChannelDict = {
+            
+        // protocol: 'text/chat',
+        // preset: true,
+        // stream: 16
+        };
 
         function setChannelEvents() {
             channel.onmessage = function(event) {
@@ -1985,7 +1966,7 @@
         };
 
         // preferring SCTP data channels!
-        this.preferSCTP = false;
+        this.preferSCTP = true;
 
         this.media = {
             min: function(width, height) {
