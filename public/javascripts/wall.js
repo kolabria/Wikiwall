@@ -1153,14 +1153,17 @@ VCConnection.session = {
     };
 	
 var TURN = {
-    url: 'turn:homeo@turn.bistri.com:80',
-    credential: 'homeo'
+    url: 'turn:turn.bistri.com:80',
+    credential: 'homeo',
+    username: 'homeo'
+   // url: 'turn:homeo@turn.bistri.com:80',
+   // credential: 'homeo'
 };
 
 var iceServers = {
     iceServers: [TURN]
 };
-
+/*
 if (!!navigator.webkitGetUserMedia) {
     if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
 	        TURN = {
@@ -1172,6 +1175,7 @@ if (!!navigator.webkitGetUserMedia) {
         iceServers.iceServers = [TURN];
     }
 }
+*/
 
 VCConnection.iceServers = iceServers;
 VCConnection.direction = 'many-to-many'
