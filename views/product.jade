@@ -1,32 +1,93 @@
 .container
   .page-header
-    h1 Product Overview
-  .span6
-    h2 Simple to use 
-    p If you can use a whiteboard, you can use WikiWall.   Intuitive controls for drawing, navigating and selecting objects. 
+    h1 Reunion - Overview
     br
-    h2 Your own conference room WikiWall in 5 minutes.
-    p Simply mount the sensor bar on the wall or on your TV, connect it to the controller 
-      | and plug into your network.  Calibrate and register your eMarker and start drawing.
-    br
-    h2 More ways to share
+  .row
+    .span6
+      h2 Express youreslf visually
+      ul
+        li  Sketech out your ideas just like a real whiteboard
+        li  Infinite drawing space with pan and zoom 
+        li  Move and delete objects 
+        li  Insert and markup pictures and images
+        li  Everything is automatically saved while drawing 
+    .span6
+      video#intro-video.imgboarder(controls, height='282', width='500')
+        source(src='/img/drawing-video-out.m4v', type='video/mp4')
+        source(src='/img/drawing-video-out.ogv', type='video/ogg')
+        Your browser does not support the video tag.
+     
+      
+
+  br
+  hr
+  .row
+    .span6
+      h2 Share multiple computer screens simultaneously
+      ul
+        li  Display up to 3 screens on the same whiteboard
+        li  Great for side by side comparisons
+        li  Move and resize each individually
+        li  Capture screen images to whiteboard for annotation
+      br
+    .span6
+      img.imgboarder(src='/img/3screenshare1.png', alt='screen sharing - 3 screens', height='250', width='390')
+  br
+  hr
+  .row
+    .span4
+      h2 Conferencing 
+      ul
+        li  Audio only or full video conferencing
+        li  No plugins or downloads required
+        li  Reposition conferencing windows on your whiteboard 
+      br
+    .span4
+      img(src='/img/4wayconfcall.png', alt='audio conf call', height='250', width='210')
+      p.caption  Audio Only
+    .span4
+      img.imgboarder(src='/img/3wayvideoconf.png', alt='video conf', height='159', width='250')
+      p.caption Video and Audio
+  br
+  hr
+  .row
+    .span6
+       h2 A Whiteboard for every purpose
+       ul
+         li  Create as many whiteboards as you need
+         li  All information is saved after each use 
+         li  Use them as scratch pads for your ideas, todo lists, meeting agendas or minutes
+         li  Access at any time from anywhere
+     .span6
+       img.imgboarder(src='/img/wblist2.png', alt='screen sharing - 2 screens', height='173', width='600')
+
+    
+      
+  br   
+  hr
+  .row
+    .span5
+      h2 Sharing
+      img.imgboarder(src='/img/usershare3.png', alt='share with registered user', height='130', width='500')
+      p  Share your whiteboard with any registered user so it appears on their list of whiteboards and they can easily get access.
+      
     .span6.offset1
-      p 1) Pick the conference room from your quick share list to let other conference rooms share your WikiWall. 
-      p 2) Share outside a conference room with the WikiWall name and the pass code.  Anyone can go to my.wikiwall.com
-        | and join your WikiWall from their computer or tablet.
-  .span6
-    br
-    h2 Enhance video conferencing
-    p Video conference shares video in real time and shares previously prepared Powerpoints.  
-      | WikiWalls go beyond sharing prepared content by letting you instantly share your visual ideas.   
-      | Draw a new pie chart or sketch a wireframe for everyone to see.  Watch as others build on your ideas 
-      | as they add to your drawing.  WikiWall lets you collaborate as if everyone is in the same room. 
-  .span6    
-    br
-    h2 Team workspace
-    p Create a WikiWall for your team to share ideas, keep meeting notes, keep track of schedules,
-      | tasks, bugs, or whatever you want.   Each time you have a meeting, push the WikiWall to the 
-      | conference room and all your 
-      | information is available.   At the end of the meeting deactivate the wall from the conference room.   
-      | After that no one in the room will be able to see your information yet the WikiWall will still be available 
-      | to all your team members from their computers and tablets.  People can access info at any time from anywhere.
+      br
+      br       
+      img.imgboarder2(src='/img/sharewall.png', alt='share wall', height='125', width='400')
+      p  Send the unique address of a whiteboard to anyone whom you want to give access.   Once you are both viewing the whiteboard you will be able to set up a conference call, share your screen or collaboratively draw.  
+  hr
+  .row
+   .span6
+     h2 Conference Room Gateway   
+     ul
+       li  Turn a meeting room computer into a Reunion gateway to see your whiteboards on a TV or projector.  
+       li  Publish whiteboards to a conference room for quick and simple access during your meeting
+       li  Create new whiteboards right in the meeting room
+       li  Pair an iPad or Android tablet to act as a remote control and to easily draw on the whiteboard
+       li  At the end of a meeting assign local whiteboards to any registered user
+   .span6
+     img.imgboarder(src='/img/orangeroom3.jpg', alt='screen sharing - 2 screens', height='259', width='495')
+  br
+  .learn
+    a.btn.btn-primary.btn-large(href='uregister') Sign Up Now!	  

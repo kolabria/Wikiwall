@@ -17,7 +17,7 @@ now.ready(function(){
   now.bversion = $.ua.browser.version;
   now.mode = mode;
 
-  window.skipRTCMultiConnectionLogs = true;  //  put here for now
+  window.skipRTCMultiConnectionLogs = false;  //  put here for now - set true for no logs
 
   if(typeof boxID != 'undefined'){
     now.boxID = boxID
@@ -1151,22 +1151,19 @@ VCConnection.session = {
         audio: true,
         video: true
     };
-	
+	/*
 var TURN = {
-    url: 'turn:turn.bistri.com:80',
-    credential: 'homeo',
-    username: 'homeo'
-   // url: 'turn:homeo@turn.bistri.com:80',
-   // credential: 'homeo'
+    url: 'turn:homeo@turn.bistri.com:80',
+    credential: 'homeo'
 };
 
 var iceServers = {
     iceServers: [TURN]
 };
-/*
+
 if (!!navigator.webkitGetUserMedia) {
     if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
-	        TURN = {
+        TURN = {
             url: 'turn:turn.bistri.com:80',
             credential: 'homeo',
             username: 'homeo'
@@ -1175,9 +1172,9 @@ if (!!navigator.webkitGetUserMedia) {
         iceServers.iceServers = [TURN];
     }
 }
-*/
 
-//VCConnection.iceServers = iceServers;
+VCConnection.iceServers = iceServers;
+	*/
 VCConnection.direction = 'many-to-many'
 VCConnection.enableSessionReinitiation = false;
 VCConnection.firebase = 'kolabria';

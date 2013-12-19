@@ -452,3 +452,16 @@ footer small{float:left;}
   }
   .pointers{display:none;}
 }
+
+.imgboarder{
+    border: 2px solid #000;
+}
+.imgboarder2{
+    border: 2px solid #000;
+
+}
+
+.caption {
+  text-align:center;
+  font-weight:bold;
+}

@@ -1,30 +1,33 @@
 .hero
   .container
     .herocontent
-      script#vidyard_embed_code_dSxDMByq9umtQ9DDNfe1wg(type='text/javascript', src='//embed.vidyard.com/embed/dSxDMByq9umtQ9DDNfe1wg/inline?v=2.2')
+      video#intro-video(controls='controls')
+        source(src='/img/KolabriaReunionIntro2.m4v', type='video/mp4')
+        source(src='/img/KolabriaReunionIntro2.ogv', type='video/ogg')
+        Your browser does not support the video tag.
     aside
       p
-        | WikiWalls are digital drawing spaces that enable people to instantly share their visual ideas.
-      form#form3(name='form3', autocomplete='off', enctype='multipart/form-data', method='post', novalidate='novalidate', action='https://kolabria.wufoo.com/forms/q7x3z9/#public', onSubmit="_gaq.push(['_trackEvent', 'SignUp', 'Submit']);")
-        label.control-label(for='appendedInputButton') Sign up for a free beta account
-        .input-append
-          input#appendedInputButton(name='Field1', type='email', spellcheck='false', placeholder='your-email@email.com', maxlength='255')
-          button.btn(name='saveForm', type='submit') Submit
-          input#idstamp(type='hidden', name='idstamp', value='V8RRAv3FSwvybIccqJ9xKIhDJ4xN4X48o9eVF8k3Z/k=')
+        | Work together as if everyone is in the same room. 
+      form#form3
+        p  Get your free account
+        a#signup.btn.btn-large(href='uregister') Sign Up Now!
 .main.container(role='main')
   .row
     .block
       h2 Beyond the Conference Room
       p
-        | WikiWalls can be shared between meeting rooms or with anyone with a computer or tablet using only their browser. Everyone can draw and interact at the same time.
-    .block
+        | Connect your distributed meeting together to share information as easily as if they were all in the same room and using only a web browser.  No plugins required.  Choose audio or video conferencing.   Up to three different people can display and share their computer screens for everyone to see.
+    .block  
       h2 More than a Whiteboard
       p
-        | Include pictures and images to enhance your drawings.  At the end of your meeting easily save your WikiWall to your computer.  No more taking a picture with your camera phone. 
+        | Include pictures and images to enhance your drawings or capture images from shared computer screens.  
+        | Multiple participants can draw simultaneously from their computer or tablet.  
+        | All information on the whiteboard is automatically saved for later reference or starting off your next meeting. 
+        | No more taking a picture with your phone. 
     .block
       h2 Not just for Meetings
       p
-        | Create multiple WikiWalls and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your WikiWalls are always accessible and secure.
+        | Create multiple whiteboards and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your whiteboards are always accessible and secure.
   .learn
     a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
 
