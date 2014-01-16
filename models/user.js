@@ -32,6 +32,9 @@ var UserSchema = new Schema({
   , company: String
   , phone: String
   , beta: Boolean
+  , createdOn: Date
+  , lastLogin: Date
+  , timesLogin: Number
 });
 
 

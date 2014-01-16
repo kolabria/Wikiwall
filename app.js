@@ -385,9 +385,14 @@ app_open.get('/product', function(req,res){
 })
 
 app_open.post('/ulogin', function(req, res){
-	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
+	console.log("User Login Open - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
+        user.lastLogin = new Date();  // set date for latest login
+		user.timesLogin = user.timesLogin + 1;
+		user.save(function(err) {
+		  if (err) console.log('Saving user login increment failed: ',err);
+		});
 	    req.session.user_id = user.id;
         if (user.freeAcct) {
 	      Iwall.find({ user_id: user.id}, function(err, walls) {
@@ -489,6 +494,9 @@ app.get('/uregister', function(req,res){
 
 app.post('/uregister.:format?', function(req, res){
   var user = new User(req.body.user);
+  user.createdOn = new Date();
+  user.lastLogin = new Date();
+  user.timesLogin = 1;
   console.log('body.user: ',req.body.user);
   console.log("added user: ",user);
   function userSaveFailed() {
@@ -498,12 +506,16 @@ app.post('/uregister.:format?', function(req, res){
       locals: { title: 'Register', user: user }
     });
   }
+  user.createdOn = new Date();
+  user.lastLogin = new Date();
+  user.timesLogin = 1;
   if (req.body.accttype == 'free'){
 	user.freeAcct = true;
 
     user.save(function(err) {
       if (err) return userSaveFailed();
-      req.flash('info', 'Your account has been created');
+      req.flash('success', 'Your account has been created');
+      req.flash('info', 'Please check Help to correctly configure you browser');
       console.log('Account Created');
 
       switch (req.params.format) {
@@ -524,7 +536,8 @@ app.post('/uregister.:format?', function(req, res){
 		user.freeAcct = false;
 	    user.save(function(err) {
 	      if (err) return userSaveFailed();
-	      req.flash('info', 'Your account has been created');
+	      req.flash('success', 'Your account has been created');
+          req.flash('info', 'Please check Help to correctly configure you browser');
 	      console.log('Account Created');
 
 	      switch (req.params.format) {
@@ -625,6 +638,11 @@ app.post('/ulogin', function(req, res){
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
 	  if (user && user.authenticate(req.body.user.password,user.password)) {
 	    req.session.user_id = user.id;
+        user.lastLogin = new Date();  // set date for latest login
+		user.timesLogin = user.timesLogin + 1;
+		user.save(function(err) {
+		  if (err) console.log('Saving user login increment failed: ',err);
+		});
         if (user.freeAcct) {
 	      Iwall.find({ user_id: user.id}, function(err, walls) {
 		    if(err) console.log(err);
@@ -1446,6 +1464,20 @@ app.post('/acct-upgrade', requiresLogin, function(req,res){
 	  }
     });
 });
+
+// Help 
+app.get('/help', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+			res.local('layout', 'uloginlayout');
+		    res.render('help', {
+		      title: 'Kolabria'
+		      , user: user
+	      });
+	  }
+	});
+});
+
 /**
 * Controller list of published walls 
 **/
@@ -1875,6 +1907,7 @@ app.delete('/sysadmin/user/:id.:format?/', requiresSysLogin, function(req,res){
   });
 });
 
+
 // show details about walls for a user 
 
 app.get('/sysadmin/:id.:format?/details', requiresSysLogin, function(req,res){
@@ -1898,6 +1931,38 @@ app.get('/sysadmin/:id.:format?/details', requiresSysLogin, function(req,res){
       });
     }
   });
+});
+
+app.get('/syspwreset', requiresSysLogin, function(req,res){	
+	User.find({}, function(err, users) {
+	  if(err) console.log(err);
+		res.local('layout', 'uloginlayout');
+        res.render('syspwreset', {
+           title: 'Kolabria'
+          , user: 'sysadmin'
+		  , endUser: ''
+        });
+	});
+});
+
+app.post('/syspwreset', requiresSysLogin, function(req,res){	
+	var newPassword = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , 'A'); 
+	console.log('change pw for: ',req.body.userEmail)
+	User.findOne({ Email: req.body.userEmail }, function(err, user) {
+	  if(err) console.log(err);
+	  user.password = newPassword;
+	  user.save(function(err) {
+	  if (err) console.log('Password updated failed');
+	   });
+	  req.flash('success',"new Password created");  // this shouldn't be an error 
+	  res.local('layout', 'uloginlayout');
+        res.render('syspwreset', {
+           title: 'Kolabria'
+          , user: 'sysadmin'
+		  , endUser: user
+		  , tmpPwrd: newPassword
+        });
+	});
 });
 
 

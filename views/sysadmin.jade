@@ -12,6 +12,50 @@
             th  email
             th  Company
             th  Phone
+            th  Created
+            th  Last Login
+            th  Times Logged In
+            th  Beta
+        tbody
+          - var cnt = 0;
+          each user in users
+            - cnt = cnt + 1;           
+            tr 
+              td #{user.name}
+              td #{user.Email}
+              td #{user.company}
+              td #{user.phone}
+              if (user.createdOn)
+                - var d = user.createdOn
+                - var cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+                - var cTime = d.getHours()+':'+d.getMinutes()
+              else
+                - var cTime = cDate = ''
+              td #{cDate} - #{cTime}
+              if (user.lastLogin)
+                - var d = user.lastLogin
+                - var cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+                - var cTime = d.getHours()+':'+d.getMinutes()
+              else
+                - var cTime = cDate = ''
+              td #{cDate} - #{cTime}
+              td 
+                if (user.beta)
+                  #{user.timesLogin}
+              td 
+                if (user.beta)
+                  i.icon-ok
+ 
+      h4 Total users = #{cnt}
+      br
+      a.btn(href='/syspwreset') Reset User's Password
+      br
+      br
+      table.table
+        thead
+          tr
+            th  User Name
+            th  email
             th  Free Account
             th  Beta
             th  # Walls
@@ -22,12 +66,11 @@
           - var total = 0;
           each user in users
             - cnt = cnt + 1;
-            - total = total + user.numWalls;
+            if (user.numWalls)
+              - total = total + user.numWalls;
             tr 
               td #{user.name}
               td #{user.Email}
-              td #{user.company}
-              td #{user.phone}
               td 
                 if (user.freeAcct)
                   i.icon-ok
@@ -42,6 +85,8 @@
                   input(type="hidden", name="_method", value="delete")
                   input.btn(type="submit", value='remove')
       - var average = total/cnt;
+      h4 Total Walls = #{total}
+      h4 Total users = #{cnt}
       h4 Average walls / user = #{average}
       br
       h4 Average paths / wall = #{avgPath}
@@ -76,7 +121,9 @@
             th SS Capture
             th E-Image        
         tbody
+          - var cnt = 0;
           each m in meetings
+            - cnt = cnt + 1;    
             tr 
               td #{m.wallId}
               if (m.active)
@@ -86,7 +133,7 @@
               - var dur = stop-m.startTime
               - var min = Math.round(((dur % 86400000) % 3600000) / 60000)
               - var d = m.startTime
-              - var meetDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+              - var meetDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
               - var meetTime = d.getHours()+':'+d.getMinutes()
               td #{meetDate}
               td #{meetTime}
@@ -119,7 +166,7 @@
               td
                 if (m.embeddedImage)
                   i.icon-ok
-                  
+      h4 Total Meetings = #{cnt}          
       br
       a.btn(href='https://docs.google.com/a/kolabria.com/spreadsheet/viewform?formkey=dGw0Vnh2OGNobExOQXdmeHJfRnNFVEE6MQ',target='_blank') Report Bug
 

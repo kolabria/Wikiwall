@@ -19,12 +19,12 @@
             tr 
               td #{wall.id}
               - var d = wall.createdOn
-              - var cDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+              - var cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
               - var cTime = d.getHours()+':'+d.getMinutes()
               td #{cDate} - #{cTime}
               if (wall.lastOpened)
                 - d = wall.lastOpened
-                - cDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+                - cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
                 - cTime = d.getHours()+':'+d.getMinutes()
               else
                 - cDate = cTime = ''
@@ -65,7 +65,7 @@
               - var dur = stop-m.startTime
               - var min = Math.round(((dur % 86400000) % 3600000) / 60000)
               - var d = m.startTime
-              - var meetDate = d.getMonth()+'/'+d.getDate()+'/'+d.getFullYear()
+              - var meetDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
               - var meetTime = d.getHours()+':'+d.getMinutes()
               td #{meetDate}
               td #{meetTime}

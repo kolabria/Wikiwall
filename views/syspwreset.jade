@@ -1,0 +1,64 @@
+.container
+  .page-header
+    h3 User:  #{user.name}
+  .row-fluid
+      br
+      h3 Change Password:
+      if (!endUser)
+        br
+        form.form-horizontal.users(name='pwReset', action='/syspwreset', method='post')
+          .control-group
+            label.control-label(for="email") User Email:
+            .controls
+              input.input-xlarge#email(required, type="email", name='userEmail')
+          .control-group
+            input.btn.btn-primary.pull-right(type='submit', value='Change Password')
+        br
+ 
+      else
+        br
+        h4 Temporary Password: #{tmpPwrd}
+        br
+      h3 User Info  
+      table.table
+        thead
+          tr
+            th  User Name
+            th  email
+            th  Company
+            th  Phone
+            th  Created
+            th  Last Login
+            th  Times Logged In
+            th  Beta
+        tbody
+          - var cnt = 0;
+          - var total = 0;
+          - cnt = cnt + 1;
+          - total = total + endUser.numWalls;
+          tr 
+            td #{endUser.name}
+            td #{endUser.Email}
+            td #{endUser.company}
+            td #{endUser.phone}
+            if (endUser.createdOn)
+              - var d = endUser.createdOn
+              - var cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+              - var cTime = d.getHours()+':'+d.getMinutes()
+            else
+              - var cTime = cDate = ''
+            td #{cDate} - #{cTime}
+            if (endUser.lastLogin)
+              - var d = endUser.lastLogin
+              - var cDate = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+              - var cTime = d.getHours()+':'+d.getMinutes()
+            else
+              - var cTime = cDate = ''
+            td #{cDate} - #{cTime}
+            td 
+              if (endUser.beta)
+                #{endUser.timesLogin}
+            td 
+              if (endUser.beta)
+                i.icon-ok
+      a.btn(href='/sysadmin/') Back
