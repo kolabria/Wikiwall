@@ -5,12 +5,12 @@
       h3.pull-right Pair Code: #{box.pairCode}
   .row-fluid
       br
-      h3 Published WikiWalls:
+      h3 Published Whiteboards:
       br
       table.table
         thead
           tr
-            th WikiWall Name
+            th Name
             th
             th Remove From Controller
         tbody
@@ -23,12 +23,12 @@
                 form(method="post", action='/published/#{wall.wallID}/')
                   input(type="hidden", name="_method", value="delete")
                   input.btn(type="submit", value='remove')
-      h3 Local WikiWalls:
+      h3 Local Whiteboards:
       br
       table.table
         thead
           tr
-            th WikiWall Name
+            th Name
             th Assign Owner
             th
             th Delete
