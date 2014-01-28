@@ -4,7 +4,7 @@
   .span8.offset2
     .hero-unit
       p Register
-      form.form-horizontal.users(name='uregister', action='/uregister', method='POST')
+      form.form-horizontal.users(name='uregister', action='/uregister', method='POST', onSubmit="_gaq.push(['_trackEvent', 'Form','Submit', 'Register']);")
         .control-group
           label.control-label(for="user") Name:
           .controls
