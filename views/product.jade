@@ -12,12 +12,10 @@
         li  Insert and markup pictures and images
         li  Everything is automatically saved while drawing 
     .span6
-      video#intro-video.imgboarder(controls, height='282', width='500')
+      video#draw-video.imgboarder(controls, height='282', width='500')
         source(src='/img/drawing-video-out.m4v', type='video/mp4')
         source(src='/img/drawing-video-out.ogv', type='video/ogg')
         Your browser does not support the video tag.
-     
-      
 
   br
   hr
@@ -90,4 +88,26 @@
      img.imgboarder(src='/img/orangeroom3.jpg', alt='screen sharing - 2 screens', height='259', width='495')
   br
   .learn
-    a.btn.btn-primary.btn-large(href='uregister') Sign Up Now!	  
+    a.btn.btn-primary.btn-large(href='uregister',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Register-2']);") Sign Up Now!	  
+script
+  document.addEventListener("DOMContentLoaded", init, false);
+  function init(){
+    var video = document.getElementById("draw-video");
+    video.addEventListener("play", videoPlay, false);
+    video.addEventListener("pause", videoPause, false);
+    video.addEventListener("ended", videoEnd, false);
+    console.log(video);
+  }
+  function videoPlay(event) {
+    trackEvent('Play', 'Draw Video');
+  }
+  function videoPause(event) {
+    trackEvent('Pause', 'Draw Video');
+  }
+  function videoEnd(event) {
+    trackEvent('Ended', 'Draw Video');
+  }
+  function trackEvent(action, title) {
+    _gaq.push(['_trackEvent', 'Videos', action, title]);
+  }
+ 

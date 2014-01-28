@@ -10,7 +10,7 @@
         | Work together as if everyone is in the same room. 
       form#form3
         p  Get your free account
-        a#signup.btn.btn-large(href='uregister') Sign Up Now!
+        a#signup.btn.btn-large(href='uregister',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Register-1']);") Sign Up Now!
 .main.container(role='main')
   .row
     .block
@@ -30,5 +30,25 @@
         | Create multiple whiteboards and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your whiteboards are always accessible and secure.
   .learn
     a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Learn More']);") Learn More!
-
+script
+  document.addEventListener("DOMContentLoaded", init, false);
+  function init(){
+    var video = document.getElementById("intro-video");
+    video.addEventListener("play", videoPlay, false);
+    video.addEventListener("pause", videoPause, false);
+    video.addEventListener("ended", videoEnd, false);
+    console.log(video);
+  }
+  function videoPlay(event) {
+    trackEvent('Play', 'Intro Video');
+  }
+  function videoPause(event) {
+    trackEvent('Pause', 'Intro Video');
+  }
+  function videoEnd(event) {
+    trackEvent('Ended', 'Intro Video');
+  }
+  function trackEvent(action, title) {
+    _gaq.push(['_trackEvent', 'Videos', action, title]);
+  }
  
