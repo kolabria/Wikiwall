@@ -4,7 +4,7 @@
   .span8.offset2
     .hero-unit
       p Login to your Kolabria account
-      form.form-horizontal.users(name='ulogin', action='/ulogin', method='post', onsubmit="_gaq.push(['_trackEvent','Form','Submit','Login']);")
+      form.form-horizontal.users(name='ulogin', action='/ulogin', method='post', onsubmit="_gaq.push(['_trackEvent', 'Button', 'Clicked','form']);")
         .control-group
           label.control-label(for="email") Email:
           .controls
