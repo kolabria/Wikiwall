@@ -384,6 +384,24 @@ app_open.get('/product', function(req,res){
 
 })
 
+app_open.get('/land1', function(req,res){
+  res.local('layout', 'landinglayout');
+  res.local('title', 'Kolabria - Sharing Visual Ideas')
+  res.render('land1',{});
+});
+
+app_open.get('/land2', function(req,res){
+  res.local('layout', 'landinglayout');
+  res.local('title', 'Kolabria - Sharing Visual Ideas')
+  res.render('land2',{});
+});
+
+app_open.get('/land3', function(req,res){
+  res.local('layout', 'landinglayout');
+  res.local('title', 'Kolabria - Sharing Visual Ideas')
+  res.render('land3',{});
+});
+
 app_open.post('/ulogin', function(req, res){
 	console.log("User Login Open - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {

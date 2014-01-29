@@ -1,0 +1,54 @@
+.hero
+  .container
+    .herocontent
+      video#intro-video(controls='controls')
+        source(src='/img/KolabriaReunionIntro2.m4v', type='video/mp4')
+        source(src='/img/KolabriaReunionIntro2.ogv', type='video/ogg')
+        Your browser does not support the video tag.
+    aside
+      p
+        | Work together as if everyone is in the same room. 
+      form#form3
+        p  Get your free account
+        a#signup.btn.btn-large(href='uregister',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Reg-land1']);") Sign Up Now!
+.main.container(role='main')
+  .row
+    .block
+      h2 Beyond the Conference Room
+      p
+        | Connect your distributed meeting together to share information as easily as if they were all in the same room and using only a web browser.  No plugins required.  Choose audio or video conferencing.   Up to three different people can display and share their computer screens for everyone to see.
+    .block  
+      h2 More than a Whiteboard
+      p
+        | Include pictures and images to enhance your drawings or capture images from shared computer screens.  
+        | Multiple participants can draw simultaneously from their computer or tablet.  
+        | All information on the whiteboard is automatically saved for later reference or starting off your next meeting. 
+        | No more taking a picture with your phone. 
+    .block
+      h2 Not just for Meetings
+      p
+        | Create multiple whiteboards and use them as a virtual war room, a project status page, mind maps, or customer brainstorming. Share with others to get their input. Use them at your desk or bring them to any meeting room. Your whiteboards are always accessible and secure.
+  .learn
+    a#learn-more.btn.btn-primary.btn-large(href='product',onClick="_gaq.push(['_trackEvent', 'Button', 'Clicked','Land1-Learn More']);") Learn More!
+script
+  document.addEventListener("DOMContentLoaded", init, false);
+  function init(){
+    var video = document.getElementById("intro-video");
+    video.addEventListener("play", videoPlay, false);
+    video.addEventListener("pause", videoPause, false);
+    video.addEventListener("ended", videoEnd, false);
+    console.log(video);
+  }
+  function videoPlay(event) {
+    trackEvent('Play', 'Intro Video');
+  }
+  function videoPause(event) {
+    trackEvent('Pause', 'Intro Video');
+  }
+  function videoEnd(event) {
+    trackEvent('Ended', 'Intro Video');
+  }
+  function trackEvent(action, title) {
+    _gaq.push(['_trackEvent', 'Videos L1', action, title]);
+  }
+ 

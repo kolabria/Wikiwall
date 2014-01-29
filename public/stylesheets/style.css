@@ -465,3 +465,7 @@ footer small{float:left;}
   text-align:center;
   font-weight:bold;
 }
+
+.logo-link, .logo-link:visited, .logo-link:hover, .logo-link:active {
+  color: inherit;
+}

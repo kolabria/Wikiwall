@@ -1,0 +1,73 @@
+!!! 5
+//if lt IE 7
+  html.no-js.lt-ie9.lt-ie8.lt-ie7(lang="en")
+//if IE 7
+  html.no-js.lt-ie9.lt-ie8.(lang="en")
+//if IE 8
+  html.no-js.lt-ie9(lang="en")
+//if gt IE 8
+  html.no-js(lang='en')
+
+head
+  meta(charset='utf-8')
+  meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+  title= title
+  meta(name='description', content='')
+  meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  base(href='//'+base+'/')
+  //
+     Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons 
+  link(rel='stylesheet', href='//'+base+'/stylesheets/bootstrap.css')
+  link(rel='stylesheet', href='//'+base+'/stylesheets/bootstrap.min.css')
+  link(rel='stylesheet', href='//'+base+'/stylesheets/bootstrap-responsive.css')
+  link(href='//fonts.googleapis.com/css?family=Permanent+Marker', rel='stylesheet', type='text/css')
+  
+  link(rel='stylesheet', href='//'+base+'/stylesheets/style.css')
+
+  //if lt IE 9
+    script(src='//html5shiv.googlecode.com/svn/trunk/html5.js')
+body
+  //if lt IE 7
+    p.chromeframe
+      | Your browser is
+      em ancient!
+      a(href='http://browsehappy.com/') Upgrade to a different browser
+      | or
+      a(href='http://www.google.com/chromeframe/?redirect=true') install Google Chrome Frame
+      | to experience this site.
+  header.container
+    != messages()
+    .navbar
+      a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      hgroup.brand.pull-left
+        h1
+          a.logo-link(href='/', style='text-decoration: none;', onClick="_gaq.push(['_trackEvent', 'Logo', 'Clicked','land']);") Kolabria
+        h2 
+          a.logo-link(href='/', style='text-decoration: none;', onClick="_gaq.push(['_trackEvent', 'Logo', 'Clicked','land']);") Sharing Visual Ideas
+
+  !=body
+  footer.navbar.navbar-fixed-bottom
+    block footer
+      .container
+        small Copyright 2014 by Kolabria. All Rights Reserved
+  script(src='//'+base+'/javascripts/jquery-1.7.2.min.js')
+  script(src='//'+base+'/javascripts/bootstrap.min.js')
+  script(src='//'+base+'/javascripts/plugins.js')
+  script(src='//'+base+'/javascripts/script.js')
+  //script(type='text/javascript', src='//w.sharethis.com/button/buttons.js')
+  block localjs
+
+  script
+    //Analytics
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32675686-1']);
+    _gaq.push(['_setDomainName', 'kolabria.com']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
