@@ -46,7 +46,7 @@ body
             |  Login
             b.caret
           #join-dropdown.dropdown-menu.pull-right
-            form.form-vertical(action='/ulogin', method='post')
+            form.form-vertical#formDDLogin(action='/ulogin', method='post')
               //TODO remove inline styles
               div(style='display: none;') 
                 //TODO needs to be randomly generated and verified
@@ -100,7 +100,14 @@ body
   script(src='//'+base+'/javascripts/script.js')
   //script(type='text/javascript', src='//w.sharethis.com/button/buttons.js')
   block localjs
-
+  script
+    $('#formDDLogin').submit(function(e){
+      e.preventDefault();
+      _gaq.push(['_trackEvent','Form','Submit','DD Login']);
+      var form = this;
+      console.log('logging submit')
+      setTimeout(function(){ form.submit()}, 150);
+     });
   script
     $(function ()  
       { $('.hints').tooltip({delay: { show: 500, hide: 100 }});
