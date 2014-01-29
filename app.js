@@ -2980,7 +2980,10 @@ everyone.now.actionMeeting = function(wallId, name, action){
 				  break;
 				case 'goEImg':
 				  m[0].embeddedImage = true;
-				  break;
+				  break;             
+    			case 'goAC':
+    			  m[0].audUsed = true;
+    			  break;
 			}		
 			m[0].save(function(err) {
 			  if (err) console.log('meeting add action failed: ',err);

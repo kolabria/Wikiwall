@@ -732,6 +732,7 @@ function ssCapture(i) {
     var w = canvasDraw.width;
     var h = canvasDraw.height;
     console.log('ssCapture: width: '+w+' height: '+h);
+    now.actionMeeting(wallId, name, 'goSSCapture');
     var ctxDraw = canvasDraw.getContext('2d');
 
     ctxDraw.clearRect(0, 0, w, h);
@@ -1532,6 +1533,7 @@ makeAudioCall = function(){
 	if (mode != 'slave') { 
 	  //  start a web call with other participants -  later have this phone conference bridge 
       console.log("start call");
+      now.actionMeeting(wallId, name, 'goAC');
       //$('#audioCallModal').modal('hide');
       audioCallActive = true;
       audioConnection.extra = {

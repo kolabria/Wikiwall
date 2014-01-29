@@ -20,6 +20,7 @@ var Mongoose = require('mongoose')
   , fromJoin: Boolean
   , ssCapture: Boolean
   , embeddedImage: Boolean
+  , audUsed: Boolean
  });
 
 meetingSchema
