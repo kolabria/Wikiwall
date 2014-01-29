@@ -1,0 +1,10 @@
+extends sitelayout
+block localjs
+    script
+      $('#formRegister').submit(function(e){
+        e.preventDefault();
+        _gaq.push(['_trackEvent','Form','Submit','Register']);
+        var form = this;
+        console.log('logging submit')
+        setTimeout(function(){ form.submit()}, 150);
+       });
