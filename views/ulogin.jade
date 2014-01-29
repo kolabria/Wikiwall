@@ -22,5 +22,6 @@ script
     e.preventDefault();
     _gaq.push(['_trackEvent','Form','Submit','Login']);
     var form = this;
-    setTimeout(function(){ form.submit()}, 150);
+    console.log('logging submit')
+    setTimeout(function(){ form.submit()}, 1500);
   });
