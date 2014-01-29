@@ -17,11 +17,12 @@
           input.btn.btn-primary.pull-right(type='submit', value='Log In')
         .control-group
           a.pull-right(href='/uregister') Create a new account
-script
-  $('#formLogin').submit(function(e){
-    e.preventDefault();
-    _gaq.push(['_trackEvent','Form','Submit','Login']);
-    var form = this;
-    console.log('logging submit')
-    setTimeout(function(){ form.submit()}, 1500);
-  });
+block localjs
+  script
+    $('#formLogin').submit(function(e){
+      e.preventDefault();
+      _gaq.push(['_trackEvent','Form','Submit','Login']);
+      var form = this;
+      console.log('logging submit')
+      setTimeout(function(){ form.submit()}, 1500);
+     });
