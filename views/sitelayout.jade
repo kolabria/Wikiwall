@@ -98,20 +98,6 @@ body
   script(src='//'+base+'/javascripts/script.js')
   //script(type='text/javascript', src='//w.sharethis.com/button/buttons.js')
   block localjs
-  script
-    $('#formLogin').submit(function(e){
-      e.preventDefault();
-      _gaq.push(['_trackEvent','Form','Submit','Login']);
-      var form = this;
-      console.log('logging submit')
-      setTimeout(function(){ form.submit()}, 150);
-     });
-  script(src='//static.getclicky.com/js', type='text/javascript')
-  script(type='text/javascript')
-    try{ clicky.init(100569139); }catch(e){}
-  noscript
-    p
-     img(alt='Clicky', width='1', height='1', src='//in.getclicky.com/100569139ns.gif')
 
   script
     $(function ()  

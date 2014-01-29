@@ -406,7 +406,7 @@ app_open.post('/ulogin', function(req, res){
       	res.redirect('https://'+hostname+':'+port+'/userwalls');
 	  } else {
 	  	user = {}
-	  	res.local('layout', 'sitelayout');
+	  	res.local('layout', 'tracklogins');
   		res.local('title', 'Kolabria - User Login')
 	  	req.flash('error',err || 'Invalid email or Password');
 	    res.render('ulogin',{
@@ -485,7 +485,7 @@ app.post('/register.:format?', function(req, res){
 
 // user registration 
 app.get('/uregister', function(req,res){
-  res.local('layout', 'sitelayout');
+  res.local('layout', 'trackreg');
   res.local('title', 'Kolabria - User Register')
   res.render('uregister',{
     user: new User()	//needed?
@@ -502,6 +502,8 @@ app.post('/uregister.:format?', function(req, res){
   function userSaveFailed() {
     req.flash('warn', 'Account creation failed');
     console.log('account creation failed for: ',req.body.user.Email);
+    res.local('layout', 'trackreg');
+    res.local('title', 'Kolabria - User Register')
     res.render('uregister', {
       locals: { title: 'Register', user: user }
     });
@@ -626,7 +628,7 @@ app.post('/login', function(req, res){
 	});
 });
 app.get('/ulogin', function(req, res){
-  res.local('layout', 'sitelayout');
+  res.local('layout', 'tracklogins');
   res.local('title', 'Kolabria - User Login')
   res.render('ulogin', {
     user: {}
@@ -663,7 +665,7 @@ app.post('/ulogin', function(req, res){
 			req.flash('error','Invalid Email');
 		}
 	  	user = {}
-	  	res.local('layout', 'sitelayout');
+	  	res.local('layout', 'tracklogins');
   		res.local('title', 'Kolbria - User Login')
 	  	
 	    res.render('ulogin',{
