@@ -27,13 +27,17 @@
                         form(method="post", action='/account/suspend/#{auser.id}/')
                           input.btn(type="submit", value='Suspend')
             br
+            //    
+              tr
+                form.form-horizontal(action='/account/adduser', method='POST')
+                  td
+                    input#newemail(type='email', name='new_email',placeholder='email of person to add')
+                  td
+                    input.btn.btn-primary(type='submit', value='New')
+                  td
             tr
-              form.form-horizontal(action='/account/adduser', method='POST')
-                td
-                  input#newemail(type='email', name='new_email',placeholder='email of person to add')
-                td
-                  input.btn.btn-primary(type='submit', value='New')
-                td
+                td  
+                  h5 Share this link with people you wish to add:   #{hostname}/uregister/#{suURL}/
       br           
       h3 Change My Password:
       br

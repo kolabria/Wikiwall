@@ -1466,13 +1466,19 @@ app.get('/account', requiresLogin, function(req,res){
              //console.log('company: ', user.company);
              User.find({ company: user.company }, function(err, acctusers) {
                  if (acctusers){
-                     //console.log('account users', acctusers);
-                     res.local('layout', 'uloginlayout');
-                     res.render('account', {
-            	      title: 'Kolabria'
-                       , user: user
-                       , acctusers: acctusers
-           	      });  
+                     Account.findById(user.acctId, function(err, acct ){
+                         if (acct){
+                           //console.log('account users', acctusers);
+                           res.local('layout', 'uloginlayout');
+                           res.render('account', {
+            	             title: 'Kolabria'
+                             , user: user
+                             , acctusers: acctusers
+                             , hostname: hostname
+                             , suURL: acct.shareURL
+           	               });
+                         }
+                     });  
                  }
              });
          } 
