@@ -1,11 +1,43 @@
 .container
   .page-header
-    h3 User:  #{user.name}
+    h3 Account Info
   .row-fluid
       br
-      h3 Change Password:
+      if (user.owner)
+        h3 Members:
+        br
+        table.table
+          thead
+            tr
+              th  User Name
+              th  Owner
+              th  Access
+          tbody 
+            each auser in acctusers      
+              tr 
+                td #{auser.name}
+                td
+                  if (auser.owner)
+                    i.icon-ok
+                td
+                    if (auser.suspended)
+                      form(method="post", action='/account/activate/#{auser.id}/')
+                        input.btn(type="submit", value='Activate')
+                    else
+                        form(method="post", action='/account/suspend/#{auser.id}/')
+                          input.btn(type="submit", value='Suspend')
+            br
+            tr
+              form.form-horizontal(action='/account/adduser', method='POST')
+                td
+                  input#newemail(type='email', name='new_email',placeholder='email of person to add')
+                td
+                  input.btn.btn-primary(type='submit', value='New')
+                td
+      br           
+      h3 Change My Password:
       br
-      form.form-horizontal.users(name='account', action='/account', method='post')
+      form.form-horizontal.users(name='password', action='/acct-pwrd', method='post')
         .control-group
           label.control-label(for="password") Current Password:
           .controls

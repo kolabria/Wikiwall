@@ -16,6 +16,7 @@ var express = require('express')
   , Images = require('./models/images')
   , Company = require('./models/company')
   , User = require('./models/user')
+  , Account = require('./models/account')
   , Box = require('./models/box')
   , Iwall = require('./models/iwall.js')
   , Meeting = require('./models/meeting.js')
@@ -29,6 +30,15 @@ var https = require('https');
 var http = require('http');
 
 var MongoStore = require('connect-mongo')(express);
+
+/**
+* constants
+**/
+var FREE_ACCT = 0;
+var PAID_ACCT = 1;
+var TRIAL_ACCT = 2;
+var BETA_ACCT = 3;
+
 
 /**
 * Initialize Variables and Global Database
@@ -405,7 +415,7 @@ app_open.get('/land3', function(req,res){
 app_open.post('/ulogin', function(req, res){
 	console.log("User Login Open - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
-	  if (user && user.authenticate(req.body.user.password,user.password)) {
+	  if (user && user.authenticate(req.body.user.password,user.password) && !user.suspended) {
         user.lastLogin = new Date();  // set date for latest login
 		user.timesLogin = user.timesLogin + 1;
 		user.save(function(err) {
@@ -426,7 +436,7 @@ app_open.post('/ulogin', function(req, res){
 	  	user = {}
 	  	res.local('layout', 'tracklogins');
   		res.local('title', 'Kolabria - User Login')
-	  	req.flash('error',err || 'Invalid email or Password');
+	  	req.flash('error',err || 'Invalid email or Password or account suspended');
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
 	    });
@@ -466,74 +476,48 @@ app.get('/t2index', function(req,res){
 
 app.get('/register', function(req,res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolabria - Register')
+  res.local('title', 'Kolabria - Account Register')
   res.render('register',{
-    company: new Company()	//needed?
-  });
-})
-
-app.post('/register.:format?', function(req, res){
-  var company = new Company(req.body.company);
-
-  function companySaveFailed() {
-   // req.flash('warn', 'Account creation failed');
-    console.log('account creation failed');
-    res.render('register', {
-      locals: { title: 'Register', company: company }
-    });
-  }
-
-  company.save(function(err) {
-    if (err) return companySaveFailed();
-    // req.flash('info', 'Your account has been created');
-    console.log('Account Created');
-
-    switch (req.params.format) {
-      case 'json':
-        res.send(company.toObject());
-      	break;
-
-      default:
-        req.session.company_id = company.id;
-        res.redirect('/controllers');
-      	break;
-    }
-  });
-});
-
-// user registration 
-app.get('/uregister', function(req,res){
-  res.local('layout', 'trackreg');
-  res.local('title', 'Kolabria - User Register')
-  res.render('uregister',{
     user: new User()	//needed?
   });
 })
 
-app.post('/uregister.:format?', function(req, res){
+app.post('/register.:format?', function(req, res){
   var user = new User(req.body.user);
-  user.createdOn = new Date();
-  user.lastLogin = new Date();
-  user.timesLogin = 1;
-  console.log('body.user: ',req.body.user);
-  console.log("added user: ",user);
-  function userSaveFailed() {
+  var account = new Account();
+  
+  function uaSaveFailed() {
     req.flash('warn', 'Account creation failed');
     console.log('account creation failed for: ',req.body.user.Email);
     res.local('layout', 'trackreg');
-    res.local('title', 'Kolabria - User Register')
-    res.render('uregister', {
+    res.local('title', 'Kolabria - Account Register')
+    res.render('register', {
       locals: { title: 'Register', user: user }
     });
   }
+  
   user.createdOn = new Date();
   user.lastLogin = new Date();
   user.timesLogin = 1;
-  if (req.body.accttype == 'free'){
-	user.freeAcct = true;
+  user.suspended = false; 
+  console.log('body.user: ',req.body.user);
+  console.log("added user: ",user);
+  
+  account.createdOn = new Date();
+  account.acctName = user.company;
+  account.adminUserId = user.id;
+  account.acctType = TRIAL_ACCT; 
+  account.acctUserLimit = 250;
+  account.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+  
+  user.acctId = account.id;
+  user.owner = true;
 
     user.save(function(err) {
-      if (err) return userSaveFailed();
+      if (err) return uaSaveFailed();
+      account.save(function(err){
+          if (err) return uaSaveFailed();
+      });
       req.flash('success', 'Your account has been created');
       req.flash('info', 'Please check Help to correctly configure you browser');
       console.log('Account Created');
@@ -549,34 +533,77 @@ app.post('/uregister.:format?', function(req, res){
         	break;
       }
     });
-  }
-  else {
-    //if (req.body.authcode == 'MapleLeaf') {
-		user.beta = true; 
-		user.freeAcct = false;
-	    user.save(function(err) {
-	      if (err) return userSaveFailed();
-	      req.flash('success', 'Your account has been created');
-          req.flash('info', 'Please check Help to correctly configure you browser');
-	      console.log('Account Created');
 
-	      switch (req.params.format) {
-	        case 'json':
-	          res.send(user.toObject());
-	        	break;
+});
 
-	        default:
-	          req.session.user_id = user.id;
-	          res.redirect('/userwalls');
-	        	break;
-	      }
-	    });
-	//}
-//    else {
-//	   req.flash('error', 'Invalid authentication code');
-//	   res.redirect('/uregister');
-  //  }
+
+// user registration
+app.get('/uregister/:id.:format?/', function(req,res){
+  var company;
+ // console.log('company url',req.params.id);
+  Account.findOne({shareURL: req.params.id}, function(err, acct ){
+      if (acct){
+          company = acct.acctName;
+          res.local('layout', 'trackreg');
+          res.local('title', 'Kolabria - User Register')
+          res.render('uregister',{
+             user: new User()	//needed?
+            ,company: company
+          });
+      }
+      else {
+          // need to redirect to an error page
+      }
+  });  
+})
+
+app.post('/uregister.:format?', function(req, res){
+  var user = new User(req.body.user);
+  user.createdOn = new Date();
+  user.lastLogin = new Date();
+  user.timesLogin = 1;
+  user.owner = false;
+  console.log('body.user: ',req.body.user);
+  console.log("added user: ",user);
+  function userSaveFailed() {
+    req.flash('warn', 'Account creation failed');
+    console.log('account creation failed for: ',req.body.user.Email);
+    res.local('layout', 'trackreg');
+    res.local('title', 'Kolabria - User Register')
+    res.render('uregister', {
+      locals: { title: 'Register', user: user }
+    });
   }
+  user.createdOn = new Date();
+  user.lastLogin = new Date();
+  user.timesLogin = 1; 
+  user.suspended = false; 
+   Account.findOne({acctName: user.company}, function(err, acct ){
+       if (acct){
+         user.acctId = acct.id; 
+ 		user.beta = true; 
+ 		user.freeAcct = false;
+ 	    user.save(function(err) {
+ 	      if (err) return userSaveFailed();
+ 	      req.flash('success', 'Your account has been created');
+           req.flash('info', 'Please check Help to correctly configure you browser');
+ 	      console.log('Account Created');
+
+ 	      switch (req.params.format) {
+ 	        case 'json':
+ 	          res.send(user.toObject());
+ 	        	break;
+
+ 	        default:
+ 	          req.session.user_id = user.id;
+ 	          res.redirect('/userwalls');
+ 	        	break;
+ 	      }
+ 	    });
+       }
+       // need else for error redirect to error page 
+   });
+  
 });
 
 app.get('/join', function(req,res){
@@ -656,7 +683,7 @@ app.get('/ulogin', function(req, res){
 app.post('/ulogin', function(req, res){
 	console.log("User Login - email: "+req.body.user.Email+" password: "+req.body.user.password);
 	User.findOne({ Email: req.body.user.Email }, function(err, user) {
-	  if (user && user.authenticate(req.body.user.password,user.password)) {
+	  if (user && user.authenticate(req.body.user.password,user.password) && ! user.suspended) {
 	    req.session.user_id = user.id;
         user.lastLogin = new Date();  // set date for latest login
 		user.timesLogin = user.timesLogin + 1;
@@ -674,9 +701,16 @@ app.post('/ulogin', function(req, res){
 	    }
       	res.redirect('/userwalls');
 	  } else {
+          
 		if (user){
-			console.log('ulogin - invalid authentication: ',req.body.user.Email);
-			req.flash('error', 'Invalid Password');
+            if (user.suspended){
+  			  console.log('ulogin - user suspended: ',req.body.user.Email);
+  			  req.flash('error', 'Access suspended - contact account owner');
+            }
+            else {
+			  console.log('ulogin - invalid authentication: ',req.body.user.Email);
+			  req.flash('error', 'Invalid Password');
+            }
 		}
 		else {
 			console.log('ulogin - cannot find user: ',req.body.user.Email);
@@ -1424,20 +1458,39 @@ app.delete('/userwalls/:id.:format?/unpublish/:name', requiresLogin, function(re
 	});
 });
 
-// Change user password
+// user account info
 app.get('/account', requiresLogin, function(req,res){	
 	User.findById(req.session.user_id, function(err, user) {
 	  if (user) {
-			res.local('layout', 'uloginlayout');
-		    res.render('account', {
-		      title: 'Kolabria'
-		      , user: user
-	      });
+         if (user.owner){
+             //console.log('company: ', user.company);
+             User.find({ company: user.company }, function(err, acctusers) {
+                 if (acctusers){
+                     //console.log('account users', acctusers);
+                     res.local('layout', 'uloginlayout');
+                     res.render('account', {
+            	      title: 'Kolabria'
+                       , user: user
+                       , acctusers: acctusers
+           	      });  
+                 }
+             });
+         } 
+         else {
+           res.local('layout', 'uloginlayout');
+           res.render('account', {
+ 	       title: 'Kolabria'
+             , user: user
+             , acctusers: null 
+	       });
+         }
 	  }
 	});
 });
 
-app.post('/account', requiresLogin, function(req,res){	
+// change users password
+ 
+app.post('/acct-pwrd', requiresLogin, function(req,res){	
 	User.findById(req.session.user_id, function(err, user) {
 	  if (user) {
 		if (user && user.authenticate(req.body.currentPwd,user.password)) {
@@ -1462,6 +1515,51 @@ app.post('/account', requiresLogin, function(req,res){
 	  }
 	});
 });
+
+// suspend user logins account
+app.post('/account/suspend/:id.:format?/', requiresLogin, function(req,res){	
+	User.findById(req.params.id, function(err, user) {
+	  if (user) {
+		  user.suspended = true;
+		  user.save(function(err) {
+		    if (err) {
+                console.log('User suspend failed');
+                req.flash('Error',"User not suspended");
+            }
+		  });
+		  res.redirect('/account');
+	  }
+    });
+});
+// activated user logins
+app.post('/account/activate/:id.:format?/', requiresLogin, function(req,res){	
+	User.findById(req.params.id, function(err, user) {
+	  if (user) {
+		  user.suspended = false;
+		  user.save(function(err) {
+		    if (err) {
+                console.log('User activate failed');
+                req.flash('Error',"User not suspended");
+            }
+		  });
+		  res.redirect('/account');
+	  }
+    });
+});
+
+// invite user to account 
+app.post('/account/adduser', requiresLogin, function(req,res){	
+	User.findById(req.session.user_id, function(err, user) {
+	  if (user) {
+          console.log('send invite to: ',req.body.new_email);
+		      req.flash('success', 'Invitation email sent');
+		      console.log('Invite sent');
+		      res.redirect('/account');
+		 
+	  }
+    });
+});
+
 
 // upgrade from free to paid account 
 

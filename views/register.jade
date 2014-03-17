@@ -1,23 +1,44 @@
 .container
   .page-header
-    h1 Register
+    h1 New Account Registration
   .span8.offset2
     .hero-unit
-      p Register your company
-      form.form-horizontal.users(name='register', action='/register', method='POST')
+     
+      form.form-horizontal.users#formRegister(name='register', action='/register', method='POST')
+        .control-group
+          label.control-label(for="user") Name:
+          .controls
+            input.input-xlarge#user(required, type="text",name='user[name]', value=user.name || '', placeholder="Bob Smith")
         .control-group
           label.control-label(for="email") Email:
           .controls
-            input.input-xlarge#email(required, type="email",name='company[adminEmail]', value=company.adminEmail || '', placeholder="Email@email.com")
+            input.input-xlarge#email(required, type="email",name='user[Email]', value=user.adminEmail || '', placeholder="Email@email.com")
         .control-group
           label.control-label(for="password") Password:
           .controls
-            input.input-xlarge#password(required, name='company[password]', value=company.password || '', type='password', placeholder="Password")
+            input.input-xlarge#password(required, name='user[password]', value=user.password || '', type='password', placeholder="password")
+        //
+          .control-group
+            label.control-label Plan Type:
+            .controls
+              input(type='radio',name='accttype',value='free')
+              |   Free
+              br
+              input(type='radio', name='accttype', value='paid')
+              |   Paid
+          .control-group
+            label.control-label(for="auth") Authentication Code:
+            .controls
+              input.input-xlarge#password( name='authcode', placeholder="paid accounts only")
         .control-group
           label.control-label(for="company") Company:
           .controls
-            input.input-xlarge#company(required, type="text",name='company[name]', value=company.name || '', placeholder="Acme Co.")
+            input.input-xlarge#company( name='user[company]', value=user.company || '', placeholder="Acme Ltd")
+        .control-group
+          label.control-label(for="phone") Telephone Number:
+          .controls
+            input.input-xlarge#phone( name='user[phone]', value=user.phone || '', placeholder="555-1212")
         .control-group
           input.btn.btn-primary.pull-right(type='submit', value='Register')
         .control-group
-          a.pull-right(href='Login') Login
+          a.pull-right(href='ULogin') Login

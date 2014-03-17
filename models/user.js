@@ -35,6 +35,9 @@ var UserSchema = new Schema({
   , createdOn: Date
   , lastLogin: Date
   , timesLogin: Number
+  , acctId: ObjectId
+  , owner: Boolean 
+  , suspended: Boolean
 });
 
 
