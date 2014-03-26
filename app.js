@@ -31,6 +31,9 @@ var http = require('http');
 
 var MongoStore = require('connect-mongo')(express);
 
+var mandrill = require('mandrill-api/mandrill');
+mandrill_client = new mandrill.Mandrill('LYPGpJIvFJibymgyRoxmNw');
+
 /**
 * constants
 **/
@@ -385,13 +388,31 @@ app_open.post('/contact', function(req,res){
 	res.local('layout', 'sitelayout')
 	res.local('title' , 'Kolabria - Contact')
 
-
 })
+
+app_open.get('/company', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Company Info')
+        res.render('company',{});
+})
+
 app_open.get('/product', function(req,res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - Product')
+	res.local('title' , 'Kolabria - Product Overview')
     res.render('product',{});
 
+})
+
+app_open.get('/pricing', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Pricing')
+    res.render('pricing',{});
+})
+
+app_open.get('/touch', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Touch Devices')
+    res.render('touch',{});
 })
 
 app_open.get('/land1', function(req,res){
@@ -765,17 +786,29 @@ app.get('/contact', function(req, res){
     res.render('contact',{});
 
 })
-app.post('/contact', function(req,res){
+app.get('/company', function(req,res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - Contact')
-
-
+	res.local('title' , 'Kolabria - Company Info')
+    res.render('company',{});
 })
+
 app.get('/product', function(req,res){
 	res.local('layout', 'sitelayout')
-	res.local('title' , 'Kolabria - Product')
+	res.local('title' , 'Kolabria - Product Overview')
     res.render('product',{});
 
+})
+
+app.get('/pricing', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Pricing')
+    res.render('pricing',{});
+})
+
+app.get('/touch', function(req,res){
+	res.local('layout', 'sitelayout')
+	res.local('title' , 'Kolabria - Touch Devices')
+    res.render('touch',{});
 })
 
 //For Blog if needed, maybe look if there is already a node blog out there that works
@@ -1555,12 +1588,58 @@ app.post('/account/activate/:id.:format?/', requiresLogin, function(req,res){
 
 // invite user to account 
 app.post('/account/adduser', requiresLogin, function(req,res){	
+    var addemail = req.body.new_email;
 	User.findById(req.session.user_id, function(err, user) {
 	  if (user) {
           console.log('send invite to: ',req.body.new_email);
-		      req.flash('success', 'Invitation email sent');
-		      console.log('Invite sent');
-		      res.redirect('/account');
+          User.find({ company: user.company }, function(err, acctusers) {
+              if (acctusers){
+                  Account.findById(user.acctId, function(err, acct ){
+                      if (acct){
+                          var signupLink = hostname + '/uregister/'+ acct.shareURL + '/';
+                          var htmlmsg = "<p> You have been invited to join Kolabria.  Please click on the link signup.   </p>" + signupLink;
+                          var txtmsg = "You have been invited to join Kolabria.  Please click on the link signup.   " + signupLink;
+                          console.log('msg1: ',htmlmsg);
+                          console.log('msg2: ',txtmsg);
+                          var message = {
+                              "html": htmlmsg,
+                              "text": txtmsg,
+                              "subject": "Invitaiton to join Kolabria",
+                              "from_email": "info@kolabria.com",
+                              "from_name": "Kolabria",
+                              "to": [{
+                                      "email": addemail,
+                                      "name": "your name"
+                                  }],
+                              "headers": {
+                                  "Reply-To": "info@kolabria.com"
+                              },
+                              "important": false,
+                              "track_opens": true,
+                              "track_clicks": true,
+                              "auto_text": true
+
+                          };
+
+                          mandrill_client.messages.send({"message": message}, function(result) {
+                              console.log(result);
+   
+                          }, function(e) {
+                              // Mandrill returns the error as an object with name and message keys
+                              console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+                              // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+                          });
+          
+          
+                         req.flash('success', 'Invitation email sent');
+                         console.log('Invite sent');
+                         res.redirect('/account');
+
+                      }
+                  });  
+              }
+          });
+
 		 
 	  }
     });

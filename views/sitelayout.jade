@@ -71,9 +71,11 @@ body
         nav.mainnav.nav.btn-group.pull-right
           block navbuttons
             a.btn.btn-large(href='/') Home
-            a.btn.btn-large(href='/product') Overview
-            a.btn.btn-large(href='about') About
-            a.btn.btn-large(href='/contact') Contact
+            a.btn.btn-large(href='/product') Tour
+            a.btn.btn-large(href='/pricing') Pricing
+            a.btn.btn-large(href='/touch') Touch Devices
+           
+            a.btn.btn-large(href='/company') Company
   !=body
   footer.navbar.navbar-fixed-bottom
     block footer
@@ -84,6 +86,9 @@ body
           span.st_plusone_hcount
           span.st_email_hcount
           span.st_sharethis_hcount
+        ul.nav.pull-right
+            li
+              a(href='/company') Contact
         small Copyright 2014 by Kolabria. All Rights Reserved
   //
     div.pointers

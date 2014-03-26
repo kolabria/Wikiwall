@@ -469,3 +469,164 @@ footer small{float:left;}
 .logo-link, .logo-link:visited, .logo-link:hover, .logo-link:active {
   color: inherit;
 }
+
+.priceTable {
+    margin:0px;padding:0px;
+	width:100%;
+	border:0px solid #000000;
+	
+	-moz-border-radius-bottomleft:15px;
+	-webkit-border-bottom-left-radius:15px;
+	border-bottom-left-radius:15px;
+	
+	-moz-border-radius-bottomright:15px;
+	-webkit-border-bottom-right-radius:15px;
+	border-bottom-right-radius:15px;
+	
+	-moz-border-radius-topright:15px;
+	-webkit-border-top-right-radius:15px;
+	border-top-right-radius:15px;
+	
+	-moz-border-radius-topleft:15px;
+	-webkit-border-top-left-radius:15px;
+	border-top-left-radius:15px;
+}
+.priceTable table{
+    border-collapse: collapse;
+        border-spacing: 0;
+	width:100%;
+	height:100%;
+	margin:0px;padding:0px;
+}
+.priceTable tr:last-child td:last-child {
+	-moz-border-radius-bottomright:15px;
+	-webkit-border-bottom-right-radius:15px;
+	border-bottom-right-radius:15px;
+}
+.priceTable table tr:first-child td:first-child {
+	-moz-border-radius-topleft:15px;
+	-webkit-border-top-left-radius:15px;
+	border-top-left-radius:15px;
+}
+.priceTable table tr:first-child td:last-child {
+	-moz-border-radius-topright:15px;
+	-webkit-border-top-right-radius:15px;
+	border-top-right-radius:15px;
+}
+.priceTable tr:last-child td:first-child{
+	-moz-border-radius-bottomleft:15px;
+	-webkit-border-bottom-left-radius:15px;
+	border-bottom-left-radius:15px;
+}
+.priceTable tr:hover td{
+	background-color:#cccccc;
+		
+
+}
+.priceTable td{
+	vertical-align:middle;
+	
+	background-color:#cccccc;
+
+	border:1px solid #000000;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+	padding:7px;
+	font-size:13px;
+	font-family:Arial;
+	font-weight:normal;
+	color:#000000;
+}
+.priceTable tr:last-child td{
+	border-width:0px 0px 0px 0px;
+}
+.priceTable tr td:last-child{
+	border-width:0px 0px 0px 0px;
+}
+.priceTable tr:last-child td:last-child{
+	border-width:0px 0px 0px 0px;
+}
+.priceTable tr:first-child td{
+		background:-o-linear-gradient(bottom, #007fff 5%, #005fbf 100%);	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #007fff), color-stop(1, #005fbf) );
+	background:-moz-linear-gradient( center top, #007fff 5%, #005fbf 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#007fff", endColorstr="#005fbf");	background: -o-linear-gradient(top,#007fff,005fbf);
+
+	background-color:#007fff;
+	border:0px solid #000000;
+	text-align:center;
+	border-width:0px 0px 0px 0px;
+	font-size:16px;
+	font-family:Arial;
+	font-weight:bold;
+	color:#ffffff;
+}
+.priceTable tr:first-child:hover td{
+	background:-o-linear-gradient(bottom, #007fff 5%, #005fbf 100%);	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #007fff), color-stop(1, #005fbf) );
+	background:-moz-linear-gradient( center top, #007fff 5%, #005fbf 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#007fff", endColorstr="#005fbf");	background: -o-linear-gradient(top,#007fff,005fbf);
+
+	background-color:#007fff;
+}
+.priceTable tr:first-child td:first-child{
+	border-width:0px 0px 0px 0px;
+}
+.priceTable tr:first-child td:last-child{
+	border-width:0px 0px 0px 0px;
+}
+.banner-large
+{
+font-size: xx-large; font-family: arial; font-weight: normal; text-align: center; margin-top: 60px;
+}
+.banner-med
+{
+font-size: large; font-family: arial; font-weight: normal; text-align: center;;
+}
+.price-period
+{
+    text-align: center;
+    font-family: 'arial black';
+}
+
+.faq .col {
+  width: 100%;
+  padding: 30px 0 0 0;
+  float: none;
+  text-align: center; }
+
+/* Pricing page FAQ section: */
+.faq {
+  padding: 20px 0 40px 0;
+  color: #666666;
+  background: #fbfbfb; }
+  .faq h3 {
+    font-size: 30px;
+    color: #222222;
+    margin-top: 15px; }
+  .faq .col {
+    width: 49%;
+    padding: 30px;
+    float: left;
+    text-align: left; }
+    .faq .col h4 {
+      color: #222222;
+      font-weight: 600; }
+    .faq .col p {
+      line-height: 135%;
+      margin-bottom: 30px; }
+  .faq .more {
+    clear: both; }
+    .faq .more a {
+      -webkit-border-radius: 3px;
+      border-radius: 3px;
+      background: white;
+      border: 1px solid #d4d4d4;
+      border-bottom: 2px solid #bbbbbb;
+      color: #666666;
+      padding: 10px 15px;
+      position: relative;
+      font-weight: 700;
+      font-size: 16px; }
+      .faq .more a:active {
+        border-bottom: 1px solid #d4d4d4;
+        top: 1px; }
+        
