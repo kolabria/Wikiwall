@@ -15,5 +15,7 @@
     , "xm2js": ">=0.2.2"
     , "request": ">=2.12.0"
     , "useragent": ">=1.1.0"
+    , "node-uuid": ">=1.4.1"
+    , "mandrill-api": ">=1.0.39"
   }
 }

@@ -1,0 +1,21 @@
+.container
+  .page-header
+    h1 Reset Password
+  .span8.offset2
+    .hero-unit
+      p Enter the email you created your account with: 
+      form.form-horizontal.users#formReset(name='pwreset', action='/pwreset', method='post')
+        .control-group
+          label.control-label(for="password") New Password:
+          .controls
+            input.input-xlarge#password(required, name='newPwd',  type='password', placeholder="New Password")
+        .control-group
+          .controls
+            input(required, name='idNum',  type='hidden', value ="#{idNum}",)
+        .control-group
+          label.control-label(for="password") Confirm Password:
+          .controls
+          input.input-xlarge#password(required, name='confirmPwd', type='password', placeholder="Confirm Password")
+        .control-group
+          input.btn.btn-primary.pull-right(type='submit', value='Change Password')
+

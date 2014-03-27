@@ -37,7 +37,9 @@ var UserSchema = new Schema({
   , timesLogin: Number
   , acctId: ObjectId
   , owner: Boolean 
+  , activated: Boolean
   , suspended: Boolean
+  , activationURL: {type: String,trim:true}
 });
 
 

@@ -18,11 +18,13 @@ var express = require('express')
   , User = require('./models/user')
   , Account = require('./models/account')
   , Box = require('./models/box')
+  , TempLinks = require('./models/templinks')
   , Iwall = require('./models/iwall.js')
   , Meeting = require('./models/meeting.js')
   , xml2js = require('xml2js')
   , request = require('request')  //http request library
-  , useragent = require('useragent'); 
+  , useragent = require('useragent')
+  , uuid = require('node-uuid'); 
 
 var wwDatabase = 'beta1';    // name of wikiwall database
 
@@ -528,20 +530,21 @@ app.post('/register.:format?', function(req, res){
   account.acctName = user.company;
   account.adminUserId = user.id;
   account.acctType = TRIAL_ACCT; 
-  account.acctUserLimit = 250;
-  account.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+  account.acctUserLimit = 50;
+  //account.shareURL = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+  account.shareURL = uuid.v4();
   
+  account.activated = true;   // later set this to false until confirmed
   user.acctId = account.id;
   user.owner = true;
+  user.activationURL = uuid.v4();
 
     user.save(function(err) {
       if (err) return uaSaveFailed();
       account.save(function(err){
           if (err) return uaSaveFailed();
       });
-      req.flash('success', 'Your account has been created');
-      req.flash('info', 'Please check Help to correctly configure you browser');
-      console.log('Account Created');
+  
 
       switch (req.params.format) {
         case 'json':
@@ -549,13 +552,82 @@ app.post('/register.:format?', function(req, res){
         	break;
 
         default:
-          req.session.user_id = user.id;
-          res.redirect('/userwalls');
+            // send email to activate
+
+            var signupLink = hostname + '/register/confirm/'+ user.activationURL + '/';
+            var htmlmsg = "<p> Please confirm your email to activate your account by clicking on the following link.   </p>" + signupLink;
+            var txtmsg = "Please confirm your email to activate your account by clicking on the following link.  " + signupLink;
+            //console.log('msg1: ',htmlmsg);
+            //console.log('msg2: ',txtmsg);
+            var message = {
+                "html": htmlmsg,
+                "text": txtmsg,
+                "subject": "Kolabria - confirm email",
+                "from_email": "support-msg@kolabria.com",
+                "from_name": "Kolabria",
+                "to": [{
+                        "email": user.Email,
+                        "name": "your name"
+                    }],
+                "headers": {
+                    "Reply-To": "support-msg@kolabria.com"
+                },
+                "important": false,
+                "track_opens": true,
+                "track_clicks": true,
+                "auto_text": true
+
+            };
+
+            mandrill_client.messages.send({"message": message}, function(result) {
+                console.log(result);
+
+            }, function(e) {
+                // Mandrill returns the error as an object with name and message keys
+                console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+                // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+            });
+          
+          // display page to say to check email
+          res.local('layout', 'sitelayout');
+          res.local('title', 'Kolabria - Account Confirmation')
+          res.render('regconfirm',{});
         	break;
       }
     });
 
 });
+
+// account registration confirmation 
+app.get('/register/confirm/:id.:format?/', function(req,res){
+
+    function userSaveFailed() {
+      req.flash('warn', 'Account creation failed');
+      res.local('layout', 'trackreg');
+      res.local('title', 'Kolabria - Account Register')
+      res.render('register', {
+        locals: { title: 'Register', user: user }
+      });
+    }
+  
+  User.findOne({activationURL: req.params.id}, function(err, user ){
+      if (user){
+          user.activationURL = "";
+          user.activated = true;
+          
+          user.save(function(err) {
+              if (err) return userSaveFailed();
+              req.flash('success', 'Your account has been created');
+              req.flash('info', 'Please check Help to correctly configure you browser');
+              req.session.user_id = user.id;
+              res.redirect('/userwalls');  
+          });   
+      }
+      else {
+          userSaveFailed();
+      }
+  });  
+})
 
 
 // user registration
@@ -573,10 +645,48 @@ app.get('/uregister/:id.:format?/', function(req,res){
           });
       }
       else {
-          // need to redirect to an error page
+          req.flash('warn', 'Account creation failed');
+          
+          res.local('layout', 'trackreg');
+          res.local('title', 'Kolabria - Account Register')
+          res.render('register', {
+            locals: { title: 'Register', user: user }
+          });
       }
   });  
 })
+
+// user registration confirmation 
+app.get('/uregister/confirm/:id.:format?/', function(req,res){
+
+    function userSaveFailed() {
+      req.flash('warn', 'Account creation failed');
+      res.local('layout', 'trackreg');
+      res.local('title', 'Kolabria - Account Register')
+      res.render('register', {
+        locals: { title: 'Register', user: user }
+      });
+    }
+  
+  User.findOne({activationURL: req.params.id}, function(err, user ){
+      if (user){
+          user.activationURL = "";
+          user.activated = true;
+          
+          user.save(function(err) {
+              if (err) return userSaveFailed();
+              req.flash('success', 'Your account has been created');
+              req.flash('info', 'Please check Help to correctly configure you browser');
+              req.session.user_id = user.id;
+              res.redirect('/userwalls');  
+          });   
+      }
+      else {
+          userSaveFailed();
+      }
+  });  
+})
+
 
 app.post('/uregister.:format?', function(req, res){
   var user = new User(req.body.user);
@@ -599,16 +709,18 @@ app.post('/uregister.:format?', function(req, res){
   user.lastLogin = new Date();
   user.timesLogin = 1; 
   user.suspended = false; 
+  user.activated = false;  
    Account.findOne({acctName: user.company}, function(err, acct ){
        if (acct){
          user.acctId = acct.id; 
  		user.beta = true; 
  		user.freeAcct = false;
+        user.activationURL = uuid.v4();  // assign url for activation email 
  	    user.save(function(err) {
  	      if (err) return userSaveFailed();
- 	      req.flash('success', 'Your account has been created');
-           req.flash('info', 'Please check Help to correctly configure you browser');
- 	      console.log('Account Created');
+ 	      //req.flash('success', 'Your account has been created');
+          // req.flash('info', 'Please check Help to correctly configure you browser');
+ 	      //console.log('Account Created');
 
  	      switch (req.params.format) {
  	        case 'json':
@@ -616,8 +728,48 @@ app.post('/uregister.:format?', function(req, res){
  	        	break;
 
  	        default:
- 	          req.session.user_id = user.id;
- 	          res.redirect('/userwalls');
+  
+                // send email to activate
+  
+                var signupLink = hostname + '/uregister/confirm/'+ user.activationURL + '/';
+                var htmlmsg = "<p> Please confirm your email to activate your account by clicking on the following link.   </p>" + signupLink;
+                var txtmsg = "Please confirm your email to activate your account by clicking on the following link.   " + signupLink;
+                //console.log('msg1: ',htmlmsg);
+                //console.log('msg2: ',txtmsg);
+                var message = {
+                    "html": htmlmsg,
+                    "text": txtmsg,
+                    "subject": "Kolabria - email confirmation",
+                    "from_email": "support-msg@kolabria.com",
+                    "from_name": "Kolabria",
+                    "to": [{
+                            "email": user.Email,
+                            "name": "your name"
+                        }],
+                    "headers": {
+                        "Reply-To": "support-msg@kolabria.com"
+                    },
+                    "important": false,
+                    "track_opens": true,
+                    "track_clicks": true,
+                    "auto_text": true
+
+                };
+
+                mandrill_client.messages.send({"message": message}, function(result) {
+                    console.log(result);
+
+                }, function(e) {
+                    // Mandrill returns the error as an object with name and message keys
+                    console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+                    // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+                });
+              
+              // display page to say to check email
+              res.local('layout', 'sitelayout');
+              res.local('title', 'Kolabria - Account Confirmation')
+              res.render('regconfirm',{});
+              
  	        	break;
  	      }
  	    });
@@ -744,6 +896,120 @@ app.post('/ulogin', function(req, res){
 	    res.render('ulogin',{
 	      user: {Email : req.body.user.Email}
 	    });
+	  }
+	});
+});
+
+// password reset 
+
+app.get('/pwreset', function(req, res){
+  res.local('layout', 'sitelayout');
+  res.local('title', 'Kolabria - Password Reset')
+  res.render('pwresetreq', { });
+});
+
+
+// password reset requset  
+
+app.post('/pwresetreq', function(req, res){
+	console.log("Reset password for:  ",req.body.email);
+    var tempLink = new TempLinks();
+    tempLink.creation = new Date();
+    tempLink.link = uuid.v4();
+    User.findOne({ Email: req.body.email }, function(err, user) {
+        if (user){
+            tempLink.userId = user.id;
+            tempLink.save(function(err) {
+              if (err) console.log('New tempLink failed');
+             });
+              var signupLink = hostname + '/pwreset/r/'+ tempLink.link + '/';
+              var htmlmsg = "<p> Please click on the link to reset your password.   </p>" + signupLink;
+              var txtmsg = "Please click on the link to reset your password.   " + signupLink;
+              var message = {
+                 "html": htmlmsg,
+                 "text": txtmsg,
+                 "subject": "Password Reset",
+                 "from_email": "support-msg@kolabria.com",
+                 "from_name": "Kolabria",
+                 "to": [{
+                         "email": req.body.email
+                     }],
+                 "headers": {
+                     "Reply-To": "support-msg@kolabria.com" 
+                 },
+                 "important": false,
+                 "track_opens": true,
+                 "track_clicks": true,
+                 "auto_text": true
+ 
+              };
+    
+              mandrill_client.messages.send({"message": message}, function(result) {
+                console.log(result);
+                }, function(e) {
+                  // Mandrill returns the error as an object with name and message keys
+                 console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+                  // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+              });
+
+              res.local('layout', 'sitelayout');
+              res.local('title', 'Kolabria - Password Reset Confirm')
+              res.render('pwrconfirm',{ });
+            
+          }
+          else {
+              req.flash('error','email address not found');
+              res.redirect('/pwreset');
+          }
+    });
+});
+
+// Password reset page 
+app.get('/pwreset/r/:id.:format?/', function(req,res){
+
+  TempLinks.findOne({link: req.params.id}, function(err, templink ){
+      if (templink){
+          var d = new Date();
+          var n = d.getTime();  
+          var diff = (n - templink.creation.getTime())/1000; // time difference in seconds
+          //console.log("time passed: ", diff/1000);  // time in seconds
+          if (diff <= 600 ){  // if link less than 10 minutes old 
+              // if less than 10 minutes can reset password
+              // remove link and display reset page 
+            var id = templink.userId;
+            templink.remove();
+      	    res.local('layout', 'sitelayout');
+            res.local('title', 'Kolabria - Password Reset')
+      	    res.render('pwreset',{idNum: id });             
+          }
+          else {
+              // link has timed out
+              // remove and send message 
+              templink.remove();
+              req.flash('error','Link Expired - Try reset again');
+              res.redirect('/pwreset');
+          }
+      }
+  });  
+})
+
+
+app.post('/pwreset', function(req,res){	
+	User.findById(req.body.idNum, function(err, user) {
+	  if (user) {
+			if (req.body.newPwd == req.body.confirmPwd)
+			{
+			  user.password = req.body.newPwd;
+			  user.save(function(err) {
+			    if (err) console.log('Password updated failed');
+			  });
+			  req.flash('success',"Password Updated");  // this shouldn't be an error 
+			  res.redirect('/userwalls');
+		    }
+		    else {
+			  req.flash('error',"New Passwords don't match");
+			  res.redirect('/pwreset');
+		    }
 	  }
 	});
 });
@@ -1599,20 +1865,20 @@ app.post('/account/adduser', requiresLogin, function(req,res){
                           var signupLink = hostname + '/uregister/'+ acct.shareURL + '/';
                           var htmlmsg = "<p> You have been invited to join Kolabria.  Please click on the link signup.   </p>" + signupLink;
                           var txtmsg = "You have been invited to join Kolabria.  Please click on the link signup.   " + signupLink;
-                          console.log('msg1: ',htmlmsg);
-                          console.log('msg2: ',txtmsg);
+                          // console.log('msg1: ',htmlmsg);
+                          // console.log('msg2: ',txtmsg);
                           var message = {
                               "html": htmlmsg,
                               "text": txtmsg,
                               "subject": "Invitaiton to join Kolabria",
-                              "from_email": "info@kolabria.com",
+                              "from_email": "support-msg@kolabria.com",
                               "from_name": "Kolabria",
                               "to": [{
                                       "email": addemail,
                                       "name": "your name"
                                   }],
                               "headers": {
-                                  "Reply-To": "info@kolabria.com"
+                                  "Reply-To": "support-msg@kolabria.com"
                               },
                               "important": false,
                               "track_opens": true,

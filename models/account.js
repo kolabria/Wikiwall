@@ -19,6 +19,7 @@ var AccountSchema = new Schema({
   , acctUserLimit: Number
   , shareURL: {type: String,trim:true}
   , createdOn: Date    
+  , activated: Boolean
 });
 
 
