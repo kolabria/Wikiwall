@@ -523,8 +523,8 @@ app.post('/register.:format?', function(req, res){
   user.lastLogin = new Date();
   user.timesLogin = 1;
   user.suspended = false; 
-  console.log('body.user: ',req.body.user);
-  console.log("added user: ",user);
+ // console.log('body.user: ',req.body.user);
+  //console.log("added user: ",user);
   
   account.createdOn = new Date();
   account.acctName = user.company;
@@ -563,14 +563,14 @@ app.post('/register.:format?', function(req, res){
                 "html": htmlmsg,
                 "text": txtmsg,
                 "subject": "Kolabria - confirm email",
-                "from_email": "support-msg@kolabria.com",
+                "from_email": "support+srv@kolabria.com",
                 "from_name": "Kolabria",
                 "to": [{
                         "email": user.Email,
-                        "name": "your name"
+                        "name": user.name
                     }],
                 "headers": {
-                    "Reply-To": "support-msg@kolabria.com"
+                    "Reply-To": "support+srv@kolabria.com"
                 },
                 "important": false,
                 "track_opens": true,
@@ -740,14 +740,14 @@ app.post('/uregister.:format?', function(req, res){
                     "html": htmlmsg,
                     "text": txtmsg,
                     "subject": "Kolabria - email confirmation",
-                    "from_email": "support-msg@kolabria.com",
+                    "from_email": "support+srv@kolabria.com",
                     "from_name": "Kolabria",
                     "to": [{
                             "email": user.Email,
-                            "name": "your name"
+                            "name": user.name
                         }],
                     "headers": {
-                        "Reply-To": "support-msg@kolabria.com"
+                        "Reply-To": "support+srv@kolabria.com"
                     },
                     "important": false,
                     "track_opens": true,
@@ -929,13 +929,13 @@ app.post('/pwresetreq', function(req, res){
                  "html": htmlmsg,
                  "text": txtmsg,
                  "subject": "Password Reset",
-                 "from_email": "support-msg@kolabria.com",
+                 "from_email": "support+srv@kolabria.com",
                  "from_name": "Kolabria",
                  "to": [{
                          "email": req.body.email
                      }],
                  "headers": {
-                     "Reply-To": "support-msg@kolabria.com" 
+                     "Reply-To": "support+srv@kolabria.com" 
                  },
                  "important": false,
                  "track_opens": true,
@@ -1871,14 +1871,13 @@ app.post('/account/adduser', requiresLogin, function(req,res){
                               "html": htmlmsg,
                               "text": txtmsg,
                               "subject": "Invitaiton to join Kolabria",
-                              "from_email": "support-msg@kolabria.com",
+                              "from_email": "support+srv@kolabria.com",
                               "from_name": "Kolabria",
                               "to": [{
                                       "email": addemail,
-                                      "name": "your name"
                                   }],
                               "headers": {
-                                  "Reply-To": "support-msg@kolabria.com"
+                                  "Reply-To": "support+srv@kolabria.com"
                               },
                               "important": false,
                               "track_opens": true,
