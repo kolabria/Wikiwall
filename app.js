@@ -2573,7 +2573,7 @@ app.get('/user/:id.:format?/draw', function(req,res){
 
 app.get('/suw/:wurl.:format?', function(req,res){
   res.local('layout', 'sitelayout');
-  res.local('title', 'Kolabria - Join A Wall')
+  res.local('title', 'Kolabria - Join A Meeting')
   res.render('joinuserwall',{
     wurl: req.params.wurl
   });

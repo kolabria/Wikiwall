@@ -17,6 +17,13 @@ now.ready(function(){
   now.bversion = $.ua.browser.version;
   now.mode = mode;
 
+
+  var noWebRTC = false;   // flag to say if this client can support web RTC
+  //  basic with just browsers but should also be checking for versions too.  add opera others?  
+  if ($.ua.os.name == 'iOS' || !($.ua.browser.name == 'Chrome' || $.ua.browser.name == 'Firefox')){
+      noWebRTC = true;
+  }
+  
   window.skipRTCMultiConnectionLogs = false;  //  put here for now - set true for no logs
 
   if(typeof boxID != 'undefined'){
@@ -79,7 +86,7 @@ if (mode=='slave'){
 }
 
 if ($.ua.browser.name != 'Chrome' && mode != 'slave'){
-	alert("Google Chrome is required for for all features to function correctly. Please switch browers for an optimal experience. ");
+	alert("Google Chrome is required for for all features to function correctly. Please switch browser for an optimal experience. ");
 }
 
 
@@ -830,41 +837,50 @@ screenConnection1.enableSessionReinitiation = false;
 screenConnection1.firebase = 'kolabria';
 
 screenConnection1.onNewSession = function (session) { 
-	if (mode != 'slave') {      
-      console.log('onNewSession-screen 1: ', session); 
-       if (!isScreenShareInitiator[1]) {
+	if (mode != 'slave') {
+      if (!noWebRTC){      
+          console.log('onNewSession-screen 1: ', session); 
+           if (!isScreenShareInitiator[1]) {
          
-         jQuery('#ssarea1').append('<div id="screen-content1"></div><div id="captureArea1" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
-         screenName[1] = session.extra.name;
-         screenConnection1.join(session);
+             jQuery('#ssarea1').append('<div id="screen-content1"></div><div id="captureArea1" style="border:none"><canvas id="imageView1" class="imageView" width="1000" height="560"></canvas></div>');
+             screenName[1] = session.extra.name;
+             screenConnection1.join(session);
+           }
+           else{
+    	     screenShareActive = true;
+             jQuery('#ssShare').html('<h4>Close</h4>');
+           }
        }
-       else{
-	     screenShareActive = true;
-         jQuery('#ssShare').html('<h4>Close</h4>');
+       else {
+           alert('Another user has shared their screen.  Your browser or device does not support this funcitonality. ');
        }
     }
 };
 
 screenConnection1.onstream = function (stream) {
  if (mode != 'slave') { 
-   ssConnections++;   //increment number of active connections
-   console.log('Screen onstream 1:',stream);
-   $('#screen-content1').append(stream.mediaElement);
-   screenStream[1] = stream;
-   stream.mediaElement.id = 'screen-video1';
-   stream.mediaElement.controls = false;
-   screenName[1] = stream.extra.name;
-   ssMax(1);   
+   if (!noWebRTC){ 
+       ssConnections++;   //increment number of active connections
+       console.log('Screen onstream 1:',stream);
+       $('#screen-content1').append(stream.mediaElement);
+       screenStream[1] = stream;
+       stream.mediaElement.id = 'screen-video1';
+       stream.mediaElement.controls = false;
+       screenName[1] = stream.extra.name;
+       ssMax(1);   
+   }
  }
 };
 
 // remove video if someone leaves
 screenConnection1.onstreamended = function(e) {
 	if (mode != 'slave') {
-	  ssConnections--;  //  reduce number of active connections 
-	  console.log('ss stream ended 1: share screen ended');
-	  jQuery('#ssarea1').empty();  
-	  now.sendMSMsg('endSSControl',1);
+     if (!noWebRTC){ 
+    	  ssConnections--;  //  reduce number of active connections 
+    	  console.log('ss stream ended 1: share screen ended');
+    	  jQuery('#ssarea1').empty();  
+    	  now.sendMSMsg('endSSControl',1);
+      }
     }
 };
 
@@ -878,17 +894,22 @@ screenConnection2.enableSessionReinitiation = false;
 screenConnection2.firebase = 'kolabria';
 
 screenConnection2.onNewSession = function (session) { 
-	if (mode != 'slave') {      
-      console.log('onNewSession-screen 2: ', session); 
-       if (!isScreenShareInitiator[2]) {
-         console.log('onNewSession-screen 2: step 2'); 
-         jQuery('#ssarea2').append('<div id="screen-content2"></div><div id="captureArea2" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
-         screenName[2] = session.extra.name;
-         screenConnection2.join(session);
+	if (mode != 'slave') {    
+      if (!noWebRTC){   
+          console.log('onNewSession-screen 2: ', session); 
+           if (!isScreenShareInitiator[2]) {
+             console.log('onNewSession-screen 2: step 2'); 
+             jQuery('#ssarea2').append('<div id="screen-content2"></div><div id="captureArea2" style="border:none"><canvas id="imageView2" class="imageView" width="1000" height="560"></canvas></div>');
+             screenName[2] = session.extra.name;
+             screenConnection2.join(session);
+           }
+           else{
+    	     screenShareActive = true;
+             jQuery('#ssShare').html('<h4>Close</h4>');
+         }
        }
-       else{
-	     screenShareActive = true;
-         jQuery('#ssShare').html('<h4>Close</h4>');
+       else {
+           alert('Another user has shared their screen.  Your browser or device does not support this funcitonality. ');
        }
     }
 };
@@ -896,24 +917,28 @@ screenConnection2.onNewSession = function (session) {
 
 screenConnection2.onstream = function (stream) {
  if (mode != 'slave') { 
-   ssConnections++;   //increment number of active connections
-   console.log('Screen onstream 2:',stream);
-   $('#screen-content2').append(stream.mediaElement);
-   screenStream[2] = stream;
-   stream.mediaElement.id = 'screen-video2';
-   stream.mediaElement.controls = false;
-   screenName[2] = stream.extra.name;
-   ssMax(2);   
+  if (!noWebRTC){ 
+       ssConnections++;   //increment number of active connections
+       console.log('Screen onstream 2:',stream);
+       $('#screen-content2').append(stream.mediaElement);
+       screenStream[2] = stream;
+       stream.mediaElement.id = 'screen-video2';
+       stream.mediaElement.controls = false;
+       screenName[2] = stream.extra.name;
+       ssMax(2);   
+   }
  }
 };
 
 // remove video if someone leaves
 screenConnection2.onstreamended = function(e) {
 	if (mode != 'slave') {
-	  ssConnections--;  //  reduce number of active connections 
-	  console.log('ss stream ended 2: share screen ended');
-	  jQuery('#ssarea2').empty();  //I need to remove more than just parent but what?
-	  now.sendMSMsg('endSSControl',2);
+      if (!noWebRTC){ 
+    	  ssConnections--;  //  reduce number of active connections 
+    	  console.log('ss stream ended 2: share screen ended');
+    	  jQuery('#ssarea2').empty();  //I need to remove more than just parent but what?
+    	  now.sendMSMsg('endSSControl',2);
+      }
     }
 };
 
@@ -927,41 +952,50 @@ screenConnection3.enableSessionReinitiation = false;
 screenConnection3.firebase = 'kolabria';
 
 screenConnection3.onNewSession = function (session) { 
-	if (mode != 'slave') {      
-      console.log('onNewSession-screen 3: ', session); 
-       if (!isScreenShareInitiator[3]) {
+	if (mode != 'slave') {    
+      if (!noWebRTC){   
+          console.log('onNewSession-screen 3: ', session); 
+           if (!isScreenShareInitiator[3]) {
          
-         jQuery('#ssarea3').append('<div id="screen-content3"></div><div id="captureArea3" style="border:none"><canvas id="imageView3" class="imageView" width="1000" height="560"></canvas></div>');
-         screenName[3] = session.extra.name;
-         screenConnection3.join(session);
+             jQuery('#ssarea3').append('<div id="screen-content3"></div><div id="captureArea3" style="border:none"><canvas id="imageView3" class="imageView" width="1000" height="560"></canvas></div>');
+             screenName[3] = session.extra.name;
+             screenConnection3.join(session);
+           }
+           else{
+    	     screenShareActive = true;
+             jQuery('#ssShare').html('<h4>Close</h4>');
+           }
        }
-       else{
-	     screenShareActive = true;
-         jQuery('#ssShare').html('<h4>Close</h4>');
+       else {
+           alert('Another user has shared their screen.  Your browser or device does not support this funcitonality.');
        }
     }
 };
 
 screenConnection3.onstream = function (stream) {
  if (mode != 'slave') { 
-   ssConnections++;   //increment number of active connections
-   console.log('Screen onstream 1:',stream);
-   $('#screen-content3').append(stream.mediaElement);
-   screenStream[3] = stream;
-   stream.mediaElement.id = 'screen-video3';
-   stream.mediaElement.controls = false;
-   screenName[3] = stream.extra.name;
-   ssMax(3);   
+   if (!noWebRTC){ 
+       ssConnections++;   //increment number of active connections
+       console.log('Screen onstream 1:',stream);
+       $('#screen-content3').append(stream.mediaElement);
+       screenStream[3] = stream;
+       stream.mediaElement.id = 'screen-video3';
+       stream.mediaElement.controls = false;
+       screenName[3] = stream.extra.name;
+       ssMax(3);   
+   }
  }
 };
 
 // remove video if someone leaves
 screenConnection3.onstreamended = function(e) {
 	if (mode != 'slave') {
-	  ssConnections--;  //  reduce number of active connections 
-	  console.log('ss stream ended 3: share screen ended');
-	  jQuery('#ssarea3').empty();  
-	  now.sendMSMsg('endSSControl',3);
+      if (!noWebRTC){ 
+    	  ssConnections--;  //  reduce number of active connections 
+    	  console.log('ss stream ended 3: share screen ended');
+    	  jQuery('#ssarea3').empty();  
+    	  now.sendMSMsg('endSSControl',3);
+          }
     }
 };
 
@@ -987,41 +1021,47 @@ jQuery('#ShareScreen li').click(function(e){
 		     break; 
         	}
           if (mode != 'slave'){
-	        if (ssConnections < maxNumSS) {
-               console.log('Open Screen - index: ',ssConnections);
-               var i = myssConnection = ssConnections+1;
-               jQuery('#ssarea'+i).append('<div id="screen-content'+i+'"></div><div id="captureArea'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
-              // jQuery('#ssarea'+i).append('<section id="screen-container'+i+'"></section><div id="container'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
-               $('#screen-content'+i ).hide();
-               switch (myssConnection){
-	             case 1:
-	                 screenConnection1.extra = {
-				       name: name,
-				     };     
-	                 screenConnection1.open('screen1'+wallId);
-	               break;
-	              case 2:
-	                 screenConnection2.extra = {
-				       name: name,
-				     };     
-	                 screenConnection2.open('screen2'+wallId);
-	               break;
-	               case 3:
-	                 screenConnection3.extra = {
-				       name: name,
-				     };     
-	                 screenConnection3.open('screen3'+wallId);
-	               break;
-               }
-                isScreenShareInitiator[myssConnection] = true;  
+            if (!noWebRTC){ 
+    	        if (ssConnections < maxNumSS) {
+                   console.log('Open Screen - index: ',ssConnections);
+                   var i = myssConnection = ssConnections+1;
+                   jQuery('#ssarea'+i).append('<div id="screen-content'+i+'"></div><div id="captureArea'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
+                  // jQuery('#ssarea'+i).append('<section id="screen-container'+i+'"></section><div id="container'+i+'" style="border:none"><canvas id="imageView'+i+'" class="imageView" width="1000" height="560"></canvas></div>');
+                   $('#screen-content'+i ).hide();
+                   switch (myssConnection){
+    	             case 1:
+    	                 screenConnection1.extra = {
+    				       name: name,
+    				     };     
+    	                 screenConnection1.open('screen1'+wallId);
+    	               break;
+    	              case 2:
+    	                 screenConnection2.extra = {
+    				       name: name,
+    				     };     
+    	                 screenConnection2.open('screen2'+wallId);
+    	               break;
+    	               case 3:
+    	                 screenConnection3.extra = {
+    				       name: name,
+    				     };     
+    	                 screenConnection3.open('screen3'+wallId);
+    	               break;
+                   }
+                    isScreenShareInitiator[myssConnection] = true;  
             
-               now.actionMeeting(wallId, name, 'goSS');  // log action on server 
-               screenShareActive = true;
-	           jQuery('#ssShare').html('<h4>Close</h4>');
+                   now.actionMeeting(wallId, name, 'goSS');  // log action on server 
+                   screenShareActive = true;
+    	           jQuery('#ssShare').html('<h4>Close</h4>');
+ 
+                }
+                else {
+    	           console.log("maximum number of ss reached: connections",ssConnections);
+    	           alert('Maximum number of screens have already been shared');
+                }
             }
             else {
-	           console.log("maximum number of ss reached: connections",ssConnections);
-	           alert('Maximum number of screens have already been shared');
+             alert('Your browser or device does not support this funcitonality. ');   
             }
           }
           else {
@@ -1217,69 +1257,76 @@ sizeVideo = function() {
 }
 
 VCConnection.onNewSession = function (session) {  
-	 if (mode != 'slave') {    
-        console.log('onNewSession-VC: ', session); 
-         if (!isVCInitiator) {
-           jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
-           $("#videoconf").addClass("videocontainer")
-               .width($(window).width()/3)
-               .draggable(	{
-					    drag: function (e, ui) {
-						     var data = {top: ui.position.top, left: ui.position.left};
-						     now.sendMSMsg('videoControlDrag',data);
-					    }
-					});
+	   if (mode != 'slave') {    
+           if (!noWebRTC){ 
+            console.log('onNewSession-VC: ', session); 
+             if (!isVCInitiator) {
+               jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');
+               $("#videoconf").addClass("videocontainer")
+                   .width($(window).width()/3)
+                   .draggable(	{
+    					    drag: function (e, ui) {
+    						     var data = {top: ui.position.top, left: ui.position.left};
+    						     now.sendMSMsg('videoControlDrag',data);
+    					    }
+    					});
          
-           VCSession = session;
-           VCConnection.join(session);
+               VCSession = session;
+               VCConnection.join(session);
 
-           VCActive = true;
-           jQuery('#vcCall').html('<h4>HangUp</h4>');
-           now.sendMSMsg('recRemoteVideoCall');
-         }
+               VCActive = true;
+               jQuery('#vcCall').html('<h4>HangUp</h4>');
+               now.sendMSMsg('recRemoteVideoCall');
+             }
  
-         VCSession = session;
+             VCSession = session;
+         }
+         else {
+             alert('Another user has started a video conference.  Your browser or device does not support this funcitonality. ');
+         }
       }
 };
 
 VCConnection.onstream = function (stream) {
 	if (mode != 'slave') {
-	  console.log('Video onstream:',stream);
-	  var video = document.createElement('div');
-      video.className = 'video-container';
-      video.id = stream.userid; 
-      console.log('stream id: ',stream.userid);
-      video.appendChild(stream.mediaElement);
-      if (stream.type === 'local') {
-          localStream = stream;
-          document.getElementById('local-video-container').appendChild(video);
+      if (!noWebRTC){ 
+    	  console.log('Video onstream:',stream);
+    	  var video = document.createElement('div');
+          video.className = 'video-container';
+          video.id = stream.userid; 
+          console.log('stream id: ',stream.userid);
+          video.appendChild(stream.mediaElement);
+          if (stream.type === 'local') {
+              localStream = stream;
+              document.getElementById('local-video-container').appendChild(video);
          
-          var middle = $(window).width()/2;
-          stream.mediaElement.width = middle/2 ;  
-		  stream.mediaElement.height = middle/2/1.7778;
-		  stream.mediaElement.muted = true; 
-		  stream.mediaElement.controls = false;
+              var middle = $(window).width()/2;
+              stream.mediaElement.width = middle/2 ;  
+    		  stream.mediaElement.height = middle/2/1.7778;
+    		  stream.mediaElement.muted = true; 
+    		  stream.mediaElement.controls = false;
 		
-		  sizeVideo();
-		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    		  sizeVideo();
+    		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
          
-      }
-      if (stream.type === 'remote') {
-          remoteVCStreams.push(stream);
-          var remoteVideosContainer = document.getElementById('remote-videos-container');
-          remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+          }
+          if (stream.type === 'remote') {
+              remoteVCStreams.push(stream);
+              var remoteVideosContainer = document.getElementById('remote-videos-container');
+              remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
  
-          var videosize = ($(window).width()/2*3)/4;
-	 	  stream.mediaElement.width = videosize ;
-		  stream.mediaElement.height = videosize/1.7778;
-		  stream.mediaElement.controls = false;
+              var videosize = ($(window).width()/2*3)/4;
+    	 	  stream.mediaElement.width = videosize ;
+    		  stream.mediaElement.height = videosize/1.7778;
+    		  stream.mediaElement.controls = false;
 		 
-		  sizeVideo();
-          //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
-	      //stream.mediaElement.height = remoteVideoSize ;
-		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
+    		  sizeVideo();
+              //stream.mediaElement.width = remoteVideoSize ;   //keep for video window controls
+    	      //stream.mediaElement.height = remoteVideoSize ;
+    		  var newTop = jQuery('#ssarea').height() + jQuery('#videoconf').height();
  
-      }
+          }
+        }
     }
 };
 
@@ -1290,9 +1337,11 @@ VCConnection.onstreamended = function(e) {
 
 VCConnection.onUserLeft = function(userid) {
 	if (mode != 'slave') {
-	  console.log('Left - userid: ',userid);
-	  var video = document.getElementById(userid);
-	  if(video) video.parentNode.removeChild(video);
+      if (!noWebRTC){ 
+    	  console.log('Left - userid: ',userid);
+    	  var video = document.getElementById(userid);
+    	  if(video) video.parentNode.removeChild(video);
+      }
     }
 };
 //  this doesn't do anything  I think never gets fired. 
@@ -1326,21 +1375,27 @@ jQuery('#vconf li').click(function(e){
 		     window.alert('Chrome is needed for this function.  The following people are using a browser other than Chrome: '+ badPeople);
 		     break; 
         	}
-              $("#videoconf").addClass("videocontainer")
-			      .width($(window).width()/3)
-			      .draggable({
-					    drag: function (e, ui) {
-						     var data = {top: ui.position.top, left: ui.position.left};
-						     now.sendMSMsg('videoControlDrag',data);
-					    }
-					});
+
             if (mode != 'slave') {
-	      	  console.log('Open VC');
+                if (!noWebRTC){ 
+                    $("#videoconf").addClass("videocontainer")
+      			      .width($(window).width()/3)
+      			      .draggable({
+      					    drag: function (e, ui) {
+      						     var data = {top: ui.position.top, left: ui.position.left};
+      						     now.sendMSMsg('videoControlDrag',data);
+      					    }
+      					});
+    	      	  console.log('Open VC');
 	          
-	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');			       
-	          VCConnection.open('video'+wallId);  
-	          isVCInitiator = true;  	          
-	          now.actionMeeting(wallId, name, 'goVC');
+    	          jQuery('#videoconf').append('<section id="remote-videos-container"></section><section id="local-video-container"></section>');			       
+    	          VCConnection.open('video'+wallId);  
+    	          isVCInitiator = true;  	          
+    	          now.actionMeeting(wallId, name, 'goVC');
+                }
+                else {
+                    alert('Your browser or device does not support this funcitonality. ');   
+                }
             }
             else {
 	          now.sendMSMsg('startVC');
@@ -1436,49 +1491,58 @@ audioConnection.userid = name;
 //audioConnection.preferSCTP = false; 
 
 audioConnection.onNewSession = function (session) {  
-	 if (mode != 'slave') {    
-        console.log('onNewSession-audio: ', session); 
-         if (!isAudioInitiator) {
-           audioConnection.join(session);
-           audioCallActive = true;
-           jQuery('#audioarea').show();
-           $('#audioStartCtl').hide();
-           $('#audioStopCtl').show();
-           audioUIVisible = true;
-           $('#audioCall').addClass('btn-success');
-         }
+	 if (mode != 'slave') {   
+        if (!noWebRTC){  
+            console.log('onNewSession-audio: ', session); 
+             if (!isAudioInitiator) {
+               audioConnection.join(session);
+               audioCallActive = true;
+               jQuery('#audioarea').show();
+               $('#audioStartCtl').hide();
+               $('#audioStopCtl').show();
+               audioUIVisible = true;
+               $('#audioCall').addClass('btn-success');
+             }
+        }
+        else{
+            alert('Another user has started an audio conference.  Your browser or device does not support this funcitonality. ');
+        }
       }
 };
 
 
 audioConnection.onstream = function(e) {
 	if (mode != 'slave') { 
-       console.log('audioConnection on Stream');
-       audioContainer.insertBefore(e.mediaElement, audioContainer.firstChild);
-       if (e.type === 'local')
-          console.log('local stream');
-       if (e.type === 'remote')
-         console.log('remote stream');
-       console.log(e.userid+' has joined audio conf: ',e.type);
-       $('#audioTable tr:last').after('<tr class="user '+e.streamid+'"><td style="font-weight:bold">'+e.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
-        //jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
-       var data = {streamid: e.streamid, userid: e.userid};
-       now.sendMSMsg('audioCallAddParticipant',data);
+       if (!noWebRTC){ 
+           console.log('audioConnection on Stream');
+           audioContainer.insertBefore(e.mediaElement, audioContainer.firstChild);
+           if (e.type === 'local')
+              console.log('local stream');
+           if (e.type === 'remote')
+             console.log('remote stream');
+           console.log(e.userid+' has joined audio conf: ',e.type);
+           $('#audioTable tr:last').after('<tr class="user '+e.streamid+'"><td style="font-weight:bold">'+e.userid+'</td><td>Connected</td><td><a class="btn btn-small">Mute</a></td><td><a class="btn btn-small">Hold </a></td></tr>');
+            //jQuery('#audioarea').find('ul').append('<li class="user '+e.streamid+'">'+e.userid+'</li>');
+           var data = {streamid: e.streamid, userid: e.userid};
+           now.sendMSMsg('audioCallAddParticipant',data);
+       }
      }
  };
 
 audioConnection.onstreamended = function(e) {
 	if (mode != 'slave') { 
-       console.log('audioConnection stream ended');
-       if (e.mediaElement.parentNode) {
-           e.mediaElement.parentNode.removeChild(e.mediaElement); 
+       if (!noWebRTC){ 
+           console.log('audioConnection stream ended');
+           if (e.mediaElement.parentNode) {
+               e.mediaElement.parentNode.removeChild(e.mediaElement); 
+           }
+           caller = jQuery('#audioarea').find('.'+e.streamid);
+           if (caller.length){
+             jQuery(caller).detach()
+           }
+           var data = {streamid: e.streamid};
+           now.sendMSMsg('audioCallDelParticipant',data);
        }
-       caller = jQuery('#audioarea').find('.'+e.streamid);
-       if (caller.length){
-         jQuery(caller).detach()
-       }
-       var data = {streamid: e.streamid};
-       now.sendMSMsg('audioCallDelParticipant',data);
      }
  };
 
@@ -1531,18 +1595,22 @@ hangUpAudio = function(){
 }
 makeAudioCall = function(){
 	if (mode != 'slave') { 
-	  //  start a web call with other participants -  later have this phone conference bridge 
-      console.log("start call");
-      now.actionMeeting(wallId, name, 'goAC');
-      //$('#audioCallModal').modal('hide');
-      audioCallActive = true;
-      audioConnection.extra = {
-         name: name,
-      };
-    //addAudioUI();
-      audioConnection.open('audio'+wallId); 
-      isAudioInitiator = true;
-
+      if (!noWebRTC){
+    	  //  start a web call with other participants -  later have this phone conference bridge 
+          console.log("start call");
+          now.actionMeeting(wallId, name, 'goAC');
+          //$('#audioCallModal').modal('hide');
+          audioCallActive = true;
+          audioConnection.extra = {
+             name: name,
+          };
+        //addAudioUI();
+          audioConnection.open('audio'+wallId); 
+          isAudioInitiator = true;
+      }
+      else {
+          alert('Your browser or device does not support this funcitonality. ');   
+      }
     }
     if (!remoteMakeAudioCall) {
       now.sendMSMsg('makeAudioCall');
