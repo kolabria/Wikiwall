@@ -45,6 +45,7 @@ block localjs
     var name = "#{userName}"
     var wallURL = "#{wall.shareURL}"
     var mode = 'user';   // master or slave if controller - otherwise user
+    var base = "#{base}";
 
   script(src='//'+base+'/javascripts/canvas-toBlob.min.js')
   script(src='//'+base+'/javascripts/FileSaver.min.js')

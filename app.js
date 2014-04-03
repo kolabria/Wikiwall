@@ -1863,8 +1863,8 @@ app.post('/account/adduser', requiresLogin, function(req,res){
                   Account.findById(user.acctId, function(err, acct ){
                       if (acct){
                           var signupLink = hostname + '/uregister/'+ acct.shareURL + '/';
-                          var htmlmsg = "<p> You have been invited to join Kolabria.  Please click on the link signup.   </p>" + signupLink;
-                          var txtmsg = "You have been invited to join Kolabria.  Please click on the link signup.   " + signupLink;
+                          var htmlmsg = "<p> You have been invited to join Kolabria.  Please click on the link to signup.   </p>" + signupLink;
+                          var txtmsg = "You have been invited to join Kolabria.  Please click on the link to signup.   " + signupLink;
                           // console.log('msg1: ',htmlmsg);
                           // console.log('msg2: ',txtmsg);
                           var message = {
@@ -3467,4 +3467,41 @@ everyone.now.sendGoDraw = function(wallId){
 everyone.now.sendMSMsg = function(msg,data){
   nowjs.getGroup('b'+this.now.boxID).exclude(this.user.clientId).now.recMSMsg(msg,data);
  // console.log('MS message: '+msg+' data: '+data+' group: b'+this.now.boxID);
+}
+
+everyone.now.sendInviteMsg = function(invitedBy, invitemail, surl){
+  // send email to invite person to whiteboard meeting
+  var htmlmsg = "<p> You have been invited by "+invitedBy+" to join a Kolabria Whiteboard meeting.  Please click on the link.   </p><br>" + surl;
+  var txtmsg = "You have been invited by "+invitedBy+" to join a Kolabria Whiteboard meeting.  Please click on the link.   " + surl;
+  // console.log('msg1: ',htmlmsg);
+  // console.log('msg2: ',txtmsg);
+  var message = {
+      "html": htmlmsg,
+      "text": txtmsg,
+      "subject": "Invitaiton to join a Kolabria Whiteboard meeting",
+      "from_email": "support+srv@kolabria.com",
+      "from_name": "Kolabria",
+      "to": [{
+              "email": invitemail,
+          }],
+      "headers": {
+          "Reply-To": "support+srv@kolabria.com"
+      },
+      "important": false,
+      "track_opens": true,
+      "track_clicks": true,
+      "auto_text": true
+
+  };
+
+  mandrill_client.messages.send({"message": message}, function(result) {
+      console.log(result);
+
+  }, function(e) {
+      // Mandrill returns the error as an object with name and message keys
+      console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+      // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+  });
+    
+  
 }

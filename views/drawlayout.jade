@@ -147,7 +147,11 @@ html
       .modal-header
         h3 Share Whiteboard
       .modal-body
-        p Send this link to others to join your meeting
+        input#shareinvite(type='email', placeholder='email to share whiteboard')
+        a.btn.btn-primary(onclick='javascrip:shareinvite()') Share
+        #salert
+        br
+        p Or share this link:
         h4 #{base}/suw/#{wall.shareURL}
       .modal-footer
         a.btn(onclick='javascript:shareLinkClose();') Close

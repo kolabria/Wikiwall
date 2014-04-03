@@ -547,6 +547,14 @@ now.recMSMsg = function(msg,data){
         $(this).detach();
       })
   }
+  
+  shareAlert = function(message){
+    jQuery('<div class="alert fade in">'+message+'</div>')
+      .appendTo('#salert')
+      .delay(2000).slideUp(300, function(){
+        $(this).detach();
+      })
+  }
 
   //Convert Canvas to SVG
   exportCanvas = function(){
@@ -2452,4 +2460,14 @@ shareLinkClose = function(){
 	$('#shareLink').modal('hide');
  }
 
-
+shareinvite = function(){
+    var invited = $('#shareinvite').val();
+    var surl = base+'/suw/'+wallURL;
+    //console.log('email to share to: ',invited);
+    //console.log('link to share: ',surl);
+    $('#shareinvite').val('');
+    msg = invited + ' has been invited to the meeting';
+    now.sendInviteMsg(name, invited,surl);
+    shareAlert(msg);
+    
+}
