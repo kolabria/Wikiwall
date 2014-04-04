@@ -1651,6 +1651,35 @@ audioAddPerson = function() {
 
 audioConnection.connect('audio'+wallId);
 
+/**************  group chat stuff *********/
+
+
+$( "#chatarea" ).draggable();
+
+$( "#chatarea" ).css('z-index','90');
+
+var chatUIVisible = false;
+
+
+jQuery('#chat').click(function(e){
+	  console.log("chat clicked");
+      if (!chatUIVisible) {
+	    jQuery('#chatarea').show();
+	    chatUIVisible = true;
+	  }
+      else {
+	    jQuery('#chatarea').hide();
+	    chatUIVisible = false;
+	  }
+});
+
+jQuery('#sendchat').click(function(e){
+    sendChatMsg();
+});
+
+
+
+
 /************ PPT viewer functions ********/
 
   pptListClose = function(){
@@ -2121,7 +2150,7 @@ window.oncontextmenu = function(event) {
   /******** Event listeners ******/
   //File Drag
 
-  
+/*  
   //keymap
   jQuery(document).keydown(function(event){
     switch (event.which) {
@@ -2181,7 +2210,7 @@ window.oncontextmenu = function(event) {
     }
   });
 
-  
+ */ 
   //delete
   jQuery(document).on('click','.delete-object',function(){ 
 	name = select.target.item.name;
@@ -2471,3 +2500,24 @@ shareinvite = function(){
     shareAlert(msg);
     
 }
+
+// recieved chat messages 
+now.recChatMsg = function(who, message){
+   // console.log('from: '+who+' message: '+message);
+    if (!$('#chararea').is(":visible")) {
+      jQuery('#chatarea').show();   
+      chatUIVisible = true;
+    }
+    $('#messages').append('<ul> <li class="list-unstyled"</li><strong>'+who+': </strong>'+message+' </ul>');
+    $('#messages').animate({"scrollTop": $('#messages')[0].scrollHeight}, "fast");
+}
+
+// send chat messages 
+sendChatMsg = function(){   
+  //  console.log('from: '+name+' message: '+$('#outgoingMessage').val());
+    var who = name;
+    var message = $('#outgoingMessage').val();
+	now.sendChatMsg(who, message);
+    $('#outgoingMessage').val('');	
+ }
+

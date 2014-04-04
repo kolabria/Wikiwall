@@ -18,6 +18,14 @@ html
     #ssarea2
     #ssarea3
     #audioconf
+    #chatarea
+        h3(align='center') Chat
+        div
+         div.inlineBlock
+           form#messageForm
+             input#outgoingMessage.form-control(type='text', placeholder='Enter message', name='message',)
+             input(type="button", value="Send")#sendchat
+        div#messages
     #audioParticipants
       #audioarea.audiolist
         h3(align='center') Conference Call
@@ -89,6 +97,9 @@ html
                 //- button.btn.tool(type='button', onclick='', value='Show')
                   //- i.icon-play-circle 
               //li.btn-group.dropup.hints#vconf(data-toggle='tooltip', title='Video Conference')
+              li
+                button.btn#chat(data-toggle="dropdown", onclick='',value='Chat')
+                  i.icon-comment
               li
                 button.btn#audioCall(data-toggle="dropdown")
                   img(src='/img/icon-phone.png')

@@ -3503,5 +3503,9 @@ everyone.now.sendInviteMsg = function(invitedBy, invitemail, surl){
       // A mandrill error occurred: Unknown_Subaccount - No subaccount exists with the id 'customer-123'
   });
     
-  
+}
+// send chat message to everyone else
+everyone.now.sendChatMsg = function(who,msg){
+  //nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).exclude(this.user.clientId).now.recChatMsg(who,msg);
+  nowjs.getGroup('c'+this.now.companyId+'u'+this.now.wallId).now.recChatMsg(who,msg);
 }
